@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "packs": [
+    "library.json",
+    "styles.json"
+  ]
+}
