@@ -171,3 +171,17 @@ body.left-closed{--left:0px}body.left-closed .left-panel{display:none}body.right
 .svg-source-help strong,.svg-source-help span{grid-column:1}
 .svg-source-help .compact-btn{grid-column:2;grid-row:1/3;align-self:stretch;min-width:132px}
 @media(max-width:620px){.svg-palette-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.svg-source-help{grid-template-columns:1fr}.svg-source-help .compact-btn{grid-column:1;grid-row:auto}}
+
+/* v1.5.7 library simplification */
+.smart-tool-strip{display:none!important}
+.library-toolbar>.library-category-slot{flex:0 0 auto;display:block;min-height:0;height:auto;padding:0 12px 10px;overflow:visible}
+.library-category-control{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:8px;width:100%;min-height:36px;padding:0 9px;border:1px solid var(--border);border-radius:9px;background:var(--panel-2)}
+.library-category-control>span{font-size:9px;font-weight:800;color:var(--muted);white-space:nowrap}
+.library-category-control select{width:100%;min-width:0;height:32px;border:0;background:transparent;color:var(--text);font-size:10px;font-weight:750;outline:0}
+.browser-category-slot{padding:0 0 10px}
+.browser-category-slot .library-category-control{max-width:340px}
+.library-toolbar{overflow:visible}
+.library-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}
+.library-control-row{grid-template-columns:minmax(0,1fr) 74px}
+.left-panel>.panel-scroll{padding-top:10px!important}
+@media(max-width:1280px){.library-category-control{min-height:34px}.library-category-control select{height:30px}}
