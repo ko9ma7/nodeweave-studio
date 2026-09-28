@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NodeWeave Catalog Admin</title>
+<style>
+:root{font-family:Inter,Pretendard,system-ui,sans-serif;color:#172033;background:#f5f7fb}*{box-sizing:border-box}body{margin:0}button,input,select,textarea{font:inherit}button{cursor:pointer}.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:12px 18px;background:#fff;border-bottom:1px solid #dce2ea}.top a{color:#5b5cf0;text-decoration:none;font-weight:800}.top strong{font-size:15px}.status{margin-left:auto;color:#667085;font-size:12px}.wrap{max-width:1260px;margin:auto;padding:20px}.hero{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:end;margin-bottom:18px}.hero h1{margin:0 0 6px;font-size:26px}.hero p{margin:0;color:#667085;line-height:1.55}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid #cfd7e3;background:#fff;color:#172033;border-radius:10px;padding:9px 12px;font-weight:750}.btn.primary{background:#5b5cf0;border-color:#5b5cf0;color:#fff}.btn.danger{color:#b42318}.tabs{display:flex;gap:6px;margin:14px 0}.tab{border:1px solid #d8dee8;background:#fff;border-radius:999px;padding:8px 13px;font-weight:800;color:#667085}.tab.on{border-color:#5b5cf0;color:#5b5cf0;background:#f0efff}.grid{display:grid;grid-template-columns:360px minmax(0,1fr);gap:16px}.card{background:#fff;border:1px solid #dce2ea;border-radius:14px;padding:15px;box-shadow:0 6px 20px #1822300a}.card h2{margin:0 0 10px;font-size:15px}.field{display:grid;gap:5px;margin:10px 0;font-size:11px;font-weight:750;color:#667085}.field input,.field select,.field textarea{width:100%;border:1px solid #d5dce7;border-radius:9px;background:#f8fafc;padding:9px;color:#172033}.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.drop{display:grid;place-items:center;min-height:160px;border:2px dashed #b8c3d3;border-radius:14px;background:#f8fafc;text-align:center;padding:18px;transition:.15s}.drop.hot{border-color:#5b5cf0;background:#f0efff}.drop strong{display:block;margin-bottom:6px}.drop span{color:#667085;font-size:12px;line-height:1.5}.drop input{display:none}.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:10px}.toolbar input{flex:1;border:1px solid #d5dce7;border-radius:9px;padding:9px;background:#fff}.chips{display:flex;gap:6px;overflow:auto;margin-bottom:12px}.chip{flex:0 0 auto;border:1px solid #dce2ea;border-radius:999px;background:#fff;padding:6px 10px;font-size:11px}.chip.on{border-color:#5b5cf0;color:#5b5cf0}.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}.item{position:relative;display:grid;gap:7px;border:1px solid #dce2ea;border-radius:12px;background:#fff;padding:11px;min-height:150px}.preview{display:grid;place-items:center;height:78px;border-radius:9px;background:#f7f8fb;overflow:hidden}.preview svg{width:100%;height:100%;max-width:125px;color:#172033}.item strong{font-size:12px}.item small{color:#667085}.item .meta{display:flex;justify-content:space-between;gap:6px;font-size:10px;color:#667085}.item .del{position:absolute;right:7px;top:7px;width:28px;height:28px;border-radius:8px;border:1px solid #e4e7ec;background:#fff;color:#b42318}.jsonbox textarea{min-height:250px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px}.hint{font-size:11px;color:#667085;line-height:1.6}.msg{margin-top:10px;padding:9px 10px;border-radius:9px;background:#f8fafc;color:#475467;font-size:11px;white-space:pre-wrap}.hidden{display:none!important}@media(max-width:850px){.grid{grid-template-columns:1fr}.hero{grid-template-columns:1fr}.list{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}}
+</style>
+</head>
+<body>
+<header class="top"><a href="./">← NodeWeave</a><strong>Catalog Admin</strong><span class="status" id="status">loading…</span></header>
+<main class="wrap">
+<section class="hero"><div><h1>SVG · 블록 · 템플릿 관리</h1><p>이 페이지에서 SVG를 여러 개 추가하고 JSON을 내려받으세요. 이후 GitHub의 <code>catalog/library.json</code> 한 파일만 교체하면 에디터가 자동으로 읽습니다.</p></div><div class="actions"><button class="btn" id="apply">이 브라우저에 시험 적용</button><button class="btn primary" id="download">library.json 다운로드</button></div></section>
+<div class="tabs"><button class="tab on" data-tab="assets">SVG 자산</button><button class="tab" data-tab="templates">템플릿</button><button class="tab" data-tab="json">JSON 병합</button></div>
+
+<section data-panel="assets">
+<div class="grid">
+<div class="card">
+<h2>SVG 여러 개 추가</h2>
+<label class="drop" id="drop"><input id="files" type="file" accept=".svg,image/svg+xml" multiple><div><strong>SVG 파일을 여기에 놓으세요</strong><span>여러 파일 동시 가능 · 페이지가 SVG로 이동하지 않도록 전역 드롭을 차단합니다.<br>클릭해서 파일을 선택할 수도 있습니다.</span></div></label>
+<div class="row"><label class="field">기본 모드<select id="mode"><option value="icon">그림 / 아이콘</option><option value="block">텍스트 블록</option></select></label><label class="field">카테고리<input id="category" value="Custom"></label></div>
+<label class="field">기본 검색 키워드<input id="keywords" placeholder="people, life, planning…"></label>
+<label class="field">블록 기본 텍스트<input id="defaultText" placeholder="SVG가 block일 때 표시할 글씨"></label>
+<div class="msg" id="uploadMsg">SVG 파일을 추가하면 여기에서 결과를 확인할 수 있습니다.</div>
+<hr style="border:0;border-top:1px solid #eaecf0;margin:16px 0">
+<h2>SVG 코드 직접 추가</h2>
+<label class="field">이름<input id="name" placeholder="생각 구름"></label>
+<label class="field">ID<input id="id" placeholder="thought-cloud"></label>
+<label class="field">SVG 코드<textarea id="svgText" rows="7" placeholder="<svg viewBox='0 0 100 100'>…</svg>"></textarea></label>
+<button class="btn primary" id="addTextSvg">목록에 추가</button>
+</div>
+<div class="card">
+<div class="toolbar"><input id="assetSearch" type="search" placeholder="SVG 검색"><span id="assetCount"></span></div>
+<div class="chips" id="assetChips"></div>
+<div class="list" id="assetList"></div>
+</div>
+</div>
+</section>
+
+<section data-panel="templates" class="hidden">
+<div class="grid">
+<div class="card">
+<h2>NodeWeave 프로젝트 JSON → 템플릿</h2>
+<p class="hint">에디터에서 원하는 생활계획표나 재미있는 구성을 만든 뒤 JSON으로 내보내고 여기에서 선택하세요. 노드와 연결선이 그대로 템플릿에 들어갑니다.</p>
+<label class="field">프로젝트 JSON<input id="projectFile" type="file" accept=".json,.nodeweave,application/json"></label>
+<div class="row"><label class="field">템플릿 이름<input id="tplName" placeholder="나의 주간 계획표"></label><label class="field">카테고리<input id="tplCategory" value="Custom"></label></div>
+<label class="field">키워드<input id="tplKeywords" placeholder="weekly life planner"></label>
+<label class="field">테마<select id="tplTheme"><option>minimal</option><option>paper</option><option>soft</option><option>blueprint</option><option>dark</option><option>contrast</option></select></label>
+<button class="btn primary" id="addTemplate">템플릿으로 추가</button>
+<div class="msg" id="tplMsg">프로젝트 JSON을 선택하세요.</div>
+</div>
+<div class="card"><div class="toolbar"><input id="tplSearch" type="search" placeholder="템플릿 검색"><span id="tplCount"></span></div><div class="list" id="tplList"></div></div>
+</div>
+</section>
+
+<section data-panel="json" class="hidden">
+<div class="grid jsonbox">
+<div class="card"><h2>외부 JSON 병합 / 교체</h2><p class="hint"><code>{"svgAssets":[…],"templates":[…]}</code> 형식입니다. 같은 ID는 새 데이터로 교체됩니다.</p><label class="field">JSON 파일<input id="jsonFile" type="file" accept=".json,application/json"></label><label class="field">또는 JSON 붙여넣기<textarea id="jsonInput"></textarea></label><div class="actions"><button class="btn" id="merge">병합</button><button class="btn danger" id="replace">전체 교체</button></div></div>
+<div class="card"><h2>현재 완성 JSON</h2><textarea id="jsonOutput" readonly></textarea><div class="actions"><button class="btn" id="copy">클립보드 복사</button><button class="btn" id="clearPreview">브라우저 시험 적용 지우기</button></div></div>
+</div>
+</section>
+</main>
+<script>
+const $=q=>document.querySelector(q), $$=q=>[...document.querySelectorAll(q)];
+const KEY='nodeweave.catalog.preview.v1';
+let catalog={schemaVersion:1,svgAssets:[],templates:[]}, project=null, assetCat='all';
+const slug=s=>String(s||'item').trim().toLowerCase().normalize('NFKD').replace(/[^a-z0-9가-힣]+/g,'-').replace(/^-|-$/g,'')||('item-'+Date.now());
+function toast(t){$('#status').textContent=t;setTimeout(()=>$('#status').textContent='ready',2600)}
+function safeSvg(text){
+ const d=new DOMParser().parseFromString(text,'image/svg+xml'); if(d.querySelector('parsererror')||d.documentElement.nodeName.toLowerCase()!=='svg') throw Error('올바른 SVG가 아닙니다.');
+ const root=d.documentElement; root.querySelectorAll('script,foreignObject,iframe,object,embed,style').forEach(x=>x.remove());
+ root.querySelectorAll('*').forEach(el=>[...el.attributes].forEach(a=>{const n=a.name.toLowerCase(),v=a.value;if(n.startsWith('on')||/javascript:/i.test(v)||(/^(href|xlink:href)$/i.test(n)&&v&&!v.startsWith('#')))el.removeAttribute(a.name)}));
+ const vb=root.getAttribute('viewBox')||('0 0 '+(parseFloat(root.getAttribute('width'))||100)+' '+(parseFloat(root.getAttribute('height'))||100));
+ return {viewBox:vb,content:root.innerHTML};
+}
+function mergeById(a,b){const m=new Map(a.map(x=>[x.id,x]));for(const x of b||[])if(x&&x.id)m.set(x.id,{...(m.get(x.id)||{}),...x});return [...m.values()]}
+function normalizeIncoming(x){return {schemaVersion:1,svgAssets:Array.isArray(x?.svgAssets)?x.svgAssets:[],templates:Array.isArray(x?.templates)?x.templates:[]}}
+function mergeCatalog(x,replace=false){x=normalizeIncoming(x);catalog=replace?x:{schemaVersion:1,svgAssets:mergeById(catalog.svgAssets,x.svgAssets),templates:mergeById(catalog.templates,x.templates)};render();toast(replace?'JSON 전체 교체 완료':'JSON 병합 완료')}
+async function load(){try{const r=await fetch('./catalog/library.json?ts='+Date.now(),{cache:'no-store'});if(r.ok)catalog=normalizeIncoming(await r.json())}catch{}render();toast('repository catalog loaded')}
+function addAsset({name,id,svg,mode,category,keywords,defaultText}){const s=safeSvg(svg), item={id:slug(id||name),label:name||id||'SVG',category:category||'Custom',keywords:keywords||'',mode:mode||'icon',defaultText:mode==='block'?(defaultText||name||'텍스트'):'',w:mode==='block'?210:120,h:mode==='block'?140:120,viewBox:s.viewBox,content:s.content};catalog.svgAssets=mergeById(catalog.svgAssets,[item]);render()}
+async function handleFiles(files){let ok=0,fail=[];for(const f of files){try{if(f.size>3*1024*1024)throw Error('3MB 초과');const text=await f.text();addAsset({name:f.name.replace(/\.svg$/i,''),id:slug(f.name.replace(/\.svg$/i,'')),svg:text,mode:$('#mode').value,category:$('#category').value.trim()||'Custom',keywords:$('#keywords').value.trim(),defaultText:$('#defaultText').value.trim()});ok++}catch(e){fail.push(f.name+': '+e.message)}}$('#uploadMsg').textContent='성공 '+ok+'개'+(fail.length?' · 실패 '+fail.length+'개\n'+fail.join('\n'):'');toast('SVG '+ok+'개 추가')}
+function assetPreview(x){return '<svg viewBox="'+(x.viewBox||'0 0 100 100')+'" aria-hidden="true" color="currentColor">'+(x.content||'')+'</svg>'}
+function render(){
+ const q=$('#assetSearch')?.value.toLowerCase()||'', cats=['all',...new Set(catalog.svgAssets.map(x=>x.category||'Other'))];
+ $('#assetChips').innerHTML=cats.map(c=>'<button class="chip '+(assetCat===c?'on':'')+'" data-cat="'+c+'">'+(c==='all'?'전체':c)+'</button>').join('');
+ const aa=catalog.svgAssets.filter(x=>(assetCat==='all'||x.category===assetCat)&&(!q||((x.label+' '+x.keywords+' '+x.category).toLowerCase().includes(q))));
+ $('#assetCount').textContent=aa.length+' / '+catalog.svgAssets.length;
+ $('#assetList').innerHTML=aa.map(x=>'<article class="item"><button class="del" data-del-asset="'+x.id+'">×</button><div class="preview">'+assetPreview(x)+'</div><strong>'+esc(x.label)+'</strong><div class="meta"><span>'+esc(x.category||'')+'</span><span>'+esc(x.mode||'icon')+'</span></div><small>'+esc(x.id)+'</small></article>').join('');
+ const tq=$('#tplSearch')?.value.toLowerCase()||'', tt=catalog.templates.filter(x=>!tq||((x.name+' '+x.category+' '+(x.keywords||'')).toLowerCase().includes(tq)));
+ $('#tplCount').textContent=tt.length+' / '+catalog.templates.length;
+ $('#tplList').innerHTML=tt.map(x=>'<article class="item"><button class="del" data-del-tpl="'+x.id+'">×</button><strong>'+esc(x.name)+'</strong><div class="meta"><span>'+esc(x.category||'')+'</span><span>'+((x.nodes||[]).length)+' nodes</span></div><small>'+esc(x.id)+'</small></article>').join('');
+ $('#jsonOutput').value=JSON.stringify({...catalog,updatedAt:new Date().toISOString()},null,2);
+}
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+document.addEventListener('dragover',e=>{e.preventDefault()});document.addEventListener('drop',e=>{e.preventDefault()});
+const drop=$('#drop');['dragenter','dragover'].forEach(n=>drop.addEventListener(n,e=>{e.preventDefault();drop.classList.add('hot')}));['dragleave','drop'].forEach(n=>drop.addEventListener(n,()=>drop.classList.remove('hot')));drop.addEventListener('drop',e=>handleFiles([...e.dataTransfer.files].filter(f=>f.type==='image/svg+xml'||/\.svg$/i.test(f.name))));drop.addEventListener('click',()=>$('#files').click());$('#files').addEventListener('change',e=>{handleFiles([...e.target.files]);e.target.value=''});
+$('#addTextSvg').onclick=()=>{try{addAsset({name:$('#name').value.trim()||'SVG',id:$('#id').value.trim(),svg:$('#svgText').value,mode:$('#mode').value,category:$('#category').value.trim(),keywords:$('#keywords').value.trim(),defaultText:$('#defaultText').value.trim()});$('#svgText').value='';toast('SVG 코드 추가 완료')}catch(e){$('#uploadMsg').textContent=e.message}};
+$('#assetSearch').oninput=render;$('#assetChips').onclick=e=>{const b=e.target.closest('[data-cat]');if(b){assetCat=b.dataset.cat;render()}};$('#assetList').onclick=e=>{const b=e.target.closest('[data-del-asset]');if(b){catalog.svgAssets=catalog.svgAssets.filter(x=>x.id!==b.dataset.delAsset);render()}};$('#tplList').onclick=e=>{const b=e.target.closest('[data-del-tpl]');if(b){catalog.templates=catalog.templates.filter(x=>x.id!==b.dataset.delTpl);render()}};
+$('#projectFile').onchange=async e=>{try{project=JSON.parse(await e.target.files[0].text());$('#tplName').value=project?.meta?.name||'';$('#tplMsg').textContent=(project.nodes?.length||0)+' nodes · '+(project.edges?.length||0)+' edges 읽음'}catch{$('#tplMsg').textContent='프로젝트 JSON을 읽지 못했습니다.'}};
+$('#addTemplate').onclick=()=>{if(!project||!Array.isArray(project.nodes))return toast('프로젝트 JSON을 먼저 선택하세요');const name=$('#tplName').value.trim()||project.meta?.name||'Custom template',id=slug(name);const t={id,name,category:$('#tplCategory').value.trim()||'Custom',keywords:$('#tplKeywords').value.trim(),theme:$('#tplTheme').value,nodes:project.nodes,edges:Array.isArray(project.edges)?project.edges:[]};catalog.templates=mergeById(catalog.templates,[t]);render();toast('템플릿 추가 완료')};$('#tplSearch').oninput=render;
+$('#jsonFile').onchange=async e=>{try{$('#jsonInput').value=await e.target.files[0].text();toast('JSON 파일 읽음')}catch{}};$('#merge').onclick=()=>{try{mergeCatalog(JSON.parse($('#jsonInput').value),false)}catch(e){toast('JSON 오류: '+e.message)}};$('#replace').onclick=()=>{try{mergeCatalog(JSON.parse($('#jsonInput').value),true)}catch(e){toast('JSON 오류: '+e.message)}};
+$('#copy').onclick=async()=>{await navigator.clipboard.writeText($('#jsonOutput').value);toast('JSON 복사 완료')};$('#apply').onclick=()=>{localStorage.setItem(KEY,JSON.stringify(catalog));toast('이 브라우저에 시험 적용됨 · 에디터 새로고침')};$('#clearPreview').onclick=()=>{localStorage.removeItem(KEY);toast('브라우저 시험 적용 제거')};$('#download').onclick=()=>{const blob=new Blob([$('#jsonOutput').value+'\n'],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='library.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+$$('.tab').forEach(b=>b.onclick=()=>{$$('.tab').forEach(x=>x.classList.toggle('on',x===b));$$('[data-panel]').forEach(p=>p.classList.toggle('hidden',p.dataset.panel!==b.dataset.tab));render()});
+load();
+</script>
+</body>
+</html>
