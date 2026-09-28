@@ -1,7 +1,10 @@
 import { BUILTIN_ICONS, DEFAULT_SETTINGS, SHAPES, THEMES, TEMPLATES } from './catalog.js';
-import { clamp, edgeGeometry, esc, nearestPort, nodeBounds, nodeTextMarkup, portsMarkup, resolveNodeStyle, selectionRectMarkup, shapePrimitive } from './geometry.js';
+import { clamp, diagramStyleDefs, edgeGeometry, esc, nearestPort, nodeBounds, nodeTextMarkup, portsMarkup, resolveNodeStyle, selectionRectMarkup, shapePrimitive } from './geometry.js';
 import { copySvg, exportHtml, exportJson, exportRaster, exportSvg } from './export.js';
 import { deleteProject, listProjects, loadAutosave, loadUiPrefs, saveAutosave, saveProject, saveUiPrefs } from './storage.js';
+import { loadStylePacks } from './style-loader.js';
+
+await loadStylePacks();
 
 const $=(q,root=document)=>root.querySelector(q);
 const $$=(q,root=document)=>[...root.querySelectorAll(q)];
@@ -251,7 +254,7 @@ canvas.addEventListener('pointermove',e=>{
 });
 canvas.addEventListener('pointerup',e=>{
   if(!gesture)return;
-  if(gesture.type==='connect'&&connectPreview){const el=document.elementFromPoint(e.clientX,e.clientY)?.closest?.('[data-node-id]');if(el&&el.dataset.nodeId!==connectPreview.source){const target=doc.nodes.find(n=>n.id===el.dataset.nodeId),world=clientToWorld(e.clientX,e.clientY);const port=nearestPort(target,world);const {source,sourcePort}=connectPreview;connectPreview=null;gesture=null;addEdge(source,sourcePort,target.id,port);return;}connectPreview=null;renderCanvas();}
+  if(gesture.type==='connect'&&connectPreview){const el=document.elementFromPoint(e.clientX,e.clientY)?.closest?.('[data-node-id]');if(el&&el.dataset.nodeId!==connectPreview.source){const target=doc.nodes.find(n=>n.id===el.dataset.nodeId),world=clientToWorld(e.clientX,e.clientY);const port=nearestPort(target,world,doc.tokens);const {source,sourcePort}=connectPreview;connectPreview=null;gesture=null;addEdge(source,sourcePort,target.id,port);return;}connectPreview=null;renderCanvas();}
   else if(gesture.type==='drag'&&gesture.moved){pushHistory(gesture.before);scheduleSave();render();}
   else if(gesture.type==='resize'){pushHistory(gesture.before);scheduleSave();render();}
   else if(gesture.type==='marquee'&&marquee){const dx=Math.abs(e.clientX-gesture.startClient.x),dy=Math.abs(e.clientY-gesture.startClient.y);if(dx<4&&dy<4){if(!marquee.add)selection={nodeIds:[],edgeId:null};}else{const x1=Math.min(marquee.start.x,marquee.current.x),x2=Math.max(marquee.start.x,marquee.current.x),y1=Math.min(marquee.start.y,marquee.current.y),y2=Math.max(marquee.start.y,marquee.current.y);const ids=doc.nodes.filter(n=>n.x+n.w>=x1&&n.x<=x2&&n.y+n.h>=y1&&n.y<=y2).map(n=>n.id);selection.nodeIds=marquee.add?[...new Set([...selection.nodeIds,...ids])]:ids;selection.edgeId=null;}marquee=null;render();}
