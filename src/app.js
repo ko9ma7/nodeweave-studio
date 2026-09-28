@@ -84,8 +84,8 @@ function addNode(type,point=viewportCenterWorld()){
   commit(()=>{doc.nodes.push(node);selection={nodeIds:[node.id],edgeId:null};},`${shape.label} 추가`);
 }
 function addBuiltinIcon(id,point=viewportCenterWorld()){
-  const item=iconById(id),w=112,h=112;
-  const node={id:uid('node'),type:'custom-svg',x:snap(point.x-w/2),y:snap(point.y-h/2),w,h,label:'',style:{iconColor:doc.tokens.text,padding:10},customSvg:{viewBox:item.viewBox,content:item.content,name:item.label,origin:'nodeweave-symbols'}};
+  const item=iconById(id),isBlock=item.mode==='block',w=Number(item.w)||112,h=Number(item.h)||112;
+  const node={id:uid('node'),type:'custom-svg',x:snap(point.x-w/2),y:snap(point.y-h/2),w,h,label:isBlock?(item.defaultText||item.label):'',style:{iconColor:doc.tokens.text,padding:isBlock?2:10},customSvg:{viewBox:item.viewBox,content:item.content,name:item.label,origin:item._managed?'managed-catalog':'nodeweave-symbols',mode:item.mode||'icon',labelPosition:item.labelPosition||'center',sourceUrl:item.sourceUrl||''}};
   commit(()=>{doc.nodes.push(node);selection={nodeIds:[node.id],edgeId:null};},`${item.label} SVG 추가`);
 }
 function moveSelectionZ(mode){if(!selection.nodeIds.length)return;commit(()=>{const ids=new Set(selection.nodeIds),picked=doc.nodes.filter(n=>ids.has(n.id)),rest=doc.nodes.filter(n=>!ids.has(n.id));doc.nodes=mode==='front'?[...rest,...picked]:[...picked,...rest];},mode==='front'?'맨 앞으로':'맨 뒤로');}
@@ -328,6 +328,30 @@ window.addEventListener('paste',e=>{const input=['INPUT','TEXTAREA','SELECT'].in
 window.addEventListener('keyup',e=>{if(e.code==='Space'){spaceDown=false;document.body.classList.remove('is-panning');}});
 window.addEventListener('resize',()=>renderCanvas());
 
+
+async function loadManagedCatalog(){
+  const packs=[];
+  try{
+    const response=await fetch('./catalog/library.json?ts='+Date.now(),{cache:'no-store'});
+    if(response.ok)packs.push(await response.json());
+  }catch(error){console.warn('[catalog] repository catalog unavailable',error);}
+  try{
+    const local=localStorage.getItem('nodeweave.catalog.preview.v1');
+    if(local)packs.push(JSON.parse(local));
+  }catch(error){console.warn('[catalog] local preview invalid',error);}
+  const upsert=(list,item)=>{const i=list.findIndex(x=>x.id===item.id);if(i>=0)list[i]=item;else list.push(item);};
+  for(const pack of packs){
+    for(const raw of Array.isArray(pack?.svgAssets)?pack.svgAssets:[]){
+      if(!raw?.id||!raw?.content)continue;
+      upsert(BUILTIN_ICONS,{...raw,label:raw.label||raw.id,category:raw.category||'Custom',keywords:raw.keywords||'',viewBox:raw.viewBox||'0 0 100 100',mode:raw.mode||'icon',_managed:true});
+    }
+    for(const raw of Array.isArray(pack?.templates)?pack.templates:[]){
+      if(!raw?.id||!Array.isArray(raw.nodes)||!Array.isArray(raw.edges))continue;
+      upsert(TEMPLATES,{...raw,name:raw.name||raw.id,category:raw.category||'Custom',keywords:raw.keywords||'',theme:raw.theme||'minimal'});
+    }
+  }
+}
+
 if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 
-render();setTimeout(fitView,80);
+loadManagedCatalog().finally(()=>{render();setTimeout(fitView,80);});
