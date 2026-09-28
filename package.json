@@ -1,0 +1,37 @@
+{
+  "name": "nodeweave-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SVG-first, local-first diagram editor with design tokens, auto layout, and SVG/PNG/WebP/HTML/JSON export.",
+  "homepage": "https://ko9ma7.github.io/nodeweave-studio/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ko9ma7/nodeweave-studio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ko9ma7/nodeweave-studio/issues"
+  },
+  "license": "MIT",
+  "keywords": [
+    "diagram-editor",
+    "svg-editor",
+    "flowchart",
+    "diagram",
+    "svg",
+    "local-first",
+    "github-pages",
+    "design-tool",
+    "mind-map",
+    "auto-layout"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/check.mjs",
+    "test": "npm run check"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

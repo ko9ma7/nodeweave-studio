@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "meta": {"name": "Example product flow"},
+  "themeId": "minimal",
+  "settings": {"grid": true, "snap": true, "gridSize": 20, "routing": "orthogonal"},
+  "nodes": [
+    {"id":"start","type":"terminator","x":80,"y":160,"w":170,"h":72,"label":"Start"},
+    {"id":"work","type":"process","x":340,"y":154,"w":180,"h":84,"label":"Create workspace"},
+    {"id":"decision","type":"decision","x":620,"y":140,"w":160,"h":112,"label":"Ready?"},
+    {"id":"done","type":"terminator","x":900,"y":160,"w":170,"h":72,"label":"Done"}
+  ],
+  "edges": [
+    {"id":"e1","source":"start","target":"work","sourcePort":"right","targetPort":"left","routing":"orthogonal"},
+    {"id":"e2","source":"work","target":"decision","sourcePort":"right","targetPort":"left","routing":"orthogonal"},
+    {"id":"e3","source":"decision","target":"done","sourcePort":"right","targetPort":"left","routing":"orthogonal","label":"Yes"}
+  ]
+}

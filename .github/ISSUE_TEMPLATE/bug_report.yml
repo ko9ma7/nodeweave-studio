@@ -1,0 +1,38 @@
+name: Bug report
+description: Report a reproducible problem in NodeWeave Studio
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping improve NodeWeave Studio. Please include a small reproducible example when possible.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the problem and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open ...
+        2. Add ...
+        3. Export ...
+        4. See ...
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser, OS, screen size, and whether you used the hosted site or a local build.
+    validations:
+      required: true
+  - type: textarea
+    id: project
+    attributes:
+      label: Optional project data
+      description: Attach a minimal exported .json file if it is safe to share.

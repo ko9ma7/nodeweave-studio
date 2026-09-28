@@ -1,0 +1,14 @@
+{
+  "name": "NodeWeave Studio",
+  "short_name": "NodeWeave",
+  "description": "SVG-first local diagram editor with reusable shapes, design tokens, auto layout, and multi-format export.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f8fb",
+  "theme_color": "#5b5cf0",
+  "icons": [
+    {"src":"./assets/icon-192.png","sizes":"192x192","type":"image/png"},
+    {"src":"./assets/icon-512.png","sizes":"512x512","type":"image/png"}
+  ]
+}

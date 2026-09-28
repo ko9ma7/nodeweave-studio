@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ko" data-ui-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>NodeWeave Studio — SVG-first 다이어그램 편집기</title>
+  <meta name="description" content="연결 가능한 도형, 검색 가능한 템플릿, 디자인 토큰, 자동 레이아웃, SVG·PNG·WebP·HTML 내보내기를 지원하는 로컬 우선 다이어그램 편집기.">
+  <meta name="theme-color" content="#5b5cf0">
+  <meta name="color-scheme" content="light dark">
+  <link rel="canonical" href="__SITE_URL__/">
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon-32x32.png">
+  <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta property="og:title" content="NodeWeave Studio — SVG-first 다이어그램 편집기">
+  <meta property="og:description" content="도형과 흐름을 빠르게 연결하고 스타일 토큰을 한 번에 바꾼 뒤 SVG·PNG·WebP·HTML로 내보내세요.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="__SITE_URL__/">
+  <meta property="og:image" content="__SITE_URL__/assets/og-image.png">
+  <meta property="og:site_name" content="NodeWeave Studio">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="NodeWeave Studio">
+  <meta name="twitter:description" content="SVG-first local-first diagram editor.">
+  <meta name="twitter:image" content="__SITE_URL__/assets/og-image.png">
+  <link rel="stylesheet" href="./src/styles.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"NodeWeave Studio","applicationCategory":"DesignApplication","operatingSystem":"Web","description":"SVG-first local-first diagram editor with multi-format export.","url":"__SITE_URL__/"}</script>
+</head>
+<body>
+  <a class="skip-link" href="#diagram-canvas">캔버스로 건너뛰기</a>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand-area">
+        <button id="left-toggle" class="icon-btn mobile-panel-btn" aria-label="도형 패널 열기/닫기" title="도형 패널">☰</button>
+        <a class="brand" href="./" aria-label="NodeWeave Studio 홈">
+          <img src="./assets/favicon.svg" width="30" height="30" alt="">
+          <span>NodeWeave</span><b>Studio</b>
+        </a>
+        <span class="top-divider"></span>
+        <input id="project-name" class="project-name" value="제품 온보딩 흐름" aria-label="프로젝트 이름">
+      </div>
+      <nav class="main-toolbar" aria-label="편집 도구">
+        <div class="tool-group">
+          <button id="undo-btn" class="icon-btn" title="실행 취소 (Ctrl/⌘ Z)" aria-label="실행 취소">↶</button>
+          <button id="redo-btn" class="icon-btn" title="다시 실행 (Ctrl/⌘ Shift Z)" aria-label="다시 실행">↷</button>
+        </div>
+        <div class="tool-group">
+          <button id="auto-layout-btn" class="toolbar-btn" title="연결 흐름을 기준으로 자동 배치">자동 배치</button>
+          <button id="fit-btn" class="toolbar-btn" title="전체 다이어그램을 화면에 맞춤">전체 보기</button>
+        </div>
+        <div class="tool-group zoom-group" aria-label="확대/축소">
+          <button id="zoom-out-btn" class="icon-btn" aria-label="축소">−</button><span id="zoom-readout">100%</span><button id="zoom-in-btn" class="icon-btn" aria-label="확대">＋</button>
+        </div>
+      </nav>
+      <div class="top-actions">
+        <button id="command-btn" class="toolbar-btn command-btn" title="빠른 검색 (Ctrl/⌘ K)"><span>⌘</span> 빠른 검색</button>
+        <button id="ui-theme-btn" class="icon-btn" data-mode="system" title="인터페이스 테마" aria-label="인터페이스 테마 변경">◐</button>
+        <button id="project-btn" class="toolbar-btn">프로젝트</button>
+        <button id="export-btn" class="primary-btn">내보내기</button>
+        <button id="right-toggle" class="icon-btn mobile-panel-btn" aria-label="속성 패널 열기/닫기" title="속성 패널">☷</button>
+      </div>
+    </header>
+
+    <aside id="left-panel" class="left-panel" aria-label="도형 및 템플릿">
+      <div class="panel-heading"><div><strong>라이브러리</strong><span>도형을 클릭하거나 캔버스로 드래그하세요.</span></div></div>
+      <div class="search-box"><span aria-hidden="true">⌕</span><input id="shape-search" type="search" placeholder="도형 검색 · decision, DB…" autocomplete="off" aria-label="도형 검색"></div>
+      <div class="panel-scroll">
+        <section><div id="shape-list"></div></section>
+        <section class="template-section"><div class="section-title"><strong>템플릿</strong><span>즉시 시작</span></div><div id="template-list" class="template-list"></div></section>
+      </div>
+    </aside>
+
+    <main class="workspace" aria-label="다이어그램 작업 영역">
+      <div class="canvas-wrap">
+        <svg id="diagram-canvas" tabindex="0" role="application" aria-label="NodeWeave 다이어그램 캔버스. 도형을 선택하고 드래그할 수 있습니다.">
+          <g id="canvas-viewport"></g>
+        </svg>
+        <div class="canvas-hint" aria-hidden="true"><kbd>Space</kbd> 이동 · <kbd>Wheel</kbd> 확대 · <kbd>Shift</kbd> 다중 선택 · 포트를 드래그해 연결</div>
+        <svg id="minimap" class="minimap" viewBox="0 0 180 112" aria-label="다이어그램 미니맵"></svg>
+        <div class="mobile-canvas-tools" aria-label="모바일 캔버스 컨트롤"><button id="mobile-zoom-out-btn" aria-label="축소">−</button><button id="mobile-fit-btn">맞춤</button><button id="mobile-zoom-in-btn" aria-label="확대">＋</button></div>
+      </div>
+      <footer class="statusbar"><div><span class="status-dot"></span><span id="status-text">준비됨</span></div><div><span id="node-count">0 노드 · 0 연결</span><span>Local-first</span></div></footer>
+    </main>
+
+    <aside id="inspector" class="inspector" aria-label="속성 패널">
+      <div class="inspector-tabs" role="tablist" aria-label="속성 종류">
+        <button class="inspector-tab is-active" data-tab="selection" role="tab">선택</button>
+        <button class="inspector-tab" data-tab="theme" role="tab">스타일</button>
+        <button class="inspector-tab" data-tab="layout" role="tab">레이아웃</button>
+      </div>
+      <div id="inspector-content" class="inspector-content"></div>
+    </aside>
+  </div>
+
+  <dialog id="label-dialog" class="modal small-modal">
+    <form id="label-form" method="dialog" class="modal-card">
+      <div class="modal-head"><div><span class="eyebrow">NODE</span><h2>텍스트 편집</h2></div><button type="button" class="icon-btn" data-close aria-label="닫기">×</button></div>
+      <label>표시할 텍스트<textarea id="edit-label-input" rows="4" maxlength="240"></textarea></label>
+      <div class="modal-actions"><button type="button" data-close>취소</button><button class="primary-btn" value="default">적용</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="export-dialog" class="modal">
+    <div class="modal-card export-modal">
+      <div class="modal-head"><div><span class="eyebrow">EXPORT</span><h2>다양한 형식으로 내보내기</h2><p>원본 SVG 모델을 기준으로 생성합니다.</p></div><button class="icon-btn" data-close aria-label="닫기">×</button></div>
+      <div class="export-settings"><label class="switch-row"><span>캔버스 배경 포함</span><input id="export-background" type="checkbox" checked></label><label>PNG / WebP 배율<select id="export-scale"><option value="1">1×</option><option value="2" selected>2×</option><option value="3">3×</option><option value="4">4×</option></select></label></div>
+      <div class="export-grid">
+        <button data-export="svg"><span class="format-badge">SVG</span><strong>벡터 이미지</strong><small>편집·인쇄·웹 삽입에 적합</small></button>
+        <button data-export="png"><span class="format-badge">PNG</span><strong>고해상도 이미지</strong><small>문서·프레젠테이션용</small></button>
+        <button data-export="webp"><span class="format-badge">WEBP</span><strong>경량 웹 이미지</strong><small>웹 게시용</small></button>
+        <button data-export="html"><span class="format-badge">HTML</span><strong>단일 HTML</strong><small>SVG가 포함된 독립 문서</small></button>
+        <button data-export="json"><span class="format-badge">JSON</span><strong>프로젝트 백업</strong><small>다시 불러와 편집 가능</small></button>
+        <button data-export="copy-svg"><span class="format-badge">COPY</span><strong>SVG 코드 복사</strong><small>코드·문서에 바로 붙여넣기</small></button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="project-dialog" class="modal">
+    <div class="modal-card project-modal">
+      <div class="modal-head"><div><span class="eyebrow">LOCAL PROJECTS</span><h2>프로젝트 관리</h2><p>데이터는 서버가 아니라 이 브라우저에 저장됩니다.</p></div><button class="icon-btn" data-close aria-label="닫기">×</button></div>
+      <div class="project-actions"><button id="project-save-btn" class="primary-btn">현재 프로젝트 저장</button><button id="project-new-btn">빈 다이어그램</button><label class="file-btn">JSON 불러오기<input id="import-input" type="file" accept="application/json,.json,.nodeweave" hidden></label><label class="file-btn">SVG 도형 가져오기<input id="svg-import-input" type="file" accept="image/svg+xml,.svg" hidden></label></div>
+      <div id="saved-projects" class="saved-projects"></div>
+    </div>
+  </dialog>
+
+  <dialog id="command-dialog" class="modal command-modal">
+    <div class="command-card">
+      <div class="command-search"><span>⌕</span><input id="command-input" placeholder="도형, 템플릿, 스타일, 명령 검색…" autocomplete="off"><kbd>ESC</kbd></div>
+      <div id="command-results" class="command-results"></div>
+      <div class="command-footer"><span>클릭하여 실행</span><span>도형 검색은 한국어/영어 키워드 지원</span></div>
+    </div>
+  </dialog>
+
+  <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>

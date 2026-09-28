@@ -1,0 +1,10 @@
+{
+  "name": "NodeWeave Studio",
+  "shortName": "NodeWeave",
+  "description": "SVG-first, local-first diagram editor with design tokens, auto layout, and SVG/PNG/WebP/HTML/JSON export.",
+  "siteUrl": "https://ko9ma7.github.io/nodeweave-studio/",
+  "themeColor": "#5b5cf0",
+  "repositoryOwner": "ko9ma7",
+  "repositoryName": "nodeweave-studio",
+  "repositoryUrl": "https://github.com/ko9ma7/nodeweave-studio"
+}
