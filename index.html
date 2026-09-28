@@ -179,11 +179,11 @@
   <dialog id="svg-paste-dialog" class="modal">
     <form id="svg-paste-form" class="modal-card svg-paste-modal">
       <div class="modal-head"><div><span class="eyebrow">SVG ASSET</span><h2>SVG 붙여넣기</h2><p>복사한 SVG 코드를 안전 필터를 거쳐 편집 가능한 캔버스 자산으로 추가합니다.</p></div><button type="button" class="icon-btn" data-close aria-label="닫기">×</button></div>
-      <div class="svg-source-help"><strong>빠른 사용법</strong><span>외부 사이트에서 SVG를 복사 → 여기에 붙여넣기 → 추가. 캔버스에서 색상·회전·반전·크기를 다시 조절할 수 있습니다.</span></div>
+      <div class="svg-source-help"><strong>고품질 SVG 가져오기</strong><span>외부 사이트에서 SVG를 복사한 뒤 그대로 불러오세요. 원본 viewBox·fill/stroke·비율을 보존하고, 캔버스에서 색상·효과·회전·연결 포트를 조절할 수 있습니다.</span><button id="svg-read-clipboard" type="button" class="compact-btn">클립보드 SVG 읽기</button></div>
       <label>자산 이름<input id="svg-asset-name" type="text" maxlength="80" placeholder="예: Search icon"></label>
       <label>SVG 코드<textarea id="svg-paste-input" rows="12" spellcheck="false" placeholder="<svg viewBox=&quot;0 0 24 24&quot;>…</svg>" required></textarea></label>
       <div class="field-row"><label>출처 URL (선택)<input id="svg-source-url" type="url" placeholder="https://…"></label><label class="switch-row normalize-switch"><span>단색으로 정규화</span><input id="svg-normalize-color" type="checkbox"></label></div>
-      <p class="form-note">단색 정규화는 고정 fill/stroke 색을 <code>currentColor</code>로 바꿉니다. 다색 일러스트에는 끄는 것을 권장합니다.</p>
+      <p class="form-note">단색 정규화는 원본 색을 직접 바꾸는 옵션입니다. 다색 일러스트는 끄고 가져온 뒤 우측의 색상 슬롯/시각 효과를 사용하는 편이 안전합니다.</p>
       <div class="modal-actions"><button type="button" data-close>취소</button><button class="primary-btn" type="submit">캔버스에 추가</button></div>
     </form>
   </dialog>
