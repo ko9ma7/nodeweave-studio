@@ -2,6 +2,20 @@
 
 All notable changes to NodeWeave Studio are documented here.
 
+## [1.5.1] - 2026-09-29
+
+### Fixed
+
+- restored the runtime JSON catalog loader and catalog index missing from the previous remote sync
+- repaired the service worker shell list so new releases can activate instead of leaving an older cached editor visible
+- aligned repository verification with the self-contained catalog admin page
+
+### Improved
+
+- exposed Share in the top toolbar with URL-embedded project sharing
+- promoted 12/24-hour radial planner, brain map, and image insertion as first-class Smart Tools
+- imported SVG files now default to illustration-only mode; text and connector ports are enabled explicitly when needed
+
 ## [1.4.0] - 2026-09-28
 
 ### Added
