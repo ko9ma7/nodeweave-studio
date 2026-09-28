@@ -6,19 +6,58 @@ All notable changes to NodeWeave Studio are documented here.
 
 ### Added
 
-- 39 JSON-managed visual Style Packs inspired by the style taxonomies in DesignBlock Studio and UI/UX Pro Max
-- full-style rendering tokens for canvas patterns, gradients, shadows, border treatment, connector treatment, typography, and port appearance
-- per-node connection ports: none, 4 sides, or 8 directions
-- circle, square, and diamond port handle styles
-- categorized Style Pack gallery with live miniature previews
-- export support for Style Pack gradients and connector styling
-- `catalog/styles.json` so additional visual styles can be added without editing the renderer catalog
+- 39 JSON-driven diagram style packs informed by `designblock-studio` and `ui-ux-pro-max-skill` style taxonomies
+- style effects beyond palette changes: canvas patterns, node gradients, hard/soft/glow/depth shadows, border dashes, typography weight/tracking, edge width/dash/caps, and port shape
+- 4-port / 8-port / no-port node connection modes with circle, square, or diamond handles
+- `catalog/styles.json` so future styles can be added without changing the renderer source
+- Admin JSON merge/export now preserves custom `styles` entries
 
 ### Changed
 
-- style presets now change the diagram's visual language instead of only swapping colors
-- canvas backgrounds can render grids, dots, paper, scanlines, HUD, perspective, Memphis, Bauhaus, organic, and glow-oriented treatments
-- NodeWeave Studio version bumped to 1.4.0
+- Style inspector is grouped by style family and shows a visual preview for every style pack
+- SVG export preserves style gradients, node shadows, and edge styling
+
+## [1.3.1] - 2026-09-28
+
+### Fixed
+
+- prevent the browser from navigating away when SVG files are dropped onto the catalog admin page
+- add a dedicated multi-file SVG upload/drop zone with per-batch mode and category defaults
+- report per-file failures instead of closing/replacing the admin page
+
+## [1.3.0] - 2026-09-28
+
+### Added
+
+- repository-managed `catalog/index.json` and `catalog/library.json` data layer
+- `/admin.html` catalog management page that automatically loads the current repository JSON
+- SVG asset form with icon/block modes, editable default text, text position, dimensions, source URL, and optional `currentColor` normalization
+- JSON merge, replace, copy, local preview/apply, and `library.json` download workflows
+- NodeWeave project JSON → reusable template conversion from the admin page
+- browser-local catalog override for testing catalog changes before committing them to GitHub
+- JSON-defined SVG blocks that can render editable text over non-rectangular SVG artwork
+- starter repository-managed SVG block examples such as thought clouds, organic blobs, ribbon banners, braces, speech bubbles, road signs, and goal mountains
+
+### Changed
+
+- catalog content can now grow without editing `src/catalog.js` or application code
+- build, verification, and Service Worker pipelines now include the repository catalog and admin page
+- Service Worker cache version bumped so deployments do not keep serving stale editor files
+
+## [1.2.0] - 2026-09-28
+
+### Added
+
+- library browser modal with category chips for Shapes, SVG Symbols, and Templates
+- 8 additional shape primitives including chevron, tag, bookmark, pentagon, octagon, and hourglass
+- 30+ more original `currentColor` SVG symbols for lifestyle, planning, travel, finance, learning, and illustration use cases
+- 12 additional starter templates including brain-thought ratio, daily/weekly/monthly planners, habit tracker, meal planner, kanban board, SWOT, Eisenhower matrix, roadmap, and travel checklist
+
+### Changed
+
+- left sidebar library now exposes quick category chips and a one-click full browser instead of relying only on long scrolling
+- library counts updated to 38 shapes, 65 bundled SVG symbols, and 26 starter templates
+- README and product copy refreshed to reflect the expanded diagram + planning use cases
 
 ## [1.1.0] - 2026-09-28
 
@@ -34,8 +73,8 @@ All notable changes to NodeWeave Studio are documented here.
 - 14 starter templates including incident response, data pipeline, decision tree, org chart, auth flow, customer journey, content workflow, network topology, and release planning
 - copy/paste selection workflow with internal connector preservation
 - node z-order commands for bring-to-front and send-to-back
-- command palette entries for SVG symbols and SVG paste
-- Koboyo link-out workflow with non-bundled external SVG import
+- command palette entries for SVG symbols, SVG paste, and select-all
+- Koboyo link-out workflow with license-safe non-bundled integration guidance
 
 ### Changed
 

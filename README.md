@@ -21,7 +21,7 @@
 
 ![NodeWeave Studio social preview](./assets/github-social-preview.png)
 
-**NodeWeave Studio** is a browser-native diagram workspace built around a canonical SVG document model. It lets you connect shapes quickly, search reusable diagram primitives, apply style tokens across many elements at once, auto-arrange flows, save projects locally, and export the same diagram as SVG, PNG, WebP, HTML, or JSON.
+**NodeWeave Studio** is a browser-native diagram workspace built around a canonical SVG document model. It lets you connect shapes quickly, search reusable diagram primitives, browse a larger SVG + template gallery, apply style tokens across many elements at once, auto-arrange flows, save projects locally, and export the same diagram as SVG, PNG, WebP, HTML, or JSON.
 
 한국어 요약: **노드·커넥터 편집, 검색 가능한 도형/템플릿, 스타일 토큰 일괄 변경, 자동 레이아웃, 로컬 저장, SVG/PNG/WebP/HTML/JSON 내보내기를 한 화면에서 처리하는 다이어그램 편집기입니다.**
 
@@ -48,17 +48,17 @@ That separation makes the editor easy to extend: a new shape can immediately par
 
 ## Highlights
 
-- **39 advanced visual Style Packs** — Swiss, Neumorphism, Glass, Brutalism, Clay, Aurora, Retro-Futurism, Flat, Skeuomorphic, OLED, Bento, Y2K, Cyberpunk, Biophilic, Memphis, Vaporwave, HUD, Pixel, E-Ink, Bauhaus, Editorial, Luxe, Hand Drawn, and more.
-- **Whole-diagram styling** — a style can change canvas pattern, node gradient/shadow, border treatment, connector width/dash/cap, typography weight, and port appearance together.
-- **JSON-extensible styles** — add another look in `catalog/styles.json` without hardcoding a new renderer component.
-- **Smart connection ports** — choose no ports, 4-side ports, or 8-direction ports per node, with circle/square/diamond handles.
+- **39 advanced style packs** — Swiss, Neumorphism, Glass, Brutalism, Clay, Aurora, Retro Futurism, Flat, Skeuomorphic, Liquid Glass, OLED, Neo Brutal, Y2K, Cyberpunk, Biophilic, AI Native, Memphis, Vaporwave, Bauhaus, Editorial, Luxe, Paper, Hand Drawn and more. Styles change geometry treatment, shadows, gradients, canvas patterns, typography, connectors, and ports — not only colors.
+- **JSON-extensible styling** — add or override style packs through `catalog/styles.json` or a custom catalog `styles` array without modifying the editor renderer.
+- **Smart connection handles** — individual nodes can expose 0, 4, or 8 connection points and choose circle, square, or diamond port handles.
 
 - **SVG-native editing** — nodes, labels, ports, and connectors share one vector-first document model.
+- **Library browser** — open a dedicated gallery with category chips so large icon/template collections stay browsable without depending only on a long left-panel scroll.
 - **Fast connected flows** — create straight, Bézier, or orthogonal connectors directly from node ports.
-- **Expanded shape library** — 30+ flow, data, architecture, annotation, media, and container primitives.
-- **Reusable SVG symbols** — 30+ built-in `currentColor` SVG symbols for people, systems, devices, security, status, communication, and content.
+- **Expanded shape library** — 38 flow, data, architecture, annotation, media, and container primitives, including chevrons, tags, bookmarks, pentagons, octagons, and hourglass shapes.
+- **Reusable SVG symbols** — 65 built-in `currentColor` SVG symbols for people, systems, devices, security, communication, lifestyle, planning, travel, finance, learning, and sketch-like illustration use cases.
 - **External SVG workflow** — paste, drop, or import user-supplied SVG assets, then recolor, rotate, flip, resize, and add backgrounds.
-- **Reusable templates** — 14 starters covering product flows, incident response, data pipelines, auth, customer journeys, org charts, network topology, releases, and more.
+- **Reusable templates** — 26 starters covering product flows, incident response, data pipelines, auth, customer journeys, org charts, network topology, releases, planners, brain/thought diagrams, kanban, SWOT, roadmaps, and life-planning layouts.
 - **Design-token styling** — change canvas, surface, primary, text, border, edge, radius, and typography values globally.
 - **Batch editing** — multi-select nodes and apply fill, stroke, text, width, font size, and radius changes together.
 - **Auto layout** — arrange flows left-to-right or top-to-bottom and use alignment/distribution tools for cleanup.
@@ -73,7 +73,7 @@ That separation makes the editor easy to extend: a new shape can immediately par
 - Drag and resize nodes
 - Marquee selection and multi-selection
 - Duplicate and delete selections
-- Copy/paste selections with internal connector preservation
+- Copy/paste selections with internal edge preservation
 - Bring selected nodes to front or send them behind other nodes
 - Keyboard nudge with fine/grid increments
 - Pan with `Space + drag`
@@ -116,7 +116,53 @@ Shape type and visual style are intentionally independent, so the same diagram s
 - Browser autosave
 - Up to 20 named local projects
 - JSON import/export for portable backups
+- Custom SVG metadata stored inside the project document for portable diagrams
 - Theme preference persistence
+
+## JSON-managed catalog
+
+NodeWeave can now grow its SVG/block/template library without editing application JavaScript. Repository-managed extensions live in:
+
+```text
+catalog/
+├─ index.json
+└─ library.json
+```
+
+Open **`/admin.html`** from the deployed site to manage this file visually. The admin page automatically reads the repository's current `catalog/library.json`, so you start from the latest catalog rather than from a blank file.
+
+Recommended workflow:
+
+1. Open `admin.html`.
+2. Paste or import SVG artwork and choose **Icon** or **Text block** mode.
+3. For a text block, choose where editable node text should appear over the SVG (`center`, `top`, or `bottom`).
+4. Build any complex diagram in the normal editor and export it as NodeWeave JSON.
+5. Import that project JSON in the admin page to turn it into a reusable template.
+6. Use **Apply in this browser** to test the catalog immediately without touching GitHub.
+7. Download the finished `library.json`.
+8. Replace only `catalog/library.json` in the repository and commit it. No `catalog.js` edit is required.
+
+The browser override is stored separately in local storage and is loaded after the repository catalog, so it can safely be used as a temporary preview. Clear the override after the GitHub Pages deployment contains the same catalog.
+
+### `library.json` SVG block example
+
+```json
+{
+  "id": "my-organic-block",
+  "label": "Organic block",
+  "category": "Ideas",
+  "keywords": "organic idea blob",
+  "mode": "block",
+  "defaultText": "Editable text",
+  "labelPosition": "center",
+  "w": 220,
+  "h": 160,
+  "viewBox": "0 0 240 180",
+  "content": "<path d="…" fill="none" stroke="currentColor"/>"
+}
+```
+
+`mode: "icon"` behaves as artwork only. `mode: "block"` creates a normal connectable NodeWeave node using the SVG as its visual boundary while keeping its text editable in the inspector.
 
 ### SVG assets and icon workflows
 
@@ -135,7 +181,7 @@ Supported SVG asset workflows:
 
 #### Koboyo Icons
 
-[Koboyo Icons](https://koboyo.com/icons) is useful as an external place to discover a large variety of SVG concepts. NodeWeave provides a **link-out + user import** workflow rather than bundling or mirroring Koboyo's icon collection. This is intentional because NodeWeave is itself a diagram editor; users should review the current upstream license before importing third-party assets.
+[Koboyo Icons](https://koboyo.com/icons) is useful as an external place to discover a large variety of SVG concepts. NodeWeave provides a **link-out + user import** workflow rather than bundling or mirroring Koboyo's icon collection. This is intentional: Koboyo's published license allows use and modification of icons in diagrams and other works, but separately restricts redistribution of the library and use of the collection inside competing icon/canvas/whiteboard/diagramming products. Users should review the current upstream license before importing third-party assets.
 
 ### Import and export
 
@@ -296,7 +342,7 @@ The workflow is defined in `.github/workflows/deploy.yml`.
 - push `main`
 - enable GitHub Pages with Actions
 - watch the deployment workflow
-- create the current `v1.1.0` tag
+- create the current `v1.3.1` tag
 
 It does not contain or require a hard-coded GitHub token.
 

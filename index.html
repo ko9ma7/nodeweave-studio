@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>NodeWeave Studio — SVG-first 다이어그램 편집기</title>
-  <meta name="description" content="기본 도형과 JSON으로 확장 가능한 SVG 블록·템플릿, 디자인 토큰, 자동 레이아웃, SVG·PNG·WebP·HTML 내보내기를 지원하는 로컬 우선 다이어그램 편집기.">
+  <meta name="description" content="30개 이상의 도형, 재사용 SVG 심볼, 확장 템플릿, 디자인 토큰, 자동 레이아웃, SVG·PNG·WebP·HTML 내보내기를 지원하는 로컬 우선 다이어그램 편집기.">
   <meta name="theme-color" content="#5b5cf0">
   <meta name="color-scheme" content="light dark">
   <link rel="canonical" href="__SITE_URL__/">
@@ -68,12 +68,14 @@
         <button class="library-tab" data-library-tab="templates" role="tab">템플릿 <span id="template-total"></span></button>
       </div>
       <div class="search-box"><span aria-hidden="true">⌕</span><input id="shape-search" type="search" placeholder="도형 검색 · decision, DB…" autocomplete="off" aria-label="라이브러리 검색"></div>
+      <div class="panel-actions"><button id="browse-library-btn" class="compact-btn">전체 브라우저</button><a class="compact-link" href="./admin.html" target="_blank" rel="noopener">카탈로그 관리 ↗</a><span class="panel-action-note">기본 도형·SVG·템플릿을 더 넓게 탐색</span></div>
+      <div id="library-filters" class="library-filters"></div>
       <div class="panel-scroll">
         <section id="shape-section"><div id="shape-list"></div></section>
         <section id="icon-section" hidden>
           <div class="external-svg-card">
             <div><strong>외부 SVG 가져오기</strong><span>Koboyo 등에서 SVG를 복사한 뒤 NodeWeave에 붙여넣을 수 있습니다.</span></div>
-            <div class="external-svg-actions"><a class="compact-link" href="https://koboyo.com/icons" target="_blank" rel="noopener noreferrer">Koboyo 탐색 ↗</a><a class="compact-link" href="./admin.html">SVG/템플릿 관리 ↗</a><button id="paste-svg-btn" class="compact-btn">SVG 붙여넣기</button></div>
+            <div class="external-svg-actions"><a class="compact-link" href="https://koboyo.com/icons" target="_blank" rel="noopener noreferrer">Koboyo 탐색 ↗</a><button id="paste-svg-btn" class="compact-btn">SVG 붙여넣기</button></div>
             <small>외부 아이콘은 각 제공처의 라이선스를 확인하세요. NodeWeave에는 Koboyo 아이콘 라이브러리를 번들하지 않습니다.</small>
           </div>
           <div id="icon-list"></div>
@@ -132,6 +134,24 @@
       <div class="modal-head"><div><span class="eyebrow">LOCAL PROJECTS</span><h2>프로젝트 관리</h2><p>데이터는 서버가 아니라 이 브라우저에 저장됩니다.</p></div><button class="icon-btn" data-close aria-label="닫기">×</button></div>
       <div class="project-actions"><button id="project-save-btn" class="primary-btn">현재 프로젝트 저장</button><button id="project-new-btn">빈 다이어그램</button><label class="file-btn">JSON 불러오기<input id="import-input" type="file" accept="application/json,.json,.nodeweave" hidden></label><label class="file-btn">SVG 도형 가져오기<input id="svg-import-input" type="file" accept="image/svg+xml,.svg" hidden></label></div>
       <div id="saved-projects" class="saved-projects"></div>
+    </div>
+  </dialog>
+
+
+
+  <dialog id="library-browser-dialog" class="modal">
+    <div class="modal-card library-browser-modal">
+      <div class="modal-head"><div><span class="eyebrow">LIBRARY BROWSER</span><h2>도형 · SVG · 템플릿 갤러리</h2><p>스크롤만 길게 내리지 않고 카테고리별로 빠르게 살펴보고 바로 추가할 수 있습니다.</p></div><button class="icon-btn" data-close aria-label="닫기">×</button></div>
+      <div class="library-browser-toolbar">
+        <div class="library-tabs browser-library-tabs" role="tablist" aria-label="브라우저 종류">
+          <button class="library-tab is-active" data-library-tab="shapes" role="tab">도형 <span id="browser-shape-total"></span></button>
+          <button class="library-tab" data-library-tab="icons" role="tab">SVG <span id="browser-icon-total"></span></button>
+          <button class="library-tab" data-library-tab="templates" role="tab">템플릿 <span id="browser-template-total"></span></button>
+        </div>
+        <div class="search-box browser-search"><span aria-hidden="true">⌕</span><input id="library-browser-search" type="search" placeholder="라이브러리 검색" autocomplete="off" aria-label="브라우저 검색"></div>
+      </div>
+      <div id="browser-category-filters" class="library-filters browser-filters"></div>
+      <div id="library-browser-content" class="library-browser-content"></div>
     </div>
   </dialog>
 

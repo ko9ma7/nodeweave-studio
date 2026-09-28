@@ -1,10 +1,8 @@
 import { BUILTIN_ICONS, DEFAULT_SETTINGS, SHAPES, THEMES, TEMPLATES } from './catalog.js';
+import { loadCatalogPacks } from './catalog-loader.js';
 import { clamp, diagramStyleDefs, edgeGeometry, esc, nearestPort, nodeBounds, nodeTextMarkup, portsMarkup, resolveNodeStyle, selectionRectMarkup, shapePrimitive } from './geometry.js';
 import { copySvg, exportHtml, exportJson, exportRaster, exportSvg } from './export.js';
 import { deleteProject, listProjects, loadAutosave, loadUiPrefs, saveAutosave, saveProject, saveUiPrefs } from './storage.js';
-import { loadStylePacks } from './style-loader.js';
-
-await loadStylePacks();
 
 const $=(q,root=document)=>root.querySelector(q);
 const $$=(q,root=document)=>[...root.querySelectorAll(q)];
@@ -12,6 +10,8 @@ const canvas=$('#diagram-canvas');
 const viewportEl=$('#canvas-viewport');
 const statusEl=$('#status-text');
 const toastRegion=$('#toast-region');
+
+await loadCatalogPacks();
 
 const deepClone=(v)=>structuredClone(v);
 const uid=(prefix='id')=>`${prefix}-${crypto.randomUUID().slice(0,8)}`;
@@ -29,7 +29,7 @@ function defaultDocument(){
   };
 }
 function normalizeNode(n){
-  const s=n.type==='custom-svg'?{w:180,h:140,label:'Custom SVG'}:shapeById(n.type);return {id:n.id||uid('node'),type:n.type||'process',x:Number(n.x)||0,y:Number(n.y)||0,w:Number(n.w)||s.w,h:Number(n.h)||s.h,label:n.label??s.label,style:n.style?{...n.style}:{},...(n.customSvg?{customSvg:deepClone(n.customSvg)}:{})};
+  const s=n.type==='custom-svg'?{w:180,h:140,label:'Custom SVG'}:shapeById(n.type);return {id:n.id||uid('node'),type:n.type||'process',x:Number(n.x)||0,y:Number(n.y)||0,w:Number(n.w)||s.w,h:Number(n.h)||s.h,label:n.label??s.label,style:n.style?{...n.style}:{},...(n.customSvg?{customSvg:deepClone(n.customSvg)}:{}),...(n.media?{media:deepClone(n.media)}:{}),...(n.data?{data:deepClone(n.data)}:{})};
 }
 function normalizeEdge(e){return {id:e.id||uid('edge'),source:e.source,target:e.target,sourcePort:e.sourcePort||'right',targetPort:e.targetPort||'left',label:e.label||'',routing:e.routing||'orthogonal',style:e.style?{...e.style}:{}};}
 function normalizeDoc(doc){
@@ -37,7 +37,14 @@ function normalizeDoc(doc){
   return {version:1,meta:{...base.meta,...doc.meta,updatedAt:new Date().toISOString()},nodes:doc.nodes.map(normalizeNode),edges:doc.edges.map(normalizeEdge),tokens:{...base.tokens,...doc.tokens},themeId:doc.themeId||'minimal',settings:{...DEFAULT_SETTINGS,...doc.settings}};
 }
 
-let doc=normalizeDoc(loadAutosave()||defaultDocument());
+function bytesToBase64Url(bytes){let s='';for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(s).replaceAll('+','-').replaceAll('/','_').replace(/=+$/,'');}
+function base64UrlToBytes(text){const s=text.replaceAll('-','+').replaceAll('_','/')+'='.repeat((4-text.length%4)%4);const raw=atob(s),out=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)out[i]=raw.charCodeAt(i);return out;}
+async function encodeShareDocument(value){const raw=new TextEncoder().encode(JSON.stringify(value));if('CompressionStream' in window){const stream=new Blob([raw]).stream().pipeThrough(new CompressionStream('gzip'));return 'gz.'+bytesToBase64Url(new Uint8Array(await new Response(stream).arrayBuffer()));}return 'raw.'+bytesToBase64Url(raw);}
+async function decodeShareDocument(value){try{const [mode,payload]=String(value||'').split('.',2);let bytes=base64UrlToBytes(payload||mode);if(mode==='gz'&&'DecompressionStream' in window){const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));bytes=new Uint8Array(await new Response(stream).arrayBuffer());}return JSON.parse(new TextDecoder().decode(bytes));}catch(error){console.warn('공유 링크 해석 실패',error);return null;}}
+async function sharedDocumentFromLocation(){const hash=location.hash||'';if(!hash.startsWith('#share='))return null;return decodeShareDocument(hash.slice(7));}
+
+const initialSharedDoc=await sharedDocumentFromLocation();
+let doc=normalizeDoc(initialSharedDoc||loadAutosave()||defaultDocument());
 let selection={nodeIds:[],edgeId:null};
 let viewport={x:80,y:70,scale:1};
 let undoStack=[],redoStack=[];
@@ -47,6 +54,7 @@ let leftOpen=desktopPanels,rightOpen=desktopPanels;
 let autosaveTimer=null;
 let paletteQuery='';
 let libraryTab='shapes';
+let libraryCategory='all';
 let inspectorTab='selection';
 let internalClipboard=null;
 const uiPrefs=loadUiPrefs();
@@ -82,19 +90,33 @@ function selectNode(id,add=false){if(add){selection.nodeIds=selection.nodeIds.in
 function selectEdge(id){selection={nodeIds:[],edgeId:id};render();}
 function clearSelection(){selection={nodeIds:[],edgeId:null};render();}
 
+function smartNodeDefaults(type){
+  if(type==='radial-plan')return {label:'',style:{portCount:0},data:{title:'24시간 생활계획',clockMode:24,segments:[{label:'수면',start:0,end:7,color:'#6366f1'},{label:'준비/식사',start:7,end:9,color:'#f59e0b'},{label:'일/학교',start:9,end:17,color:'#22c55e'},{label:'운동',start:17,end:19,color:'#06b6d4'},{label:'자유시간',start:19,end:22,color:'#ec4899'},{label:'정리/휴식',start:22,end:24,color:'#8b5cf6'}]}};
+  if(type==='brain-map')return {label:'',style:{portCount:0},data:{title:'내 머릿속',regions:[{label:'일 / 공부',percent:35,color:'#c4b5fd'},{label:'가족',percent:20,color:'#93c5fd'},{label:'친구 / 관계',percent:15,color:'#f9a8d4'},{label:'건강',percent:10,color:'#86efac'},{label:'취미',percent:10,color:'#fde68a'},{label:'돈 / 기타',percent:10,color:'#fdba74'}]}};
+  if(type==='image')return {label:'',style:{autoTextFit:true},media:{src:'',fit:'cover',opacity:1,showCaption:false,captionBackground:'#00000099',captionColor:'#ffffff'}};
+  return {style:{autoTextFit:true}};
+}
 function addNode(type,point=viewportCenterWorld()){
-  const shape=shapeById(type); const node={id:uid('node'),type,x:snap(point.x-shape.w/2),y:snap(point.y-shape.h/2),w:shape.w,h:shape.h,label:shape.label,style:{}};
+  const shape=shapeById(type);const extra=smartNodeDefaults(type);const node={id:uid('node'),type,x:snap(point.x-shape.w/2),y:snap(point.y-shape.h/2),w:shape.w,h:shape.h,label:extra.label??shape.label,style:{...(extra.style||{})},...(extra.media?{media:deepClone(extra.media)}:{}),...(extra.data?{data:deepClone(extra.data)}:{})};
   commit(()=>{doc.nodes.push(node);selection={nodeIds:[node.id],edgeId:null};},`${shape.label} 추가`);
 }
 function addBuiltinIcon(id,point=viewportCenterWorld()){
-  const item=iconById(id),isBlock=item.mode==='block',w=Number(item.w)||112,h=Number(item.h)||112;
-  const node={id:uid('node'),type:'custom-svg',x:snap(point.x-w/2),y:snap(point.y-h/2),w,h,label:isBlock?(item.defaultText||item.label):'',style:{iconColor:doc.tokens.text,padding:isBlock?2:10},customSvg:{viewBox:item.viewBox,content:item.content,name:item.label,origin:item._managed?'managed-catalog':'nodeweave-symbols',mode:item.mode||'icon',labelPosition:item.labelPosition||'center',sourceUrl:item.sourceUrl||''}};
+  const item=iconById(id);const w=Number(item.w)||112,h=Number(item.h)||112;const isBlock=item.mode==='block';
+  const node={id:uid('node'),type:'custom-svg',x:snap(point.x-w/2),y:snap(point.y-h/2),w,h,label:isBlock?(item.defaultText||item.label):'',style:{iconColor:doc.tokens.text,padding:isBlock?4:10},customSvg:{viewBox:item.viewBox,content:item.content,name:item.label,origin:item.pack?`catalog:${item.pack}`:'nodeweave-symbols',sourceUrl:item.sourceUrl||'',mode:isBlock?'block':'icon',labelPosition:item.labelPosition||(isBlock?'center':'none')}};
   commit(()=>{doc.nodes.push(node);selection={nodeIds:[node.id],edgeId:null};},`${item.label} SVG 추가`);
 }
-function moveSelectionZ(mode){if(!selection.nodeIds.length)return;commit(()=>{const ids=new Set(selection.nodeIds),picked=doc.nodes.filter(n=>ids.has(n.id)),rest=doc.nodes.filter(n=>!ids.has(n.id));doc.nodes=mode==='front'?[...rest,...picked]:[...picked,...rest];},mode==='front'?'맨 앞으로':'맨 뒤로');}
+function moveSelectionZ(mode){
+  if(!selection.nodeIds.length)return;commit(()=>{const ids=new Set(selection.nodeIds);const picked=doc.nodes.filter(n=>ids.has(n.id));const rest=doc.nodes.filter(n=>!ids.has(n.id));doc.nodes=mode==='front'?[...rest,...picked]:[...picked,...rest];},mode==='front'?'맨 앞으로':'맨 뒤로');
+}
 function selectionPayload(){const ids=new Set(selection.nodeIds);return {type:'nodeweave-selection',version:1,nodes:selectedNodes().map(deepClone),edges:doc.edges.filter(e=>ids.has(e.source)&&ids.has(e.target)).map(deepClone)};}
-async function copySelection(){if(!selection.nodeIds.length)return;internalClipboard=selectionPayload();try{await navigator.clipboard?.writeText(JSON.stringify(internalClipboard));}catch{}toast(`${selection.nodeIds.length}개 요소를 복사했습니다.`,'success');}
-function pasteSelection(payload=internalClipboard){if(!payload?.nodes?.length)return;const prev=snapshot(),map=new Map();const clones=payload.nodes.map(n=>{const id=uid('node');map.set(n.id,id);return normalizeNode({...deepClone(n),id,x:n.x+36,y:n.y+36});});const edges=(payload.edges||[]).filter(e=>map.has(e.source)&&map.has(e.target)).map(e=>normalizeEdge({...deepClone(e),id:uid('edge'),source:map.get(e.source),target:map.get(e.target)}));doc.nodes.push(...clones);doc.edges.push(...edges);selection={nodeIds:clones.map(n=>n.id),edgeId:null};internalClipboard=selectionPayload();pushHistory(prev);scheduleSave();render();toast('복사한 요소를 붙여넣었습니다.','success');}
+async function copySelection(){
+  if(!selection.nodeIds.length)return;internalClipboard=selectionPayload();
+  try{await navigator.clipboard?.writeText(JSON.stringify(internalClipboard));}catch{}
+  toast(`${selection.nodeIds.length}개 요소를 복사했습니다.`,'success');
+}
+function pasteSelection(payload=internalClipboard){
+  if(!payload?.nodes?.length)return;const prev=snapshot();const map=new Map();const clones=payload.nodes.map(n=>{const id=uid('node');map.set(n.id,id);return normalizeNode({...deepClone(n),id,x:n.x+36,y:n.y+36});});const edges=(payload.edges||[]).filter(e=>map.has(e.source)&&map.has(e.target)).map(e=>normalizeEdge({...deepClone(e),id:uid('edge'),source:map.get(e.source),target:map.get(e.target)}));doc.nodes.push(...clones);doc.edges.push(...edges);selection={nodeIds:clones.map(n=>n.id),edgeId:null};internalClipboard={...deepClone(payload),nodes:clones.map(n=>({...deepClone(n),id:n.id})),edges};pushHistory(prev);scheduleSave();render();toast('복사한 요소를 붙여넣었습니다.','success');
+}
 function duplicateSelection(){
   const nodes=selectedNodes();if(!nodes.length)return;const prev=snapshot();const map=new Map();const clones=nodes.map(n=>{const id=uid('node');map.set(n.id,id);return{...deepClone(n),id,x:n.x+32,y:n.y+32};});
   const edges=doc.edges.filter(e=>map.has(e.source)&&map.has(e.target)).map(e=>({...deepClone(e),id:uid('edge'),source:map.get(e.source),target:map.get(e.target)}));
@@ -110,10 +132,10 @@ function addEdge(source,sourcePort,target,targetPort){
 }
 
 function edgeMarkup(edge){
-  const g=edgeGeometry(edge,doc.nodes);if(!g)return'';const selected=selection.edgeId===edge.id;const stroke=edge.style?.stroke??(selected?doc.tokens.primary:doc.tokens.edge);const width=edge.style?.width??doc.tokens.edgeWidth??1.8;const dash=edge.style?.dash??doc.tokens.edgeDash??'';const arrow=edge.style?.arrow!==false;const cap=doc.tokens.edgeLinecap||'round';
+  const g=edgeGeometry(edge,doc.nodes);if(!g)return'';const selected=selection.edgeId===edge.id;const stroke=edge.style?.stroke??(selected?doc.tokens.primary:doc.tokens.edge);const width=edge.style?.width??doc.tokens.edgeWidth??1.8;const dash=edge.style?.dash??doc.tokens.edgeDash??'';const arrow=edge.style?.arrow!==false;
   return `<g class="edge-group${selected?' is-selected':''}" data-edge-id="${esc(edge.id)}">
     <path class="edge-hit" d="${g.d}" fill="none" stroke="transparent" stroke-width="16" vector-effect="non-scaling-stroke"/>
-    <path class="edge-line" d="${g.d}" fill="none" stroke="${esc(stroke)}" stroke-width="${selected?Math.max(width,2.4):width}" ${dash?`stroke-dasharray="${esc(dash)}"`:''} ${arrow?'marker-end="url(#editor-arrow)"':''} vector-effect="non-scaling-stroke" stroke-linecap="${esc(cap)}" stroke-linejoin="round"/>
+    <path class="edge-line" d="${g.d}" fill="none" stroke="${esc(stroke)}" stroke-width="${selected?Math.max(width,2.4):width}" ${dash?`stroke-dasharray="${esc(dash)}"`:''} ${arrow?'marker-end="url(#editor-arrow)"':''} vector-effect="non-scaling-stroke" stroke-linecap="${esc(doc.tokens.edgeLinecap||'round')}" stroke-linejoin="round"/>
     ${edge.label?`<text x="${g.label.x}" y="${g.label.y-8}" fill="${esc(doc.tokens.text)}" font-size="12" font-weight="700" text-anchor="middle" paint-order="stroke" stroke="${esc(doc.tokens.canvas)}" stroke-width="5" stroke-linejoin="round" pointer-events="none">${esc(edge.label)}</text>`:''}
   </g>`;
 }
@@ -123,32 +145,33 @@ function nodeMarkup(node){
     ${selected?selectionRectMarkup(node,doc.tokens)+portsMarkup(node,doc.tokens):''}
   </g>`;
 }
-function canvasPatternStyle(){
-  const p=doc.tokens.pattern||'grid',g=doc.tokens.grid||'#dfe3ea',a=doc.tokens.accent||doc.tokens.primary;
-  if(p==='none')return 'none';
-  if(p==='dots'||p==='softdots')return `radial-gradient(circle at 1px 1px, ${g} 1px, transparent 1.4px)`;
-  if(p==='scanlines')return `repeating-linear-gradient(0deg, transparent 0 5px, ${g}55 6px)`;
-  if(p==='paper')return `linear-gradient(${g}55 1px,transparent 1px),linear-gradient(90deg,${g}55 1px,transparent 1px)`;
-  if(p==='lines')return `repeating-linear-gradient(0deg,transparent 0 31px,${g}66 32px)`;
-  if(p==='speed')return `repeating-linear-gradient(135deg,transparent 0 28px,${g}55 29px,${g}55 31px,transparent 32px)`;
-  if(p==='pixel')return `linear-gradient(${g}88 2px,transparent 2px),linear-gradient(90deg,${g}88 2px,transparent 2px)`;
-  if(['spark','confetti','memphis'].includes(p))return `radial-gradient(circle at 20% 22%,${a}55 0 3px,transparent 4px),radial-gradient(circle at 78% 68%,${doc.tokens.primary}44 0 4px,transparent 5px)`;
-  if(['orb','blob'].includes(p))return `radial-gradient(circle at 18% 15%,${doc.tokens.primary}24,transparent 32%),radial-gradient(circle at 84% 76%,${a}20,transparent 34%)`;
-  if(p==='constellation')return `radial-gradient(circle,${a}66 0 1px,transparent 1.5px)`;
-  if(p==='perspective')return `linear-gradient(${g}66 1px,transparent 1px),linear-gradient(90deg,${g}66 1px,transparent 1px)`;
-  if(p==='hud')return `linear-gradient(${g}55 1px,transparent 1px),linear-gradient(90deg,${g}55 1px,transparent 1px),radial-gradient(circle at 50% 50%,transparent 55%,${a}12 100%)`;
-  if(p==='bauhaus')return `radial-gradient(circle at 85% 15%,${doc.tokens.primary}18 0 70px,transparent 72px),linear-gradient(45deg,transparent 47%,${a}16 48% 52%,transparent 53%)`;
-  return `linear-gradient(${g} 1px,transparent 1px),linear-gradient(90deg,${g} 1px,transparent 1px)`;
+function canvasPatternStyle(tokens,gridSize,showGrid=true){
+  const c=tokens.grid||'#dfe3ea',p=tokens.pattern||'grid',sz=Math.max(8,gridSize),accent=tokens.primary||c;
+  const line=`linear-gradient(to right,${c} 1px,transparent 1px),linear-gradient(to bottom,${c} 1px,transparent 1px)`;
+  if(!showGrid&&['grid','dots','softdots','pixel'].includes(p))return {image:'none',size:'auto'};
+  if(p==='none')return {image:'none',size:'auto'};
+  if(p==='dots'||p==='softdots')return {image:`radial-gradient(circle,${c} ${p==='dots'?1.2:.8}px,transparent 1.4px)`,size:`${sz}px ${sz}px`};
+  if(p==='scanlines')return {image:`repeating-linear-gradient(to bottom,transparent 0,transparent 5px,${c}55 6px),${line}`,size:`100% 6px,${sz}px ${sz}px,${sz}px ${sz}px`};
+  if(p==='paper')return {image:`radial-gradient(circle at 20% 30%,${c}55 .7px,transparent .9px),radial-gradient(circle at 70% 60%,${c}44 .6px,transparent .8px)`,size:'18px 18px,23px 23px'};
+  if(p==='stripes'||p==='speed')return {image:`repeating-linear-gradient(135deg,transparent 0,transparent ${sz*1.6}px,${c}44 ${sz*1.65}px,${c}44 ${sz*1.75}px)`,size:'auto'};
+  if(p==='pixel')return {image:line,size:`${Math.max(10,sz/2)}px ${Math.max(10,sz/2)}px`};
+  if(p==='spark'||p==='confetti'||p==='memphis')return {image:`radial-gradient(circle at 18% 24%,${accent}55 0 2px,transparent 3px),radial-gradient(circle at 72% 68%,${tokens.accent||accent}55 0 2px,transparent 3px),linear-gradient(35deg,transparent 48%,${c}33 49% 51%,transparent 52%)`,size:'90px 90px,110px 110px,70px 70px'};
+  if(p==='orb'||p==='blob')return {image:`radial-gradient(circle at 12% 18%,${accent}30 0,transparent 26%),radial-gradient(circle at 88% 72%,${tokens.accent||accent}28 0,transparent 28%)`,size:'100% 100%'};
+  if(p==='constellation')return {image:`radial-gradient(circle,${accent}66 0 1px,transparent 1.4px),linear-gradient(25deg,transparent 49%,${c}22 50%,transparent 51%)`,size:'46px 46px,120px 120px'};
+  if(p==='perspective')return {image:`linear-gradient(${c}55 1px,transparent 1px),linear-gradient(90deg,${c}55 1px,transparent 1px),linear-gradient(to bottom,transparent 55%,${accent}22 100%)`,size:`${sz}px ${sz}px,${sz}px ${sz}px,100% 100%`};
+  if(p==='hud')return {image:`linear-gradient(${c}55 1px,transparent 1px),linear-gradient(90deg,${c}55 1px,transparent 1px),radial-gradient(circle at 50% 50%,transparent 0 40%,${accent}12 41%,transparent 42%)`,size:`${sz}px ${sz}px,${sz}px ${sz}px,360px 360px`};
+  if(p==='bauhaus')return {image:`radial-gradient(circle at 10% 12%,${accent}25 0 28px,transparent 29px),linear-gradient(45deg,transparent 0 65%,${tokens.accent||accent}1f 66% 76%,transparent 77%)`,size:'220px 220px'};
+  if(p==='lines')return {image:`repeating-linear-gradient(to bottom,transparent 0,transparent ${sz*1.4}px,${c}55 ${sz*1.45}px)`,size:'auto'};
+  if(p==='frame')return {image:`linear-gradient(90deg,transparent 0 3%,${c}33 3.1%,transparent 3.2% 96.8%,${c}33 96.9%,transparent 97%)`,size:'100% 100%'};
+  return {image:line,size:`${sz}px ${sz}px`};
 }
-
 function renderCanvas(){
   const gridSize=doc.settings.gridSize*viewport.scale;
   canvas.style.setProperty('--canvas-bg',doc.tokens.canvas);
   canvas.style.setProperty('--grid-color',doc.tokens.grid);
   canvas.style.setProperty('--grid-size',`${Math.max(8,gridSize)}px`);
-  canvas.style.backgroundImage=doc.settings.grid?canvasPatternStyle():'none';
-  canvas.style.backgroundSize=['dots','softdots','constellation'].includes(doc.tokens.pattern)?`${Math.max(10,gridSize)}px ${Math.max(10,gridSize)}px`:['scanlines','lines','speed'].includes(doc.tokens.pattern)?'100% 12px':`${Math.max(8,gridSize)}px ${Math.max(8,gridSize)}px`;
-  canvas.classList.toggle('grid-off',!doc.settings.grid);
+  const pattern=canvasPatternStyle(doc.tokens,gridSize,doc.settings.grid);canvas.style.backgroundImage=pattern.image;canvas.style.backgroundSize=pattern.size;
+  canvas.classList.toggle('grid-off',!doc.settings.grid&&pattern.image==='none');
   const preview=connectPreview?`<path d="M ${connectPreview.start.x} ${connectPreview.start.y} L ${connectPreview.current.x} ${connectPreview.current.y}" fill="none" stroke="${esc(doc.tokens.primary)}" stroke-width="2" stroke-dasharray="6 5" vector-effect="non-scaling-stroke" pointer-events="none"/>`:'';
   const marqueeMarkup=marquee?`<rect x="${Math.min(marquee.start.x,marquee.current.x)}" y="${Math.min(marquee.start.y,marquee.current.y)}" width="${Math.abs(marquee.current.x-marquee.start.x)}" height="${Math.abs(marquee.current.y-marquee.start.y)}" fill="${esc(doc.tokens.primary)}" fill-opacity=".09" stroke="${esc(doc.tokens.primary)}" stroke-width="1.2" stroke-dasharray="5 4" vector-effect="non-scaling-stroke" pointer-events="none"/>`:'';
   viewportEl.setAttribute('transform',`translate(${viewport.x} ${viewport.y}) scale(${viewport.scale})`);
@@ -163,47 +186,97 @@ function renderMinimap(){
   mm.innerHTML=`<rect width="180" height="112" rx="10" fill="${esc(doc.tokens.canvas)}"/><g transform="translate(${ox} ${oy}) scale(${s})">${doc.nodes.map(n=>`<rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="8" fill="${esc(resolveNodeStyle(n,doc.tokens).fill)}" stroke="${esc(doc.tokens.border)}" stroke-width="2" vector-effect="non-scaling-stroke"/>`).join('')}</g>`;
 }
 
-function paletteIcon(shape){const n={type:shape.id,x:8,y:8,w:64,h:40,label:'',style:{fill:'var(--panel)',stroke:'currentColor',strokeWidth:1.6,radius:8}};return `<svg viewBox="0 0 80 56" aria-hidden="true">${shapePrimitive(n,{...doc.tokens,surface:'transparent',border:'currentColor'})}</svg>`;}
+function paletteIcon(shape){const n={type:shape.id,x:8,y:8,w:64,h:40,label:'',style:{fill:'var(--panel)',stroke:'currentColor',strokeWidth:1.6,radius:8}};return `<svg viewBox="0 0 80 56" aria-hidden="true">${shapePrimitive(n,{...doc.tokens,surface:'transparent',border:'currentColor',nodeGradient:false,nodeShadow:'none',borderDash:''})}</svg>`;}
 function builtinIconPreview(item){return `<svg viewBox="${esc(item.viewBox)}" aria-hidden="true" color="currentColor">${item.content}</svg>`;}
-function setLibraryTab(tab){libraryTab=tab;paletteQuery='';$('#shape-search').value='';renderPalette();}
+function templateCardMarkup(t,{browser=false}={}){const desc=(t.description||t.keywords||'').split(/\s+/).slice(0,8).join(' ');return `<button class="template-card ${browser?'browser-template-card':''}" data-template-id="${t.id}"><span class="template-category">${esc(t.category)}</span><strong>${esc(t.name)}</strong>${browser?`<p>${esc(desc||'템플릿')}</p>`:''}<small>${t.nodes.length} nodes · ${t.edges.length} edges</small><div class="template-meta"><span class="template-pill">${esc(t.theme||'theme')}</span><span class="template-pill">${esc(t.category)}</span></div>${browser?'<span class="template-action">캔버스로 불러오기</span>':''}</button>`;}
+function libraryCollection(tab){return tab==='icons'?BUILTIN_ICONS:tab==='templates'?TEMPLATES:SHAPES;}
+function libraryLabel(tab){return tab==='icons'?'SVG 검색 · brain, travel…':tab==='templates'?'템플릿 검색 · 계획표, 로드맵…':'도형 검색 · decision, DB…';}
+function matchesLibrary(item,tab,q){const hay=tab==='templates'?`${item.name} ${item.category} ${item.keywords||''} ${item.description||''}`:`${item.label} ${item.category} ${item.keywords||''}`;return !q||hay.toLowerCase().includes(q);}
+function filteredLibraryItems(tab=libraryTab,q=paletteQuery,cat=libraryCategory){const qq=q.trim().toLowerCase();return libraryCollection(tab).filter(item=>matchesLibrary(item,tab,qq)&&(!cat||cat==='all'||item.category===cat));}
+function libraryCategories(tab=libraryTab){return [...new Set(libraryCollection(tab).map(item=>item.category))];}
+function renderLibraryFilters(targetSelector,tab=libraryTab){const root=$(targetSelector);if(!root)return;const items=libraryCollection(tab);const counts=new Map();items.forEach(item=>counts.set(item.category,(counts.get(item.category)||0)+1));const cats=libraryCategories(tab);root.innerHTML=`<button class="filter-chip ${libraryCategory==='all'?'is-active':''}" data-library-category="all">전체 <b>${items.length}</b></button>${cats.map(cat=>`<button class="filter-chip ${libraryCategory===cat?'is-active':''}" data-library-category="${esc(cat)}">${esc(cat)} <b>${counts.get(cat)||0}</b></button>`).join('')}`;}
+function setLibraryTab(tab,{resetQuery=true}={}){libraryTab=tab;libraryCategory='all';if(resetQuery)paletteQuery='';if($('#shape-search'))$('#shape-search').value=paletteQuery;const browserSearch=$('#library-browser-search');if(browserSearch)browserSearch.value=paletteQuery;renderPalette();renderLibraryBrowser();}
+function setLibraryCategory(cat){libraryCategory=cat||'all';renderPalette();renderLibraryBrowser();}
+function groupedMarkup(items,cardFn,gridClass){const groups=new Map();items.forEach(item=>{if(!groups.has(item.category))groups.set(item.category,[]);groups.get(item.category).push(item);});return [...groups].map(([cat,groupItems])=>`<section class="palette-group browser-group"><div class="browser-group-header"><h3>${esc(cat)}</h3><span>${groupItems.length}개</span></div><div class="${gridClass}">${groupItems.map(cardFn).join('')}</div></section>`).join('');}
 function renderPalette(){
-  const q=paletteQuery.trim().toLowerCase(),shapes=SHAPES.filter(x=>!q||`${x.label} ${x.category} ${x.keywords}`.toLowerCase().includes(q)),icons=BUILTIN_ICONS.filter(x=>!q||`${x.label} ${x.category} ${x.keywords}`.toLowerCase().includes(q)),templates=TEMPLATES.filter(x=>!q||`${x.name} ${x.category} ${x.keywords}`.toLowerCase().includes(q));
-  const sg=new Map();shapes.forEach(x=>{if(!sg.has(x.category))sg.set(x.category,[]);sg.get(x.category).push(x);});
-  $('#shape-list').innerHTML=shapes.length?[...sg].map(([cat,items])=>`<section class="palette-group"><h3>${esc(cat)}</h3><div class="shape-grid">${items.map(x=>`<button class="shape-card" draggable="true" data-shape-id="${x.id}" title="${esc(x.label)} 추가">${paletteIcon(x)}<span>${esc(x.label)}</span></button>`).join('')}</div></section>`).join(''):`<div class="empty-state"><strong>도형을 찾지 못했습니다.</strong></div>`;
-  const ig=new Map();icons.forEach(x=>{if(!ig.has(x.category))ig.set(x.category,[]);ig.get(x.category).push(x);});
-  $('#icon-list').innerHTML=icons.length?[...ig].map(([cat,items])=>`<section class="palette-group icon-palette-group"><h3>${esc(cat)}</h3><div class="icon-grid">${items.map(x=>`<button class="svg-icon-card" draggable="true" data-icon-id="${x.id}" title="${esc(x.label)} SVG 추가">${builtinIconPreview(x)}<span>${esc(x.label)}</span></button>`).join('')}</div></section>`).join(''):`<div class="empty-state"><strong>SVG 심볼을 찾지 못했습니다.</strong></div>`;
-  $('#template-list').innerHTML=templates.length?templates.map(t=>`<button class="template-card" data-template-id="${t.id}"><span class="template-category">${esc(t.category)}</span><strong>${esc(t.name)}</strong><small>${t.nodes.length} nodes · ${t.edges.length} edges</small></button>`).join(''):`<div class="empty-state"><strong>템플릿을 찾지 못했습니다.</strong></div>`;
-  $('#shape-section').hidden=libraryTab!=='shapes';$('#icon-section').hidden=libraryTab!=='icons';$('#template-section').hidden=libraryTab!=='templates';$$('.library-tab').forEach(b=>b.classList.toggle('is-active',b.dataset.libraryTab===libraryTab));$('#shape-total').textContent=SHAPES.length;$('#icon-total').textContent=BUILTIN_ICONS.length;$('#template-total').textContent=TEMPLATES.length;$('#shape-search').placeholder=libraryTab==='icons'?'SVG 검색 · server, 보안…':libraryTab==='templates'?'템플릿 검색 · incident, 여정…':'도형 검색 · decision, DB…';
+  const shapes=filteredLibraryItems('shapes');
+  const icons=filteredLibraryItems('icons');
+  const templates=filteredLibraryItems('templates');
+  $('#shape-list').innerHTML=shapes.length?groupedMarkup(shapes,s=>`<button class="shape-card" draggable="true" data-shape-id="${s.id}" title="${esc(s.label)} 추가">${paletteIcon(s)}<span>${esc(s.label)}</span></button>`,'shape-grid'):`<div class="empty-state"><strong>도형을 찾지 못했습니다.</strong><span>다른 검색어나 카테고리를 선택해 보세요.</span></div>`;
+  $('#icon-list').innerHTML=icons.length?groupedMarkup(icons,i=>`<button class="svg-icon-card" draggable="true" data-icon-id="${i.id}" title="${esc(i.label)} SVG 추가">${builtinIconPreview(i)}<span>${esc(i.label)}</span></button>`,'icon-grid'):`<div class="empty-state"><strong>SVG 심볼을 찾지 못했습니다.</strong><span>다른 검색어나 카테고리를 선택해 보세요.</span></div>`;
+  $('#template-list').innerHTML=templates.length?templates.map(t=>templateCardMarkup(t)).join(''):`<div class="empty-state"><strong>템플릿을 찾지 못했습니다.</strong><span>다른 검색어나 카테고리를 선택해 보세요.</span></div>`;
+  $('#shape-section').hidden=libraryTab!=='shapes';$('#icon-section').hidden=libraryTab!=='icons';$('#template-section').hidden=libraryTab!=='templates';
+  $$('.library-tab').forEach(b=>b.classList.toggle('is-active',b.dataset.libraryTab===libraryTab));
+  $('#shape-total').textContent=SHAPES.length;$('#icon-total').textContent=BUILTIN_ICONS.length;$('#template-total').textContent=TEMPLATES.length;
+  const search=$('#shape-search');if(search)search.placeholder=libraryLabel(libraryTab);
+  renderLibraryFilters('#library-filters',libraryTab);
 }
+function renderLibraryBrowser(){
+  const content=$('#library-browser-content');if(!content)return;
+  const items=filteredLibraryItems(libraryTab);
+  $$('.browser-library-tabs .library-tab').forEach(b=>b.classList.toggle('is-active',b.dataset.libraryTab===libraryTab));
+  $('#browser-shape-total').textContent=SHAPES.length;$('#browser-icon-total').textContent=BUILTIN_ICONS.length;$('#browser-template-total').textContent=TEMPLATES.length;
+  const search=$('#library-browser-search');if(search)search.placeholder=libraryLabel(libraryTab);
+  renderLibraryFilters('#browser-category-filters',libraryTab);
+  if(!items.length){content.innerHTML=`<div class="empty-state"><strong>검색 결과가 없습니다.</strong><span>카테고리나 키워드를 바꿔 보세요.</span></div>`;return;}
+  if(libraryTab==='shapes')content.innerHTML=groupedMarkup(items,s=>`<button class="shape-card browser-shape-card" draggable="true" data-shape-id="${s.id}" title="${esc(s.label)} 추가">${paletteIcon(s)}<span>${esc(s.label)}</span></button>`,'browser-shape-grid');
+  else if(libraryTab==='icons')content.innerHTML=groupedMarkup(items,i=>`<button class="svg-icon-card browser-icon-card" draggable="true" data-icon-id="${i.id}" title="${esc(i.label)} SVG 추가">${builtinIconPreview(i)}<span>${esc(i.label)}</span></button>`,'browser-icon-grid');
+  else content.innerHTML=`<section class="browser-group"><div class="browser-group-header"><h3>${libraryCategory==='all'?'전체 템플릿':esc(libraryCategory)}</h3><span>${items.length}개</span></div><div class="browser-template-grid">${items.map(t=>templateCardMarkup(t,{browser:true})).join('')}</div></section>`;
+}
+function openLibraryBrowser(tab=libraryTab){libraryTab=tab;renderPalette();renderLibraryBrowser();openDialog('#library-browser-dialog');setTimeout(()=>$('#library-browser-search')?.focus(),0);}
+function autosizeNodeForText(node){if(!node||!node.label||['radial-plan','brain-map','image','custom-svg'].includes(node.type))return;const fs=Number(node.style?.fontSize)||15;const raw=String(node.label);const longest=Math.max(...raw.split(/\s+/).map(x=>x.length),4);const chars=Math.max(longest,Math.min(32,Math.ceil(Math.sqrt(raw.length*18))));node.w=Math.max(node.w,clamp(chars*fs*.58+34,120,420));const per=Math.max(5,Math.floor((node.w-28)/(fs*.57)));const lines=Math.max(1,Math.ceil(raw.length/per));node.h=Math.max(node.h,clamp(lines*fs*1.35+30,54,260));}
+function cleanImageSource(value=''){const v=String(value||'').trim();return /^(data:image\/(?:png|jpeg|jpg|webp|gif|svg\+xml);base64,|https?:\/\/)/i.test(v)?v:'';}
+async function readImageFile(file){if(!file)return'';if(!file.type.startsWith('image/'))throw new Error('이미지 파일을 선택하세요.');if(file.size>4*1024*1024)throw new Error('이미지는 4MB 이하를 권장합니다.');return await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||''));reader.onerror=()=>reject(new Error('이미지를 읽지 못했습니다.'));reader.readAsDataURL(file);});}
+async function createShareLink(){const payload=await encodeShareDocument(snapshot());const url=`${location.origin}${location.pathname}#share=${payload}`;$('#share-url').value=url;$('#share-size').textContent=`링크 데이터 ${Math.round(url.length/1024*10)/10}KB · 서버 업로드 없이 URL 안에 저장`;openDialog('#share-dialog');return url;}
+function copyShareLink(){const value=$('#share-url').value;navigator.clipboard?.writeText(value).then(()=>toast('공유 링크를 복사했습니다.','success')).catch(()=>{$('#share-url').select();document.execCommand('copy');toast('공유 링크를 복사했습니다.','success');});}
+
 function inspectorSelectionHtml(){
   const nodes=selectedNodes();const edge=doc.edges.find(e=>e.id===selection.edgeId);
   if(!nodes.length&&!edge)return `<div class="inspector-empty"><div class="empty-icon">⌁</div><strong>요소를 선택하세요</strong><p>노드나 연결선을 선택하면 크기, 색상, 텍스트, 라우팅을 편집할 수 있습니다.</p><kbd>Ctrl/⌘ K</kbd><span>빠른 검색</span></div>`;
   if(edge){const stroke=edge.style?.stroke??doc.tokens.edge;const width=edge.style?.width??1.8;return `<div class="form-stack"><label>연결선 라벨<input data-edge-prop="label" value="${esc(edge.label)}" placeholder="예: 승인, API"></label><label>라우팅<select data-edge-prop="routing"><option value="orthogonal" ${edge.routing==='orthogonal'?'selected':''}>직각</option><option value="bezier" ${edge.routing==='bezier'?'selected':''}>곡선</option><option value="straight" ${edge.routing==='straight'?'selected':''}>직선</option></select></label><div class="field-row"><label>선 색상<input type="color" data-edge-prop="stroke" value="${stroke.startsWith('#')?stroke:'#64748b'}"></label><label>두께<input type="number" min="1" max="8" step="0.2" data-edge-prop="width" value="${width}"></label></div><label>선 스타일<select data-edge-prop="dash"><option value="" ${(edge.style?.dash??'')===''?'selected':''}>실선</option><option value="7 5" ${edge.style?.dash==='7 5'?'selected':''}>점선</option><option value="2 5" ${edge.style?.dash==='2 5'?'selected':''}>도트</option></select></label><label class="switch-row"><span>화살표</span><input type="checkbox" data-edge-prop="arrow" ${edge.style?.arrow!==false?'checked':''}></label><button class="danger-btn" data-action="delete-selection">연결선 삭제</button></div>`;}
   const first=nodes[0], style=resolveNodeStyle(first,doc.tokens), mixed=nodes.length>1;
-  const portCount=Number(first.style?.portCount??doc.tokens.portCount??4),portShape=first.style?.portShape??doc.tokens.portShape??'circle';
-  const portEditor=!mixed?`<div class="field-row"><label>연결 포인트<select data-node-prop="portCount"><option value="0" ${portCount===0?'selected':''}>없음</option><option value="4" ${portCount===4?'selected':''}>4면</option><option value="8" ${portCount===8?'selected':''}>8개</option></select></label><label>포트 형태<select data-node-prop="portShape"><option value="circle" ${portShape==='circle'?'selected':''}>원형</option><option value="square" ${portShape==='square'?'selected':''}>사각</option><option value="diamond" ${portShape==='diamond'?'selected':''}>다이아</option></select></label></div>`:'';
-  if(!mixed&&first.type==='custom-svg'){const iconColor=first.style?.iconColor??doc.tokens.text,iconBg=first.style?.iconBackground??'#ffffff',meta=first.customSvg||{},source=meta.sourceUrl?`<a class="source-link" href="${esc(meta.sourceUrl)}" target="_blank" rel="noopener noreferrer">원본 SVG 출처 ↗</a>`:'';return `<div class="selection-summary"><strong>${esc(meta.name||'SVG 자산')}</strong><span>${meta.origin==='nodeweave-symbols'?'NodeWeave 기본 SVG 심볼':'가져온 SVG 자산'}</span></div><div class="form-stack svg-inspector"><div class="field-row"><label>아이콘 색상<input type="color" data-node-prop="iconColor" value="${iconColor.startsWith('#')?iconColor:'#172033'}"></label><label>배경 색상<input type="color" data-node-prop="iconBackground" value="${iconBg.startsWith('#')?iconBg:'#ffffff'}"></label></div><div class="field-row"><label>회전<input type="number" min="-360" max="360" step="15" data-node-prop="rotation" value="${Number(first.style?.rotation)||0}"></label><label>내부 여백<input type="number" min="0" max="40" data-node-prop="padding" value="${Number(first.style?.padding)||0}"></label></div><div class="field-row"><label>너비<input type="number" min="32" max="1200" data-node-field="w" value="${Math.round(first.w)}"></label><label>높이<input type="number" min="32" max="800" data-node-field="h" value="${Math.round(first.h)}"></label></div>${portEditor}<div class="button-grid"><button data-action="flip-x">좌우 반전</button><button data-action="flip-y">상하 반전</button><button data-action="clear-icon-background">배경 없음</button><button data-action="normalize-svg-color">단색 편집화</button><button data-action="bring-front">맨 앞으로</button><button data-action="send-back">맨 뒤로</button></div>${source}<div class="button-row"><button data-action="duplicate">복제</button><button data-action="copy-selection">복사</button><button class="danger-btn" data-action="delete-selection">삭제</button></div></div>`;}
+  if(!mixed&&first.type==='radial-plan'){
+    const data=first.data||{},total=Number(data.clockMode)===12?12:24,segs=Array.isArray(data.segments)?data.segments:[];const assigned=segs.reduce((sum,seg)=>{let a=Number(seg.start)||0,b=Number(seg.end)||0;let d=(b-a+total)%total;if(d===0&&String(seg.start)!==String(seg.end))d=total;return sum+d;},0);
+    return `<div class="selection-summary"><strong>원형 생활계획표</strong><span>시간을 입력하면 원의 구간 비율이 즉시 바뀝니다.</span></div><div class="form-stack smart-editor"><div class="field-row"><label>시계 방식<select data-smart-prop="clockMode"><option value="24" ${total===24?'selected':''}>24시간</option><option value="12" ${total===12?'selected':''}>12시간</option></select></label><label>배정 시간<input value="${Math.round(assigned*10)/10}/${total}h" disabled></label></div><label>가운데 제목<input data-smart-prop="title" value="${esc(data.title||'생활계획')}"></label><h3>시간 구간</h3><div class="smart-rows">${segs.map((seg,i)=>`<div class="smart-row plan-row" data-plan-index="${i}"><input data-plan-field="color" type="color" value="${esc(seg.color||'#6366f1')}"><input data-plan-field="label" value="${esc(seg.label||'활동')}" aria-label="활동"><input data-plan-field="start" type="number" min="0" max="${total}" step="0.5" value="${seg.start}"><span>→</span><input data-plan-field="end" type="number" min="0" max="${total}" step="0.5" value="${seg.end}"><button data-action="plan-delete" data-plan-index="${i}" title="구간 삭제">×</button></div>`).join('')}</div><button data-action="plan-add">＋ 시간 구간 추가</button><div class="field-row"><label>너비<input type="number" data-node-field="w" min="300" max="1000" value="${Math.round(first.w)}"></label><label>높이<input type="number" data-node-field="h" min="300" max="1000" value="${Math.round(first.h)}"></label></div><small class="inspector-help">예: 수면 0→7, 학교 9→17. 종료 시간이 시작보다 작으면 자정을 넘어가는 구간으로 계산합니다.</small></div>`;
+  }
+  if(!mixed&&first.type==='brain-map'){
+    const data=first.data||{},regions=Array.isArray(data.regions)?data.regions:[];const total=regions.reduce((s,r)=>s+(Number(r.percent)||0),0);
+    return `<div class="selection-summary"><strong>머릿속 생각 지도</strong><span>머리 실루엣 내부 영역별 생각과 비율을 편집합니다.</span></div><div class="form-stack smart-editor"><label>제목<input data-smart-prop="title" value="${esc(data.title||'내 머릿속')}"></label><div class="smart-total ${total===100?'is-ok':'is-warn'}">합계 <strong>${total}%</strong> ${total===100?'✓':'· 100%가 되도록 조정하세요'}</div><h3>생각 영역</h3><div class="smart-rows">${Array.from({length:6},(_,i)=>{const r=regions[i]||{};return `<div class="smart-row brain-row" data-brain-index="${i}"><input type="color" data-brain-field="color" value="${esc(r.color||'#c4b5fd')}"><input data-brain-field="label" value="${esc(r.label||`생각 ${i+1}`)}"><input type="number" data-brain-field="percent" min="0" max="100" value="${Number(r.percent)||0}"><span>%</span></div>`;}).join('')}</div><div class="field-row"><label>너비<input type="number" data-node-field="w" min="480" max="1200" value="${Math.round(first.w)}"></label><label>높이<input type="number" data-node-field="h" min="420" max="1000" value="${Math.round(first.h)}"></label></div></div>`;
+  }
+  if(!mixed&&first.type==='image'){
+    const media=first.media||{};return `<div class="selection-summary"><strong>이미지</strong><span>파일을 넣고 crop/fit과 캡션을 조정합니다.</span></div><div class="form-stack image-inspector"><div class="image-preview">${media.src?`<img src="${esc(media.src)}" alt="">`:'<span>이미지를 선택하세요</span>'}</div><label class="file-btn inspector-file">이미지 파일 선택<input type="file" data-image-upload accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" hidden></label><label>이미지 URL<input data-image-url type="url" value="${/^https?:/i.test(media.src||'')?esc(media.src):''}" placeholder="https://…"></label><div class="field-row"><label>맞춤<select data-image-prop="fit"><option value="cover" ${media.fit==='cover'?'selected':''}>영역 채우기 / Crop</option><option value="contain" ${media.fit==='contain'?'selected':''}>전체 보이기</option><option value="stretch" ${media.fit==='stretch'?'selected':''}>늘려 맞추기</option></select></label><label>투명도<input data-image-prop="opacity" type="number" min="0.1" max="1" step="0.1" value="${Number(media.opacity??1)}"></label></div><label class="switch-row"><span>캡션 표시</span><input data-image-prop="showCaption" type="checkbox" ${media.showCaption?'checked':''}></label>${media.showCaption?`<label>캡션<input data-node-prop="label" value="${esc(first.label||'')}"></label>`:''}<div class="field-row"><label>너비<input type="number" data-node-field="w" min="80" max="1400" value="${Math.round(first.w)}"></label><label>높이<input type="number" data-node-field="h" min="60" max="1000" value="${Math.round(first.h)}"></label></div><div class="button-row"><button data-action="image-remove">이미지 제거</button><button data-action="duplicate">복제</button><button class="danger-btn" data-action="delete-selection">삭제</button></div></div>`;
+  }
+  if(!mixed&&first.type==='custom-svg'){
+    const iconColor=first.style?.iconColor??doc.tokens.text;const iconBg=first.style?.iconBackground??'#ffffff';const meta=first.customSvg||{};const source=meta.sourceUrl?`<a class="source-link" href="${esc(meta.sourceUrl)}" target="_blank" rel="noopener noreferrer">원본 SVG 출처 ↗</a>`:'';
+    return `<div class="selection-summary"><strong>${esc(meta.name||'SVG 자산')}</strong><span>${meta.origin?.startsWith('catalog:')?'JSON 카탈로그 SVG':meta.origin==='nodeweave-symbols'?'NodeWeave 기본 SVG 심볼':'가져온 SVG 자산'}</span></div><div class="form-stack svg-inspector"><div class="field-row"><label>사용 방식<select data-svg-prop="mode"><option value="icon" ${meta.mode!=='block'?'selected':''}>그림만</option><option value="block" ${meta.mode==='block'?'selected':''}>텍스트 포함 블록</option></select></label><label>텍스트 위치<select data-svg-prop="labelPosition" ${meta.mode!=='block'?'disabled':''}><option value="center" ${meta.labelPosition==='center'?'selected':''}>가운데</option><option value="top" ${meta.labelPosition==='top'?'selected':''}>위</option><option value="bottom" ${meta.labelPosition==='bottom'?'selected':''}>아래</option><option value="none" ${meta.labelPosition==='none'?'selected':''}>숨김</option></select></label></div>${meta.mode==='block'?`<label>블록 텍스트<textarea data-node-prop="label" rows="2">${esc(first.label)}</textarea></label><label class="switch-row"><span>텍스트 자동 축소</span><input type="checkbox" data-node-prop="autoTextFit" ${first.style?.autoTextFit!==false?'checked':''}></label>`:''}
+      <div class="field-row"><label>아이콘 색상<input type="color" data-node-prop="iconColor" value="${iconColor.startsWith('#')?iconColor:'#172033'}"></label><label>배경 색상<input type="color" data-node-prop="iconBackground" value="${iconBg.startsWith('#')?iconBg:'#ffffff'}"></label></div>
+      <div class="field-row"><label>회전<input type="number" min="-360" max="360" step="15" data-node-prop="rotation" value="${Number(first.style?.rotation)||0}"></label><label>내부 여백<input type="number" min="0" max="40" step="1" data-node-prop="padding" value="${Number(first.style?.padding)||0}"></label></div>
+      <div class="field-row"><label>너비<input type="number" min="32" max="1200" step="1" data-node-field="w" value="${Math.round(first.w)}"></label><label>높이<input type="number" min="32" max="800" step="1" data-node-field="h" value="${Math.round(first.h)}"></label></div>
+      <div class="field-row"><label>연결 포인트<select data-node-prop="portCount"><option value="0" ${(first.style?.portCount??doc.tokens.portCount)===0?'selected':''}>없음</option><option value="4" ${(first.style?.portCount??doc.tokens.portCount)===4?'selected':''}>4면</option><option value="8" ${(first.style?.portCount??doc.tokens.portCount)===8?'selected':''}>8개</option></select></label><label>포트 모양<select data-node-prop="portShape"><option value="circle" ${(first.style?.portShape??doc.tokens.portShape)==='circle'?'selected':''}>원형</option><option value="square" ${(first.style?.portShape??doc.tokens.portShape)==='square'?'selected':''}>사각</option><option value="diamond" ${(first.style?.portShape??doc.tokens.portShape)==='diamond'?'selected':''}>다이아</option></select></label></div>
+      <div class="button-grid"><button data-action="flip-x">좌우 반전</button><button data-action="flip-y">상하 반전</button><button data-action="clear-icon-background">배경 없음</button><button data-action="normalize-svg-color">단색 편집화</button><button data-action="bring-front">맨 앞으로</button><button data-action="send-back">맨 뒤로</button></div>
+      ${source}<div class="button-row"><button data-action="duplicate">복제</button><button data-action="copy-selection">복사</button><button class="danger-btn" data-action="delete-selection">삭제</button></div></div>`;
+  }
   return `<div class="selection-summary"><strong>${mixed?`${nodes.length}개 노드 선택`:esc(first.label)}</strong><span>${mixed?'여러 요소에 같은 값을 일괄 적용합니다.':esc(shapeById(first.type).label)}</span></div><div class="form-stack">
     ${!mixed?`<label>텍스트<textarea data-node-prop="label" rows="3">${esc(first.label)}</textarea></label>`:''}
     <div class="field-row"><label>채우기<input type="color" data-node-prop="fill" value="${style.fill.startsWith('#')?style.fill:'#ffffff'}"></label><label>테두리<input type="color" data-node-prop="stroke" value="${style.stroke.startsWith('#')?style.stroke:'#64748b'}"></label></div>
     <div class="field-row"><label>텍스트<input type="color" data-node-prop="text" value="${style.text.startsWith('#')?style.text:'#111827'}"></label><label>선 두께<input type="number" min="0.5" max="8" step="0.1" data-node-prop="strokeWidth" value="${style.strokeWidth}"></label></div>
     <div class="field-row"><label>글자 크기<input type="number" min="9" max="48" step="1" data-node-prop="fontSize" value="${style.fontSize}"></label><label>모서리<input type="number" min="0" max="64" step="1" data-node-prop="radius" value="${style.radius}"></label></div>
     ${!mixed?`<div class="field-row"><label>너비<input type="number" min="48" max="1200" step="1" data-node-field="w" value="${Math.round(first.w)}"></label><label>높이<input type="number" min="40" max="800" step="1" data-node-field="h" value="${Math.round(first.h)}"></label></div>`:''}
-    ${portEditor}<div class="button-grid"><button data-action="reset-node-style">테마값 복원</button><button data-action="duplicate">복제</button><button data-action="copy-selection">복사</button><button data-action="bring-front">맨 앞으로</button><button data-action="send-back">맨 뒤로</button><button class="danger-btn" data-action="delete-selection">삭제</button></div></div>`;
+    ${!mixed?`<div class="field-row"><label class="switch-row"><span>텍스트 자동 축소</span><input type="checkbox" data-node-prop="autoTextFit" ${first.style?.autoTextFit!==false?'checked':''}></label><label class="switch-row"><span>텍스트에 맞춰 크기</span><input type="checkbox" data-node-prop="autoSize" ${first.style?.autoSize?'checked':''}></label></div>`:''}
+    ${!mixed?`<div class="field-row"><label>연결 포인트<select data-node-prop="portCount"><option value="0" ${(first.style?.portCount??doc.tokens.portCount)===0?'selected':''}>없음</option><option value="4" ${(first.style?.portCount??doc.tokens.portCount)===4?'selected':''}>4면</option><option value="8" ${(first.style?.portCount??doc.tokens.portCount)===8?'selected':''}>8개</option></select></label><label>포트 모양<select data-node-prop="portShape"><option value="circle" ${(first.style?.portShape??doc.tokens.portShape)==='circle'?'selected':''}>원형</option><option value="square" ${(first.style?.portShape??doc.tokens.portShape)==='square'?'selected':''}>사각</option><option value="diamond" ${(first.style?.portShape??doc.tokens.portShape)==='diamond'?'selected':''}>다이아</option></select></label></div>`:''}
+    <div class="button-grid"><button data-action="reset-node-style">테마값 복원</button><button data-action="duplicate">복제</button><button data-action="copy-selection">복사</button><button data-action="bring-front">맨 앞으로</button><button data-action="send-back">맨 뒤로</button><button class="danger-btn" data-action="delete-selection">삭제</button></div></div>`;
 }
 function inspectorThemeHtml(){
-  const groups=new Map();
-  THEMES.forEach(t=>{const c=t.category||'Core';if(!groups.has(c))groups.set(c,[]);groups.get(c).push(t);});
-  const card=t=>'<button class="theme-card style-preview '+(doc.themeId===t.id?'is-active':'')+'" data-theme-id="'+esc(t.id)+'" style="--pv-bg:'+esc(t.tokens.canvas)+';--pv-surface:'+esc(t.tokens.surface)+';--pv-primary:'+esc(t.tokens.primary)+';--pv-border:'+esc(t.tokens.border)+';--pv-radius:'+(Number(t.tokens.radius)||0)+'px"><span class="style-preview-art"><i></i><b></b><em></em></span><strong>'+esc(t.label)+'</strong><small>'+esc(t.description)+'</small></button>';
-  const cards=[...groups].map(([cat,items])=>'<section class="style-pack-group"><div class="style-pack-head"><strong>'+esc(cat)+'</strong><span>'+items.length+'</span></div><div class="theme-grid">'+items.map(card).join('')+'</div></section>').join('');
-  return '<div class="style-summary"><strong>'+THEMES.length+' Style Packs</strong><span>색상 · 그림자 · 패턴 · 연결선 · 포트 · 타이포를 함께 변경합니다.</span></div>'+cards+'<div class="form-stack token-editor"><h3>세부 토큰</h3><div class="field-row"><label>캔버스<input type="color" data-token="canvas" value="'+doc.tokens.canvas+'"></label><label>표면<input type="color" data-token="surface" value="'+doc.tokens.surface+'"></label></div><div class="field-row"><label>주요색<input type="color" data-token="primary" value="'+doc.tokens.primary+'"></label><label>텍스트<input type="color" data-token="text" value="'+doc.tokens.text+'"></label></div><div class="field-row"><label>경계<input type="color" data-token="border" value="'+doc.tokens.border+'"></label><label>연결선<input type="color" data-token="edge" value="'+doc.tokens.edge+'"></label></div><label>기본 모서리<input type="range" min="0" max="40" step="1" data-token="radius" value="'+doc.tokens.radius+'"></label><div class="field-row"><label>기본 포트<select data-token="portCount"><option value="0" '+(Number(doc.tokens.portCount)===0?'selected':'')+'>없음</option><option value="4" '+(Number(doc.tokens.portCount??4)===4?'selected':'')+'>4면</option><option value="8" '+(Number(doc.tokens.portCount)===8?'selected':'')+'>8개</option></select></label><label>포트 형태<select data-token="portShape"><option value="circle" '+(doc.tokens.portShape==='circle'?'selected':'')+'>원형</option><option value="square" '+(doc.tokens.portShape==='square'?'selected':'')+'>사각</option><option value="diamond" '+(doc.tokens.portShape==='diamond'?'selected':'')+'>다이아</option></select></label></div></div>';
+  const groups=new Map();THEMES.forEach(t=>{const cat=t.category||'Built-in';if(!groups.has(cat))groups.set(cat,[]);groups.get(cat).push(t);});
+  const cards=[...groups].map(([cat,items])=>`<section class="style-pack-group"><div class="style-pack-head"><strong>${esc(cat)}</strong><span>${items.length}</span></div><div class="theme-grid">${items.map(t=>{const tok=t.tokens||{};const shadow=tok.nodeShadow==='hard'?`${tok.shadowX||5}px ${tok.shadowY||5}px 0 ${tok.shadowColor||tok.border}`:tok.nodeShadow==='none'?'none':`0 5px ${Math.max(6,tok.shadowBlur||10)}px ${tok.shadowColor||'#0002'}`;return `<button class="theme-card ${doc.themeId===t.id?'is-active':''}" data-theme-id="${t.id}"><span class="style-preview" style="background:${tok.canvas};background-image:${(tok.pattern==='dots'||tok.pattern==='softdots')?`radial-gradient(circle,${tok.grid} 1px,transparent 1.5px)`:'none'}"><i style="background:${tok.nodeGradient?`linear-gradient(135deg,${tok.gradientStart},${tok.gradientEnd})`:tok.surface};border:${tok.nodeStrokeWidth||1.5}px solid ${tok.border};border-radius:${tok.radius||0}px;box-shadow:${shadow}"></i><b style="background:${tok.primary}"></b></span><strong>${esc(t.label)}</strong><small>${esc(t.description)}</small></button>`;}).join('')}</div></section>`).join('');
+  return `<div class="style-summary"><strong>${THEMES.length} styles</strong><span>색상뿐 아니라 표면·그림자·패턴·타이포·연결선·포트까지 함께 변경합니다.</span></div>${cards}<div class="form-stack token-editor"><h3>세부 토큰</h3><div class="field-row"><label>캔버스<input type="color" data-token="canvas" value="${doc.tokens.canvas}"></label><label>표면<input type="color" data-token="surface" value="${/^#[0-9a-f]{6}$/i.test(doc.tokens.surface)?doc.tokens.surface:'#ffffff'}"></label></div><div class="field-row"><label>주요색<input type="color" data-token="primary" value="${doc.tokens.primary}"></label><label>텍스트<input type="color" data-token="text" value="${doc.tokens.text}"></label></div><div class="field-row"><label>경계<input type="color" data-token="border" value="${/^#[0-9a-f]{6}$/i.test(doc.tokens.border)?doc.tokens.border:'#64748b'}"></label><label>연결선<input type="color" data-token="edge" value="${doc.tokens.edge}"></label></div><label>기본 모서리<input type="range" min="0" max="40" step="1" data-token="radius" value="${doc.tokens.radius}"><output>${doc.tokens.radius}px</output></label><label>기본 연결 포인트<select data-token="portCount"><option value="0" ${doc.tokens.portCount===0?'selected':''}>없음</option><option value="4" ${doc.tokens.portCount===4?'selected':''}>4면</option><option value="8" ${doc.tokens.portCount===8?'selected':''}>8개</option></select></label></div>`;
 }
 function inspectorLayoutHtml(){return `<div class="form-stack"><h3>자동 레이아웃</h3><label>방향<select id="layout-direction"><option value="LR" ${doc.settings.layoutDirection==='LR'?'selected':''}>왼쪽 → 오른쪽</option><option value="TB" ${doc.settings.layoutDirection==='TB'?'selected':''}>위 → 아래</option></select></label><div class="field-row"><label>가로 간격<input id="layout-hgap" type="number" min="40" max="320" value="${doc.settings.horizontalGap}"></label><label>세로 간격<input id="layout-vgap" type="number" min="30" max="240" value="${doc.settings.verticalGap}"></label></div><button class="primary-btn" data-action="auto-layout">흐름 기준 자동 배치</button><h3>정렬</h3><div class="button-grid"><button data-align="left">왼쪽</button><button data-align="center-x">가운데 X</button><button data-align="top">위쪽</button><button data-align="center-y">가운데 Y</button><button data-align="distribute-x">가로 분배</button><button data-align="distribute-y">세로 분배</button></div><h3>캔버스</h3><label class="switch-row"><span>그리드 표시</span><input type="checkbox" data-setting="grid" ${doc.settings.grid?'checked':''}></label><label class="switch-row"><span>그리드 스냅</span><input type="checkbox" data-setting="snap" ${doc.settings.snap?'checked':''}></label><label>그리드 간격<input type="number" min="8" max="80" step="2" data-setting="gridSize" value="${doc.settings.gridSize}"></label></div>`;}
 function renderInspector(){
   $$('.inspector-tab').forEach(b=>b.classList.toggle('is-active',b.dataset.tab===inspectorTab));
   $('#inspector-content').innerHTML=inspectorTab==='theme'?inspectorThemeHtml():inspectorTab==='layout'?inspectorLayoutHtml():inspectorSelectionHtml();
 }
-function render(){renderCanvas();renderPalette();renderInspector();$('#project-name').value=doc.meta.name;updateUndoButtons();updatePanelState();}
+function render(){renderCanvas();renderPalette();renderLibraryBrowser();renderInspector();$('#project-name').value=doc.meta.name;updateUndoButtons();updatePanelState();}
 
 function updatePanelState(){document.body.classList.toggle('left-closed',!leftOpen);document.body.classList.toggle('right-closed',!rightOpen);}
 function zoomAt(factor,clientX,clientY){const before=clientToWorld(clientX,clientY);viewport.scale=clamp(viewport.scale*factor,.2,3.5);const r=canvas.getBoundingClientRect();viewport.x=clientX-r.left-before.x*viewport.scale;viewport.y=clientY-r.top-before.y*viewport.scale;renderCanvas();}
@@ -227,17 +300,27 @@ function loadTemplate(id){const t=TEMPLATES.find(x=>x.id===id);if(!t)return;cons
 function applyTheme(id){const t=themeById(id);commit(()=>{doc.tokens=deepClone(t.tokens);doc.themeId=t.id;},`${t.label} 스타일 적용`);}
 
 function sanitizeSvgSource(text,prefix,{normalizeColor=false}={}){
-  const parsed=new DOMParser().parseFromString(text,'image/svg+xml');if(parsed.querySelector('parsererror'))throw new Error('SVG 문법을 읽을 수 없습니다.');const root=parsed.documentElement;if(root.nodeName.toLowerCase()!=='svg')throw new Error('SVG 파일이 아닙니다.');
-  const allowed=new Set(['svg','g','path','rect','circle','ellipse','line','polyline','polygon','defs','lineargradient','radialgradient','stop','clippath','mask','title','desc','use']),attrs=new Set(['id','d','x','y','x1','y1','x2','y2','cx','cy','r','rx','ry','width','height','points','fill','fill-opacity','fill-rule','stroke','stroke-width','stroke-opacity','stroke-linecap','stroke-linejoin','stroke-dasharray','opacity','transform','offset','stop-color','stop-opacity','gradientunits','gradienttransform','viewbox','preserveaspectratio','clip-path','mask','href','xlink:href']);
+  const parsed=new DOMParser().parseFromString(text,'image/svg+xml');
+  if(parsed.querySelector('parsererror'))throw new Error('SVG 문법을 읽을 수 없습니다.');
+  const root=parsed.documentElement;if(root.nodeName.toLowerCase()!=='svg')throw new Error('SVG 파일이 아닙니다.');
+  const allowed=new Set(['svg','g','path','rect','circle','ellipse','line','polyline','polygon','defs','lineargradient','radialgradient','stop','clippath','mask','title','desc','use']);
+  const attrs=new Set(['id','d','x','y','x1','y1','x2','y2','cx','cy','r','rx','ry','width','height','points','fill','fill-opacity','fill-rule','stroke','stroke-width','stroke-opacity','stroke-linecap','stroke-linejoin','stroke-dasharray','opacity','transform','offset','stop-color','stop-opacity','gradientunits','gradienttransform','viewbox','preserveaspectratio','clip-path','mask','href','xlink:href']);
   for(const el of [...root.querySelectorAll('*')]){if(!allowed.has(el.nodeName.toLowerCase())){el.remove();continue;}for(const a of [...el.attributes]){const name=a.name.toLowerCase(),value=a.value.trim();if(!attrs.has(name)||name.startsWith('on')||/javascript:/i.test(value)||/url\((?!['"]?#)/i.test(value)||(name==='href'||name==='xlink:href')&&!value.startsWith('#'))el.removeAttribute(a.name);}}
-  if(normalizeColor)for(const el of root.querySelectorAll('*')){const fill=el.getAttribute('fill'),stroke=el.getAttribute('stroke');if(fill&&!/^(none|transparent|currentColor)$/i.test(fill)&&!/^url\(/i.test(fill))el.setAttribute('fill','currentColor');if(stroke&&!/^(none|transparent|currentColor)$/i.test(stroke)&&!/^url\(/i.test(stroke))el.setAttribute('stroke','currentColor');}
-  const idMap=new Map();for(const el of root.querySelectorAll('[id]')){const old=el.id,nw=`${prefix}-${old.replace(/[^a-zA-Z0-9_-]/g,'')||'id'}`;idMap.set(old,nw);el.id=nw;}for(const el of root.querySelectorAll('*'))for(const a of [...el.attributes]){let v=a.value;for(const [old,nw] of idMap)v=v.replaceAll(`url(#${old})`,`url(#${nw})`).replaceAll(`#${old}`,`#${nw}`);el.setAttribute(a.name,v);}
-  return {viewBox:root.getAttribute('viewBox')||`0 0 ${Number(root.getAttribute('width'))||100} ${Number(root.getAttribute('height'))||100}`,content:root.innerHTML};
+  if(normalizeColor){for(const el of root.querySelectorAll('*')){const fill=el.getAttribute('fill'),stroke=el.getAttribute('stroke');if(fill&&!/^(none|transparent|currentColor)$/i.test(fill)&&!/^url\(/i.test(fill))el.setAttribute('fill','currentColor');if(stroke&&!/^(none|transparent|currentColor)$/i.test(stroke)&&!/^url\(/i.test(stroke))el.setAttribute('stroke','currentColor');}}
+  const idMap=new Map();for(const el of root.querySelectorAll('[id]')){const old=el.id,nw=`${prefix}-${old.replace(/[^a-zA-Z0-9_-]/g,'')||'id'}`;idMap.set(old,nw);el.id=nw;}
+  for(const el of root.querySelectorAll('*'))for(const a of [...el.attributes]){let v=a.value;for(const [old,nw] of idMap){v=v.replaceAll(`url(#${old})`,`url(#${nw})`).replaceAll(`#${old}`,`#${nw}`);}el.setAttribute(a.name,v);}
+  const viewBox=root.getAttribute('viewBox')||`0 0 ${Number(root.getAttribute('width'))||100} ${Number(root.getAttribute('height'))||100}`;
+  return {viewBox,content:root.innerHTML};
 }
 function cleanSourceUrl(value=''){try{const u=new URL(value);return ['http:','https:'].includes(u.protocol)?u.href:'';}catch{return'';}}
-function importSvgText(text,{name='SVG 자산',sourceUrl='',normalizeColor=false,point=viewportCenterWorld()}={}){const safe=sanitizeSvgSource(text,uid('svg'),{normalizeColor}),w=140,h=140,node={id:uid('node'),type:'custom-svg',x:snap(point.x-w/2),y:snap(point.y-h/2),w,h,label:'',style:{iconColor:doc.tokens.text,padding:8},customSvg:{...safe,name:name||'SVG 자산',origin:'user-import',sourceUrl:cleanSourceUrl(sourceUrl)}};commit(()=>{doc.nodes.push(node);selection={nodeIds:[node.id],edgeId:null};},'SVG 자산 추가');toast('안전 필터를 거쳐 SVG 자산을 추가했습니다.','success');return node;}
-async function importSvgShape(file,point=viewportCenterWorld()){return importSvgText(await file.text(),{name:file.name.replace(/\.svg$/i,'')||'SVG 자산',point});}
-function normalizeSelectedSvgColor(){const node=selectedNodes()[0];if(!node||node.type!=='custom-svg')return;const safe=sanitizeSvgSource(`<svg viewBox="${node.customSvg.viewBox}">${node.customSvg.content}</svg>`,uid('color'),{normalizeColor:true});commit(()=>{node.customSvg={...node.customSvg,...safe};node.style={...node.style,iconColor:node.style?.iconColor??doc.tokens.text};},'SVG 색상 편집 가능');}
+function importSvgText(text,{name='SVG 자산',sourceUrl='',normalizeColor=false,point=viewportCenterWorld()}={}){
+  const prefix=uid('svg');const safe=sanitizeSvgSource(text,prefix,{normalizeColor});const w=140,h=140;const node={id:uid('node'),type:'custom-svg',x:snap(point.x-w/2),y:snap(point.y-h/2),w,h,label:'',style:{iconColor:doc.tokens.text,padding:8},customSvg:{...safe,name:name||'SVG 자산',origin:'user-import',sourceUrl:cleanSourceUrl(sourceUrl)}};
+  commit(()=>{doc.nodes.push(node);selection={nodeIds:[node.id],edgeId:null};},'SVG 자산 추가');toast('안전 필터를 거쳐 SVG 자산을 추가했습니다.','success');return node;
+}
+async function importSvgShape(file,point=viewportCenterWorld()){
+  return importSvgText(await file.text(),{name:file.name.replace(/\.svg$/i,'')||'SVG 자산',point});
+}
+function normalizeSelectedSvgColor(){const node=selectedNodes()[0];if(!node||node.type!=='custom-svg')return;const wrapped=`<svg viewBox="${node.customSvg.viewBox}">${node.customSvg.content}</svg>`;const safe=sanitizeSvgSource(wrapped,uid('color'),{normalizeColor:true});commit(()=>{node.customSvg={...node.customSvg,...safe};node.style={...node.style,iconColor:node.style?.iconColor??doc.tokens.text};},'SVG 색상 편집 가능');toast('고정 색상을 currentColor로 정규화했습니다.','success');}
 function openSvgPaste(){openDialog('#svg-paste-dialog');$('#svg-paste-input').value='';$('#svg-asset-name').value='';$('#svg-source-url').value='';$('#svg-normalize-color').checked=false;setTimeout(()=>$('#svg-paste-input').focus(),0);}
 
 function openDialog(id){const d=$(id);if(d?.showModal)d.showModal();}
@@ -254,7 +337,7 @@ function commandItems(query=''){
   BUILTIN_ICONS.forEach(i=>items.push({kind:'SVG',title:i.label,keywords:i.keywords,run:()=>addBuiltinIcon(i.id)}));
   TEMPLATES.forEach(t=>items.push({kind:'템플릿',title:t.name,keywords:t.keywords,run:()=>loadTemplate(t.id)}));
   THEMES.forEach(t=>items.push({kind:'스타일',title:t.label,keywords:t.description,run:()=>applyTheme(t.id)}));
-  items.push({kind:'명령',title:'자동 레이아웃',keywords:'layout arrange 정렬',run:autoLayout},{kind:'명령',title:'화면에 맞추기',keywords:'fit zoom view',run:fitView},{kind:'명령',title:'SVG 붙여넣기',keywords:'svg paste icon asset 붙여넣기',run:openSvgPaste},{kind:'명령',title:'내보내기',keywords:'export svg png webp html json',run:openExport},{kind:'명령',title:'프로젝트 저장',keywords:'save local project',run:saveCurrentProject});
+  items.push({kind:'명령',title:'자동 레이아웃',keywords:'layout arrange 정렬',run:autoLayout},{kind:'명령',title:'화면에 맞추기',keywords:'fit zoom view',run:fitView},{kind:'명령',title:'SVG 붙여넣기',keywords:'svg paste icon asset 붙여넣기',run:openSvgPaste},{kind:'명령',title:'전체 선택',keywords:'select all 전체 선택',run:()=>{selection={nodeIds:doc.nodes.map(n=>n.id),edgeId:null};render();}},{kind:'명령',title:'내보내기',keywords:'export svg png webp html json',run:openExport},{kind:'명령',title:'프로젝트 저장',keywords:'save local project',run:saveCurrentProject},{kind:'명령',title:'공유 링크 만들기',keywords:'share link 공유 URL',run:createShareLink});
   return items.filter(i=>!q||`${i.kind} ${i.title} ${i.keywords}`.toLowerCase().includes(q)).slice(0,18);
 }
 let cmdResults=[];
@@ -289,31 +372,40 @@ canvas.addEventListener('pointerup',e=>{
 canvas.addEventListener('pointercancel',()=>{gesture=null;connectPreview=null;marquee=null;renderCanvas();});
 canvas.addEventListener('wheel',e=>{e.preventDefault();const factor=e.deltaY<0?1.1:.9;zoomAt(factor,e.clientX,e.clientY);},{passive:false});
 canvas.addEventListener('dragover',e=>e.preventDefault());
-canvas.addEventListener('drop',async e=>{e.preventDefault();const point=clientToWorld(e.clientX,e.clientY),type=e.dataTransfer.getData('application/x-nodeweave-shape'),iconId=e.dataTransfer.getData('application/x-nodeweave-icon');if(type){addNode(type,point);return;}if(iconId){addBuiltinIcon(iconId,point);return;}const file=[...e.dataTransfer.files].find(f=>f.type==='image/svg+xml'||/\.svg$/i.test(f.name));if(file)try{await importSvgShape(file,point);}catch(err){toast(err.message||'SVG를 가져오지 못했습니다.','error');}});
+canvas.addEventListener('drop',async e=>{e.preventDefault();const point=clientToWorld(e.clientX,e.clientY);const type=e.dataTransfer.getData('application/x-nodeweave-shape');const iconId=e.dataTransfer.getData('application/x-nodeweave-icon');if(type){addNode(type,point);return;}if(iconId){addBuiltinIcon(iconId,point);return;}const file=[...e.dataTransfer.files].find(f=>f.type==='image/svg+xml'||/\.svg$/i.test(f.name));if(file){try{await importSvgShape(file,point);}catch(err){toast(err.message||'SVG를 가져오지 못했습니다.','error');}}});
 
 $('#left-panel').addEventListener('dragstart',e=>{const shape=e.target.closest('[data-shape-id]'),icon=e.target.closest('[data-icon-id]');if(shape)e.dataTransfer.setData('application/x-nodeweave-shape',shape.dataset.shapeId);if(icon)e.dataTransfer.setData('application/x-nodeweave-icon',icon.dataset.iconId);});
-$('#left-panel').addEventListener('click',e=>{const tab=e.target.closest('[data-library-tab]');if(tab){setLibraryTab(tab.dataset.libraryTab);return;}const shape=e.target.closest('[data-shape-id]');if(shape)addNode(shape.dataset.shapeId);const icon=e.target.closest('[data-icon-id]');if(icon)addBuiltinIcon(icon.dataset.iconId);const tpl=e.target.closest('[data-template-id]');if(tpl)loadTemplate(tpl.dataset.templateId);if(e.target.closest('#paste-svg-btn'))openSvgPaste();});
-$('#shape-search').addEventListener('input',e=>{paletteQuery=e.target.value;renderPalette();});
+$('#left-panel').addEventListener('click',e=>{const tab=e.target.closest('[data-library-tab]');if(tab){setLibraryTab(tab.dataset.libraryTab);return;}const filter=e.target.closest('[data-library-category]');if(filter){setLibraryCategory(filter.dataset.libraryCategory);return;}const shape=e.target.closest('[data-shape-id]');if(shape)addNode(shape.dataset.shapeId);const icon=e.target.closest('[data-icon-id]');if(icon)addBuiltinIcon(icon.dataset.iconId);const tpl=e.target.closest('[data-template-id]');if(tpl)loadTemplate(tpl.dataset.templateId);if(e.target.closest('#paste-svg-btn'))openSvgPaste();if(e.target.closest('#browse-library-btn'))openLibraryBrowser();});
+$('#shape-search').addEventListener('input',e=>{paletteQuery=e.target.value;renderPalette();renderLibraryBrowser();});
+$('#library-browser-search')?.addEventListener('input',e=>{paletteQuery=e.target.value;const left=$('#shape-search');if(left)left.value=paletteQuery;renderPalette();renderLibraryBrowser();});
+$('#library-browser-dialog')?.addEventListener('click',e=>{const tab=e.target.closest('[data-library-tab]');if(tab){setLibraryTab(tab.dataset.libraryTab,{resetQuery:false});return;}const filter=e.target.closest('[data-library-category]');if(filter){setLibraryCategory(filter.dataset.libraryCategory);return;}const shape=e.target.closest('[data-shape-id]');if(shape){addNode(shape.dataset.shapeId);return;}const icon=e.target.closest('[data-icon-id]');if(icon){addBuiltinIcon(icon.dataset.iconId);return;}const tpl=e.target.closest('[data-template-id]');if(tpl){loadTemplate(tpl.dataset.templateId);closeDialog('#library-browser-dialog');}});
 
 $('#inspector').addEventListener('click',e=>{
   const tab=e.target.closest('[data-tab]');if(tab){inspectorTab=tab.dataset.tab;renderInspector();return;}
   const theme=e.target.closest('[data-theme-id]');if(theme){applyTheme(theme.dataset.themeId);return;}
-  const act=e.target.closest('[data-action]')?.dataset.action;if(act==='delete-selection')deleteSelection();if(act==='duplicate')duplicateSelection();if(act==='copy-selection')copySelection();if(act==='reset-node-style')commit(()=>selectedNodes().forEach(n=>n.style={}),'스타일 복원');if(act==='auto-layout')autoLayout();if(act==='bring-front')moveSelectionZ('front');if(act==='send-back')moveSelectionZ('back');if(act==='flip-x')commit(()=>selectedNodes().forEach(n=>n.style={...n.style,flipX:!n.style?.flipX}),'좌우 반전');if(act==='flip-y')commit(()=>selectedNodes().forEach(n=>n.style={...n.style,flipY:!n.style?.flipY}),'상하 반전');if(act==='clear-icon-background')commit(()=>selectedNodes().forEach(n=>n.style={...n.style,iconBackground:'transparent'}),'SVG 배경 제거');if(act==='normalize-svg-color')normalizeSelectedSvgColor();
+  const act=e.target.closest('[data-action]')?.dataset.action;if(act==='delete-selection')deleteSelection();if(act==='duplicate')duplicateSelection();if(act==='copy-selection')copySelection();if(act==='reset-node-style')commit(()=>selectedNodes().forEach(n=>n.style={}),'스타일 복원');if(act==='auto-layout')autoLayout();if(act==='bring-front')moveSelectionZ('front');if(act==='send-back')moveSelectionZ('back');if(act==='flip-x')commit(()=>selectedNodes().forEach(n=>n.style={...n.style,flipX:!n.style?.flipX}),'좌우 반전');if(act==='flip-y')commit(()=>selectedNodes().forEach(n=>n.style={...n.style,flipY:!n.style?.flipY}),'상하 반전');if(act==='clear-icon-background')commit(()=>selectedNodes().forEach(n=>n.style={...n.style,iconBackground:'transparent'}),'SVG 배경 제거');if(act==='normalize-svg-color')normalizeSelectedSvgColor();if(act==='image-remove')commit(()=>{const n=selectedNodes()[0];if(n)n.media={...(n.media||{}),src:''};},'이미지 제거');if(act==='plan-add')commit(()=>{const n=selectedNodes()[0],total=Number(n.data?.clockMode)===12?12:24;const segs=n.data.segments||(n.data.segments=[]),last=segs.at(-1);const start=last?Number(last.end)||0:0;n.data.segments.push({label:'새 활동',start,end:Math.min(total,start+1),color:['#6366f1','#22c55e','#f59e0b','#ec4899','#06b6d4'][segs.length%5]});},'시간 구간 추가');if(act==='plan-delete'){const i=Number(e.target.closest('[data-plan-index]')?.dataset.planIndex);commit(()=>{selectedNodes()[0]?.data?.segments?.splice(i,1);},'시간 구간 삭제');}
   const align=e.target.closest('[data-align]');if(align)alignSelection(align.dataset.align);
 });
-$('#inspector').addEventListener('change',e=>{
-  const el=e.target;
-  if(el.dataset.nodeProp){const key=el.dataset.nodeProp;let value=el.type==='checkbox'?el.checked:el.value;if(['strokeWidth','fontSize','radius','rotation','padding','opacity','portCount','portSize'].includes(key))value=Number(value);commit(()=>selectedNodes().forEach(n=>{if(key==='label')n.label=value;else n.style={...n.style,[key]:value};}),`노드 ${key} 변경`);}
-  if(el.dataset.nodeField){const key=el.dataset.nodeField,value=Math.max(20,Number(el.value)||0);commit(()=>selectedNodes().forEach(n=>n[key]=value),`노드 크기 변경`);}
-  if(el.dataset.edgeProp){const edge=doc.edges.find(x=>x.id===selection.edgeId);if(!edge)return;const key=el.dataset.edgeProp;let value=el.type==='checkbox'?el.checked:el.value;if(key==='width')value=Number(value);commit(()=>{if(['label','routing'].includes(key))edge[key]=value;else edge.style={...edge.style,[key]:value};},`연결선 ${key} 변경`);}
-  if(el.dataset.token){const key=el.dataset.token;const value=['radius','nodeStrokeWidth','portCount','portSize','edgeWidth'].includes(key)?Number(el.value):el.value;commit(()=>{doc.tokens[key]=value;doc.themeId='custom';},`토큰 ${key} 변경`);}
+$('#inspector').addEventListener('change',async e=>{
+  const el=e.target;const first=selectedNodes()[0];
+  if(el.matches('[data-image-upload]')){try{const src=await readImageFile(el.files?.[0]);if(src&&first)commit(()=>{first.media={...(first.media||{}),src};},'이미지 업로드');}catch(err){toast(err.message||'이미지를 읽지 못했습니다.','error');}return;}
+  if(el.matches('[data-image-url]')){const src=cleanImageSource(el.value);if(!src&&el.value.trim()){toast('http(s) 이미지 URL만 사용할 수 있습니다.','error');return;}if(first)commit(()=>{first.media={...(first.media||{}),src};},'이미지 URL 변경');return;}
+  if(el.dataset.imageProp){const key=el.dataset.imageProp;let value=el.type==='checkbox'?el.checked:el.value;if(key==='opacity')value=Number(value);if(first)commit(()=>{first.media={...(first.media||{}),[key]:value};},`이미지 ${key} 변경`);return;}
+  if(el.dataset.svgProp){const key=el.dataset.svgProp,value=el.value;if(first)commit(()=>{first.customSvg={...(first.customSvg||{}),[key]:value};if(key==='mode'){if(value==='icon')first.customSvg.labelPosition='none';else{first.customSvg.labelPosition=first.customSvg.labelPosition==='none'?'center':(first.customSvg.labelPosition||'center');if(!first.label)first.label=first.customSvg.name||'SVG 블록';}}},'SVG 사용 방식 변경');return;}
+  if(el.dataset.smartProp){const key=el.dataset.smartProp;let value=el.value;if(key==='clockMode')value=Number(value);if(first)commit(()=>{first.data={...(first.data||{}),[key]:value};},'스마트 도구 설정 변경');return;}
+  const planRow=el.closest('[data-plan-index]');if(planRow&&el.dataset.planField){const i=Number(planRow.dataset.planIndex),key=el.dataset.planField;let value=el.type==='number'?Number(el.value):el.value;if(first)commit(()=>{first.data.segments[i]={...first.data.segments[i],[key]:value};},'생활계획 시간 변경');return;}
+  const brainRow=el.closest('[data-brain-index]');if(brainRow&&el.dataset.brainField){const i=Number(brainRow.dataset.brainIndex),key=el.dataset.brainField;let value=el.type==='number'?Number(el.value):el.value;if(first)commit(()=>{first.data=first.data||{regions:[]};first.data.regions=first.data.regions||[];while(first.data.regions.length<6)first.data.regions.push({label:'생각',percent:0,color:'#c4b5fd'});first.data.regions[i]={...first.data.regions[i],[key]:value};},'생각 비율 변경');return;}
+  if(el.dataset.nodeProp){const key=el.dataset.nodeProp;let value=el.type==='checkbox'?el.checked:el.value;if(['strokeWidth','fontSize','radius','rotation','padding','opacity','portCount'].includes(key))value=Number(value);commit(()=>selectedNodes().forEach(n=>{if(key==='label'){n.label=value;if(n.style?.autoSize)autosizeNodeForText(n);}else{n.style={...n.style,[key]:value};if(key==='autoSize'&&value)autosizeNodeForText(n);}}),`노드 ${key} 변경`);return;}
+  if(el.dataset.nodeField){const key=el.dataset.nodeField,value=Math.max(20,Number(el.value)||0);commit(()=>selectedNodes().forEach(n=>n[key]=value),`노드 크기 변경`);return;}
+  if(el.dataset.edgeProp){const edge=doc.edges.find(x=>x.id===selection.edgeId);if(!edge)return;const key=el.dataset.edgeProp;let value=el.type==='checkbox'?el.checked:el.value;if(key==='width')value=Number(value);commit(()=>{if(['label','routing'].includes(key))edge[key]=value;else edge.style={...edge.style,[key]:value};},`연결선 ${key} 변경`);return;}
+  if(el.dataset.token){const key=el.dataset.token;const value=['radius','nodeStrokeWidth','portCount','portSize','edgeWidth'].includes(key)?Number(el.value):el.value;commit(()=>{doc.tokens[key]=value;doc.themeId='custom';},`토큰 ${key} 변경`);return;}
   if(el.dataset.setting){const key=el.dataset.setting,value=el.type==='checkbox'?el.checked:Number(el.value);commit(()=>doc.settings[key]=value,`설정 ${key} 변경`);}
 });
 
 $('#project-name').addEventListener('change',e=>commit(()=>doc.meta.name=e.target.value.trim()||'Untitled diagram','프로젝트 이름 변경'));
 $('#undo-btn').addEventListener('click',undo);$('#redo-btn').addEventListener('click',redo);$('#fit-btn').addEventListener('click',fitView);$('#zoom-in-btn').addEventListener('click',()=>zoomCenter(1.15));$('#zoom-out-btn').addEventListener('click',()=>zoomCenter(.87));$('#mobile-fit-btn').addEventListener('click',fitView);$('#mobile-zoom-in-btn').addEventListener('click',()=>zoomCenter(1.15));$('#mobile-zoom-out-btn').addEventListener('click',()=>zoomCenter(.87));
 $('#auto-layout-btn').addEventListener('click',()=>{inspectorTab='layout';rightOpen=true;render();setTimeout(autoLayout,0);});
-$('#export-btn').addEventListener('click',openExport);$('#project-btn').addEventListener('click',openProjects);$('#command-btn').addEventListener('click',openCommands);
+$('#export-btn').addEventListener('click',openExport);$('#project-btn').addEventListener('click',openProjects);$('#command-btn').addEventListener('click',openCommands);$('#share-btn')?.addEventListener('click',createShareLink);$('#copy-share-btn')?.addEventListener('click',copyShareLink);$('#native-share-btn')?.addEventListener('click',async()=>{const url=$('#share-url').value;if(navigator.share)try{await navigator.share({title:doc.meta.name,text:'NodeWeave 다이어그램',url});}catch{}});$('#browse-library-btn')?.addEventListener('click',()=>openLibraryBrowser());
 $('#left-toggle').addEventListener('click',()=>{leftOpen=!leftOpen;updatePanelState();});$('#right-toggle').addEventListener('click',()=>{rightOpen=!rightOpen;updatePanelState();});
 $('#ui-theme-btn').addEventListener('click',()=>{const modes=['system','light','dark'];const next=modes[(modes.indexOf(uiPrefs.theme)+1)%modes.length];applyUiTheme(next);});
 
@@ -325,6 +417,7 @@ $('#saved-projects').addEventListener('click',e=>{const load=e.target.closest('[
 $('#import-input').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const parsed=JSON.parse(await file.text());const next=normalizeDoc(parsed);pushHistory(snapshot());doc=next;selection={nodeIds:[],edgeId:null};scheduleSave();render();closeDialog('#project-dialog');setTimeout(fitView,0);toast('프로젝트를 불러왔습니다.','success');}catch(err){toast('올바른 NodeWeave JSON 파일이 아닙니다.','error');}e.target.value='';});
 
 $('#svg-import-input').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{await importSvgShape(file);closeDialog('#project-dialog');}catch(err){toast(err.message||'SVG 도형을 가져오지 못했습니다.','error');}e.target.value='';});
+
 $('#svg-paste-form').addEventListener('submit',e=>{e.preventDefault();try{const text=$('#svg-paste-input').value.trim();if(!text)throw new Error('SVG 코드를 입력하세요.');importSvgText(text,{name:$('#svg-asset-name').value.trim()||'SVG 자산',sourceUrl:$('#svg-source-url').value.trim(),normalizeColor:$('#svg-normalize-color').checked});closeDialog('#svg-paste-dialog');}catch(err){toast(err.message||'SVG를 추가하지 못했습니다.','error');}});
 
 $('#export-dialog').addEventListener('click',async e=>{
@@ -353,34 +446,18 @@ window.addEventListener('keydown',e=>{
   if(e.key==='Escape'){connectPreview=null;marquee=null;gesture=null;renderCanvas();}
   if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)&&selection.nodeIds.length){e.preventDefault();const step=e.shiftKey?doc.settings.gridSize:1;const prev=snapshot();selectedNodes().forEach(n=>{if(e.key==='ArrowLeft')n.x-=step;if(e.key==='ArrowRight')n.x+=step;if(e.key==='ArrowUp')n.y-=step;if(e.key==='ArrowDown')n.y+=step;});pushHistory(prev);scheduleSave();renderCanvas();}
 });
-window.addEventListener('paste',e=>{const input=['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)||document.activeElement?.isContentEditable;if(input)return;const text=e.clipboardData?.getData('text/plain')?.trim()||'';if(/^<svg[\s>]/i.test(text)){e.preventDefault();try{importSvgText(text,{name:'붙여넣은 SVG'});}catch(err){toast(err.message||'SVG를 붙여넣지 못했습니다.','error');}return;}if(text.startsWith('{'))try{const payload=JSON.parse(text);if(payload?.type==='nodeweave-selection'&&Array.isArray(payload.nodes)){e.preventDefault();internalClipboard=payload;pasteSelection(payload);return;}}catch{}if(internalClipboard){e.preventDefault();pasteSelection();}});
+
+window.addEventListener('paste',e=>{
+  const input=['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)||document.activeElement?.isContentEditable;if(input)return;
+  const text=e.clipboardData?.getData('text/plain')?.trim()||'';
+  if(/^<svg[\s>]/i.test(text)){e.preventDefault();try{importSvgText(text,{name:'붙여넣은 SVG'});}catch(err){toast(err.message||'SVG를 붙여넣지 못했습니다.','error');}return;}
+  if(text.startsWith('{')){try{const payload=JSON.parse(text);if(payload?.type==='nodeweave-selection'&&Array.isArray(payload.nodes)){e.preventDefault();internalClipboard=payload;pasteSelection(payload);return;}}catch{}}
+  if(internalClipboard){e.preventDefault();pasteSelection();}
+});
+
 window.addEventListener('keyup',e=>{if(e.code==='Space'){spaceDown=false;document.body.classList.remove('is-panning');}});
 window.addEventListener('resize',()=>renderCanvas());
 
-
-async function loadManagedCatalog(){
-  const packs=[];
-  try{
-    const response=await fetch('./catalog/library.json?ts='+Date.now(),{cache:'no-store'});
-    if(response.ok)packs.push(await response.json());
-  }catch(error){console.warn('[catalog] repository catalog unavailable',error);}
-  try{
-    const local=localStorage.getItem('nodeweave.catalog.preview.v1');
-    if(local)packs.push(JSON.parse(local));
-  }catch(error){console.warn('[catalog] local preview invalid',error);}
-  const upsert=(list,item)=>{const i=list.findIndex(x=>x.id===item.id);if(i>=0)list[i]=item;else list.push(item);};
-  for(const pack of packs){
-    for(const raw of Array.isArray(pack?.svgAssets)?pack.svgAssets:[]){
-      if(!raw?.id||!raw?.content)continue;
-      upsert(BUILTIN_ICONS,{...raw,label:raw.label||raw.id,category:raw.category||'Custom',keywords:raw.keywords||'',viewBox:raw.viewBox||'0 0 100 100',mode:raw.mode||'icon',_managed:true});
-    }
-    for(const raw of Array.isArray(pack?.templates)?pack.templates:[]){
-      if(!raw?.id||!Array.isArray(raw.nodes)||!Array.isArray(raw.edges))continue;
-      upsert(TEMPLATES,{...raw,name:raw.name||raw.id,category:raw.category||'Custom',keywords:raw.keywords||'',theme:raw.theme||'minimal'});
-    }
-  }
-}
-
 if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 
-loadManagedCatalog().finally(()=>{render();setTimeout(fitView,80);});
+render();setTimeout(fitView,80);if(initialSharedDoc)setTimeout(()=>toast('공유 링크에서 다이어그램을 열었습니다. 편집본은 이 브라우저에 저장됩니다.','success'),120);

@@ -1,244 +1,2334 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-28",
+  "pack": {
+    "id": "nodeweave-custom",
+    "name": "NodeWeave Custom Library",
+    "description": "Repository-managed SVG blocks and templates. Edit with /admin.html."
+  },
+  "shapes": [
+    {
+      "id": "chevron",
+      "label": "쉐브론",
+      "category": "Flow",
+      "keywords": "chevron arrow step 단계 순서 흐름",
+      "w": 170,
+      "h": 92
+    },
+    {
+      "id": "hourglass",
+      "label": "모래시계",
+      "category": "Flow",
+      "keywords": "hourglass timer wait time 대기 시간 모래시계",
+      "w": 132,
+      "h": 118
+    },
+    {
+      "id": "bookmark",
+      "label": "북마크",
+      "category": "Basic",
+      "keywords": "bookmark ribbon save 북마크 리본",
+      "w": 120,
+      "h": 148
+    },
+    {
+      "id": "tag",
+      "label": "태그",
+      "category": "Basic",
+      "keywords": "tag label coupon tag 태그 라벨",
+      "w": 168,
+      "h": 92
+    },
+    {
+      "id": "pentagon",
+      "label": "오각형",
+      "category": "Basic",
+      "keywords": "pentagon house 오각형",
+      "w": 144,
+      "h": 122
+    },
+    {
+      "id": "octagon",
+      "label": "팔각형",
+      "category": "Basic",
+      "keywords": "octagon stop 팔각형",
+      "w": 144,
+      "h": 122
+    },
+    {
+      "id": "radial-plan",
+      "label": "원형 생활계획표",
+      "category": "Smart",
+      "keywords": "24시간 12시간 생활계획 시계 원형 schedule radial planner time wheel",
+      "w": 560,
+      "h": 560
+    },
+    {
+      "id": "brain-map",
+      "label": "머릿속 생각 지도",
+      "category": "Smart",
+      "keywords": "머리 두뇌 생각 비율 brain mind map percent organic",
+      "w": 720,
+      "h": 620
+    }
+  ],
   "svgAssets": [
     {
-      "id": "thought-cloud",
-      "label": "생각 구름",
-      "category": "Ideas",
-      "keywords": "thought cloud brain idea 생각 구름 아이디어",
-      "mode": "block",
-      "defaultText": "생각",
-      "w": 210,
-      "h": 135,
-      "viewBox": "0 0 240 150",
-      "content": "<path d=\"M48 108C22 108 12 79 31 63C20 36 49 18 72 31C87 5 128 5 143 31C171 13 207 34 200 64C226 72 225 108 197 113C184 134 151 134 137 119C113 139 77 132 70 114C61 116 54 112 48 108Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linejoin=\"round\"/>"
-    },
-    {
-      "id": "organic-blob",
-      "label": "유기형 블롭",
-      "category": "Ideas",
-      "keywords": "blob organic freeform 자유형 블롭",
-      "mode": "block",
-      "defaultText": "핵심 아이디어",
-      "w": 220,
-      "h": 150,
-      "viewBox": "0 0 240 160",
-      "content": "<path d=\"M35 45C57 13 107 16 126 30C157 10 211 31 207 72C229 103 194 143 156 135C127 158 80 142 69 126C26 135 8 96 28 72C19 61 24 51 35 45Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\"/>"
-    },
-    {
-      "id": "ribbon-banner",
-      "label": "리본 배너",
-      "category": "Labels",
-      "keywords": "ribbon banner title 리본 배너 제목",
-      "mode": "block",
-      "defaultText": "제목",
-      "w": 240,
-      "h": 105,
-      "viewBox": "0 0 260 110",
-      "content": "<path d=\"M40 23H220V83H40Z M40 34H13L30 53L13 74H40 M220 34H247L230 53L247 74H220\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linejoin=\"round\"/>"
-    },
-    {
-      "id": "speech-round",
-      "label": "둥근 말풍선",
-      "category": "Communication",
-      "keywords": "speech chat bubble 말풍선 대화",
-      "mode": "block",
-      "defaultText": "메시지",
-      "w": 220,
-      "h": 140,
-      "viewBox": "0 0 240 150",
-      "content": "<path d=\"M31 25H209C222 25 229 34 229 47V96C229 109 221 118 208 118H104L72 141L78 118H31C18 118 11 109 11 96V47C11 34 18 25 31 25Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linejoin=\"round\"/>"
-    },
-    {
-      "id": "road-sign",
-      "label": "방향 표지판",
-      "category": "Planning",
-      "keywords": "road sign direction plan 방향 표지판 계획",
-      "mode": "block",
-      "defaultText": "다음 단계",
-      "w": 235,
-      "h": 125,
-      "viewBox": "0 0 250 135",
-      "content": "<path d=\"M18 25H184L232 67L184 109H18L54 67Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linejoin=\"round\"/>"
-    },
-    {
-      "id": "mountain-goal",
-      "label": "목표 산",
-      "category": "Planning",
-      "keywords": "mountain goal summit 목표 산 정상",
-      "mode": "block",
-      "defaultText": "목표",
-      "w": 230,
-      "h": 155,
-      "viewBox": "0 0 250 170",
-      "content": "<path d=\"M16 147L74 65L103 99L149 25L234 147Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linejoin=\"round\"/><path d=\"M149 25L149 63L190 50L149 38\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\"/>"
-    },
-    {
-      "id": "brace-group",
-      "label": "중괄호 그룹",
-      "category": "Annotation",
-      "keywords": "brace group annotation 중괄호 그룹",
-      "mode": "block",
-      "defaultText": "그룹",
-      "w": 170,
-      "h": 180,
-      "viewBox": "0 0 180 200",
-      "content": "<path d=\"M70 14C45 14 45 42 45 63C45 82 36 93 18 100C36 107 45 118 45 137C45 158 45 186 70 186M110 14C135 14 135 42 135 63C135 82 144 93 162 100C144 107 135 118 135 137C135 158 135 186 110 186\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linecap=\"round\"/>"
-    },
-    {
-      "id": "brain-outline",
+      "id": "brain",
       "label": "두뇌",
       "category": "People",
-      "keywords": "brain mind thoughts 두뇌 머리 생각",
-      "mode": "block",
-      "defaultText": "내 머리",
-      "w": 210,
-      "h": 165,
-      "viewBox": "0 0 240 190",
-      "content": "<path d=\"M92 31C66 15 41 35 45 59C18 66 17 102 40 114C31 139 57 161 80 150C92 177 127 172 137 150C161 163 190 145 185 118C214 107 212 70 187 61C191 34 162 18 141 34C125 15 104 18 92 31Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\"/><path d=\"M118 32V151M78 55C101 51 104 69 102 84M157 55C138 52 130 68 134 85M57 105C78 93 99 105 101 126M179 105C158 93 138 104 135 126\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\"/>"
+      "keywords": "brain thinking mind idea 두뇌 생각",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 6.2A3.2 3.2 0 0 0 6 11.3a3.7 3.7 0 0 0 1.2 7.2h8.5a3.3 3.3 0 0 0 1-6.4 4 4 0 0 0-7.7-2.4Z\"/><path d=\"M10 9.5c-.8.6-1.2 1.5-1.2 2.5 0 .8.3 1.6.8 2.2M14 8.8c.8.6 1.3 1.6 1.3 2.7 0 .8-.2 1.5-.7 2.1M12 7.5v9\" /></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
     },
     {
-      "id": "heart-outline",
+      "id": "heart",
       "label": "하트",
+      "category": "People",
+      "keywords": "heart love like favorite 하트 사랑",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 20s-7-4.6-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.4-7 10-7 10Z\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "home",
+      "label": "집",
       "category": "Life",
-      "keywords": "heart love favorite life 하트 사랑",
-      "mode": "block",
-      "defaultText": "소중한 것",
-      "w": 180,
-      "h": 155,
-      "viewBox": "0 0 200 180",
-      "content": "<path d=\"M100 157S22 111 22 59C22 22 65 12 100 47C135 12 178 22 178 59C178 111 100 157 100 157Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\"/>"
-    },
-    {
-      "id": "sunburst",
-      "label": "강조 햇살",
-      "category": "Annotation",
-      "keywords": "sunburst highlight wow 강조 햇살",
-      "mode": "block",
-      "defaultText": "중요!",
-      "w": 180,
-      "h": 180,
-      "viewBox": "0 0 200 200",
-      "content": "<path d=\"M100 15L112 62L147 29L136 76L183 64L144 91L187 108L140 111L174 145L130 126L141 174L110 137L96 184L86 136L51 169L64 123L17 136L56 108L13 91L60 90L26 55L70 75L59 27L90 64Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linejoin=\"round\"/>"
-    },
-    {
-      "id": "loop-arrow",
-      "label": "순환 화살표",
-      "category": "Flow",
-      "keywords": "loop cycle arrow repeat 순환 반복 화살표",
+      "keywords": "home house living 집 생활",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 11.5 12 5l8 6.5V20H4v-8.5Z\"/><path d=\"M9 20v-5h6v5\"/></g>",
       "mode": "icon",
-      "w": 130,
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "book",
+      "label": "책",
+      "category": "Life",
+      "keywords": "book study learning education 책 학습",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 5.5h6.3a3 3 0 0 1 2.7 1.4A3 3 0 0 1 16.7 5.5H19v13h-2.3a3.3 3.3 0 0 0-2.7 1.3 3.3 3.3 0 0 0-2.7-1.3H5v-13Z\"/><path d=\"M12 6.8v12\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "pencil",
+      "label": "연필",
+      "category": "Life",
+      "keywords": "pencil edit writing draw 연필 편집",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m4 20 4.2-1 9-9a1.8 1.8 0 0 0 0-2.5l-.7-.7a1.8 1.8 0 0 0-2.5 0l-9 9L4 20Z\"/><path d=\"m12.5 7.5 4 4\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "lightbulb",
+      "label": "전구",
+      "category": "Life",
+      "keywords": "lightbulb idea insight bulb 전구 아이디어",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 14.8c-1.8-1-3-2.9-3-5 0-3.3 2.7-5.8 6-5.8s6 2.5 6 5.8c0 2.1-1.2 4-3 5\"/><path d=\"M10 18h4M10.5 21h3\"/><path d=\"M10 15.2h4\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "target",
+      "label": "목표",
+      "category": "Action",
+      "keywords": "target aim goal objective 목표 타깃",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"8.5\"/><circle cx=\"12\" cy=\"12\" r=\"4.2\"/><circle cx=\"12\" cy=\"12\" r=\"1.5\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "flag",
+      "label": "깃발",
+      "category": "Action",
+      "keywords": "flag milestone marker 깃발 목표",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 21V4\"/><path d=\"M7 5h10l-2.5 3L17 11H7Z\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "rocket",
+      "label": "로켓",
+      "category": "Action",
+      "keywords": "rocket launch start sprint 로켓 출시",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M14 4c3.7 1.1 5.2 4.9 4 8.8l-3.4 3.4c-3.9 1.2-7.7-.3-8.8-4L9.2 8C10.3 4.2 14 4 14 4Z\"/><path d=\"m8 16-2.5 2.5M10 18l-1 3M6 14l-3 1\"/><circle cx=\"14\" cy=\"10\" r=\"1.4\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "pin",
+      "label": "핀",
+      "category": "Action",
+      "keywords": "pin location marker 핀 위치",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 21s5-5.5 5-10a5 5 0 1 0-10 0c0 4.5 5 10 5 10Z\"/><circle cx=\"12\" cy=\"11\" r=\"1.8\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "map",
+      "label": "지도",
+      "category": "Action",
+      "keywords": "map roadmap journey 지도 로드맵",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 6.5 8 4l8 2 5-2v13l-5 2-8-2-5 2v-13Z\"/><path d=\"M8 4v13M16 6v13\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "puzzle",
+      "label": "퍼즐",
+      "category": "Action",
+      "keywords": "puzzle fit problem solving 퍼즐",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 4h3a1.7 1.7 0 1 1 3.3 0H19v4a1.7 1.7 0 1 1 0 3.3V15h-3.5a1.7 1.7 0 1 1-3.3 0H9v5H4v-5a1.7 1.7 0 1 0 0-3.3V8h5V4Z\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "music",
+      "label": "음악",
+      "category": "Life",
+      "keywords": "music note audio song 음악",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M15 5v10.2a2.8 2.8 0 1 1-2-2.7V7.5L20 6v8.2a2.8 2.8 0 1 1-2-2.7V5l-3 .6Z\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "camera",
+      "label": "카메라",
+      "category": "Life",
+      "keywords": "camera photo picture 카메라 사진",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 8h3l1.4-2h5.2L16 8h3v11H5V8Z\"/><circle cx=\"12\" cy=\"13.5\" r=\"3.3\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "video",
+      "label": "비디오",
+      "category": "Life",
+      "keywords": "video play media recording 비디오",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"4\" y=\"6\" width=\"11\" height=\"12\" rx=\"2\"/><path d=\"m15 10 5-3v10l-5-3\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "mic",
+      "label": "마이크",
+      "category": "Life",
+      "keywords": "microphone speak podcast voice 마이크",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"9\" y=\"4\" width=\"6\" height=\"10\" rx=\"3\"/><path d=\"M6 11a6 6 0 0 0 12 0M12 17v4M9 21h6\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "sun",
+      "label": "해",
+      "category": "Nature",
+      "keywords": "sun weather bright 해 날씨",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"4.2\"/><path d=\"M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.7 5.7l2.1 2.1M16.2 16.2l2.1 2.1M18.3 5.7l-2.1 2.1M7.8 16.2l-2.1 2.1\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "moon",
+      "label": "달",
+      "category": "Nature",
+      "keywords": "moon night sleep 달 밤",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M16.8 4.8A8 8 0 1 0 19.2 17 7 7 0 1 1 16.8 4.8Z\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "tree",
+      "label": "나무",
+      "category": "Nature",
+      "keywords": "tree environment plant 나무 자연",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 20v-5\"/><path d=\"M12 15c-3.7 0-6.5-2.1-6.5-5.5C5.5 6 8.2 4 12 4s6.5 2 6.5 5.5C18.5 12.9 15.7 15 12 15Z\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "flower",
+      "label": "꽃",
+      "category": "Nature",
+      "keywords": "flower bloom spring 꽃",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"1.7\"/><circle cx=\"12\" cy=\"7.5\" r=\"2.4\"/><circle cx=\"16\" cy=\"9.4\" r=\"2.4\"/><circle cx=\"16\" cy=\"14.6\" r=\"2.4\"/><circle cx=\"8\" cy=\"9.4\" r=\"2.4\"/><circle cx=\"8\" cy=\"14.6\" r=\"2.4\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "leaf",
+      "label": "잎",
+      "category": "Nature",
+      "keywords": "leaf eco plant 잎 친환경",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M19 4c-8.5.1-13 4.4-13 10.3 0 3.2 2.3 5.7 5.4 5.7C16.8 20 20 14.8 20 9.4 20 7.4 19.7 5.6 19 4Z\"/><path d=\"M8 15c2-2.2 4.8-4 8.3-5\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "coffee",
+      "label": "커피",
+      "category": "Life",
+      "keywords": "coffee cafe break 커피 휴식",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 10h10v4.5A4.5 4.5 0 0 1 10.5 19h-1A4.5 4.5 0 0 1 5 14.5V10Z\"/><path d=\"M15 11h1.8a2.2 2.2 0 0 1 0 4.4H15M7 5.5c1 .7 1 .7 2 0M11 5.5c1 .7 1 .7 2 0\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "bed",
+      "label": "침대",
+      "category": "Life",
+      "keywords": "bed sleep hotel 침대 수면",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 11h16v8H4Z\"/><path d=\"M4 11V8h6a3 3 0 0 1 3 3M14 11V9h3a3 3 0 0 1 3 3\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "shopping",
+      "label": "쇼핑",
+      "category": "Life",
+      "keywords": "shopping bag commerce 쇼핑",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 8h12l-1 11H7L6 8Z\"/><path d=\"M9 8V6.5a3 3 0 0 1 6 0V8\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "cart",
+      "label": "카트",
+      "category": "Life",
+      "keywords": "cart ecommerce buy 카트 장바구니",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 6h2l2 9h9l2-6H8\"/><circle cx=\"10\" cy=\"19\" r=\"1.4\"/><circle cx=\"17\" cy=\"19\" r=\"1.4\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "wallet",
+      "label": "지갑",
+      "category": "Finance",
+      "keywords": "wallet money cash 지갑 돈",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"4\" y=\"7\" width=\"16\" height=\"11\" rx=\"2\"/><path d=\"M15 11h5v4h-5a2 2 0 0 1 0-4Z\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "coin",
+      "label": "코인",
+      "category": "Finance",
+      "keywords": "coin finance currency 코인 돈",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><ellipse cx=\"12\" cy=\"8\" rx=\"5.5\" ry=\"2.5\"/><path d=\"M6.5 8v8c0 1.4 2.5 2.5 5.5 2.5s5.5-1.1 5.5-2.5V8\"/><path d=\"M9.6 12h4.8M12 10v6\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "piggy",
+      "label": "저금통",
+      "category": "Finance",
+      "keywords": "piggy bank savings 저금통 절약",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 13.5a5.5 5.5 0 0 1 5.5-5.5h1.4a5.7 5.7 0 0 1 5.1 3l1.7 1.5-1.7 1.5a5.8 5.8 0 0 1-4.9 4H8.5L7 20H5.8l.7-2.2A5.4 5.4 0 0 1 6 13.5Z\"/><path d=\"M12 7V5.2\"/><circle cx=\"15.8\" cy=\"11.8\" r=\".8\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "bus",
+      "label": "버스",
+      "category": "Travel",
+      "keywords": "bus commute transport 버스 이동",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"5\" y=\"5\" width=\"14\" height=\"11\" rx=\"2\"/><path d=\"M8 16v3M16 16v3M5 10h14M8 19h8\"/><circle cx=\"9\" cy=\"18.5\" r=\"1\"/><circle cx=\"15\" cy=\"18.5\" r=\"1\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "car",
+      "label": "자동차",
+      "category": "Travel",
+      "keywords": "car vehicle drive 자동차",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 14 7.5 9h9L18 14\"/><rect x=\"4\" y=\"14\" width=\"16\" height=\"4\" rx=\"1.5\"/><circle cx=\"8\" cy=\"18\" r=\"1.6\"/><circle cx=\"16\" cy=\"18\" r=\"1.6\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "train",
+      "label": "기차",
+      "category": "Travel",
+      "keywords": "train rail commute 기차",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"7\" y=\"4\" width=\"10\" height=\"12\" rx=\"2\"/><path d=\"M9 7h6M12 16v4M9 20l3-4 3 4\"/><circle cx=\"10\" cy=\"12\" r=\".8\"/><circle cx=\"14\" cy=\"12\" r=\".8\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "dumbbell",
+      "label": "운동",
+      "category": "People",
+      "keywords": "fitness gym sport 운동",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 10v4M7 8v8M17 8v8M20 10v4M7 12h10\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "run",
+      "label": "달리기",
+      "category": "People",
+      "keywords": "run sport action 달리기",
+      "viewBox": "0 0 24 24",
+      "content": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"14\" cy=\"5.5\" r=\"2\"/><path d=\"M10 10l3-2 2 2 2 1M12 8l-2 4-3 1M13 12l3 2 1 4M11 13l-2 5\"/></g>",
+      "mode": "icon",
+      "labelPosition": "none",
+      "w": 112,
+      "h": 112,
+      "pack": "nodeweave-custom"
+    },
+    {
+      "id": "thought-cloud-block",
+      "label": "생각 구름",
+      "category": "Idea",
+      "keywords": "thought brain idea cloud 생각 아이디어 구름",
+      "mode": "block",
+      "defaultText": "생각",
+      "labelPosition": "center",
+      "w": 210,
+      "h": 140,
+      "viewBox": "0 0 240 160",
+      "content": "<path d=\"M55 118C24 117 15 83 37 65C34 37 68 20 91 37C108 8 153 11 165 41C196 32 222 57 214 86C237 105 218 132 193 132H62C48 132 42 126 55 118Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><circle cx=\"44\" cy=\"143\" r=\"7\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"5\"/><circle cx=\"26\" cy=\"153\" r=\"4\" fill=\"currentColor\"/>"
+    },
+    {
+      "id": "organic-blob-block",
+      "label": "유기형 블롭",
+      "category": "Creative",
+      "keywords": "blob organic abstract creative 유기형 추상",
+      "mode": "block",
+      "defaultText": "핵심 생각",
+      "labelPosition": "center",
+      "w": 190,
+      "h": 150,
+      "viewBox": "0 0 220 170",
+      "content": "<path d=\"M33 91C19 47 53 15 91 29C120 1 168 18 171 52C211 65 202 116 170 127C151 160 99 157 81 135C48 146 18 125 33 91Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"6\" stroke-linejoin=\"round\"/>"
+    },
+    {
+      "id": "ribbon-block",
+      "label": "리본 배너",
+      "category": "Decorative",
+      "keywords": "ribbon banner title label 리본 배너 제목",
+      "mode": "block",
+      "defaultText": "TITLE",
+      "labelPosition": "center",
+      "w": 230,
+      "h": 100,
+      "viewBox": "0 0 260 110",
+      "content": "<path d=\"M34 24H226V82H34V24Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"5\"/><path d=\"M34 36H8L24 54L8 76H54V82M226 36H252L236 54L252 76H206V82\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"5\" stroke-linejoin=\"round\"/>"
+    },
+    {
+      "id": "hex-badge-block",
+      "label": "육각 배지",
+      "category": "Decorative",
+      "keywords": "hex badge label badge 육각 배지",
+      "mode": "block",
+      "defaultText": "01",
+      "labelPosition": "center",
+      "w": 145,
       "h": 130,
-      "viewBox": "0 0 160 160",
-      "content": "<path d=\"M126 58C113 31 77 19 48 35C31 45 22 61 22 80M22 80L8 60M22 80L43 67M34 102C50 130 88 140 116 121C131 111 139 96 139 79M139 79L152 100M139 79L118 91\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>"
+      "viewBox": "0 0 160 145",
+      "content": "<path d=\"M42 10H118L151 72L118 135H42L9 72L42 10Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"6\" stroke-linejoin=\"round\"/><path d=\"M45 25H115\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"round\"/>"
     },
     {
-      "id": "doodle-arrow",
-      "label": "손그림 화살표",
-      "category": "Flow",
-      "keywords": "doodle handdrawn arrow 손그림 화살표",
+      "id": "curly-bracket-block",
+      "label": "중괄호",
+      "category": "Annotation",
+      "keywords": "curly bracket brace annotation grouping 중괄호 묶음 주석",
       "mode": "icon",
-      "w": 150,
-      "h": 90,
-      "viewBox": "0 0 180 100",
-      "content": "<path d=\"M13 63C49 39 89 54 142 30M142 30L122 22M142 30L131 49\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>"
+      "defaultText": "",
+      "labelPosition": "none",
+      "w": 190,
+      "h": 150,
+      "viewBox": "0 0 220 170",
+      "content": "<path d=\"M53 13C31 13 35 38 35 55C35 75 25 84 10 85C25 86 35 95 35 115C35 132 31 157 53 157M167 13C189 13 185 38 185 55C185 75 195 84 210 85C195 86 185 95 185 115C185 132 189 157 167 157\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"6\" stroke-linecap=\"round\"/>"
+    },
+    {
+      "id": "road-sign-block",
+      "label": "방향 표지판",
+      "category": "Journey",
+      "keywords": "road sign direction journey roadmap 방향 표지판 여정",
+      "mode": "block",
+      "defaultText": "다음 단계",
+      "labelPosition": "center",
+      "w": 220,
+      "h": 120,
+      "viewBox": "0 0 250 135",
+      "content": "<path d=\"M16 32H185L232 67L185 102H16V32Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"6\" stroke-linejoin=\"round\"/>"
+    },
+    {
+      "id": "speech-bubble-block",
+      "label": "큰 말풍선",
+      "category": "People",
+      "keywords": "speech bubble quote comment 말풍선 대화 코멘트",
+      "mode": "block",
+      "defaultText": "한마디",
+      "labelPosition": "center",
+      "w": 220,
+      "h": 150,
+      "viewBox": "0 0 250 170",
+      "content": "<path d=\"M24 18H226V118H104L68 151L76 118H24V18Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"6\" stroke-linejoin=\"round\"/>"
+    },
+    {
+      "id": "mountain-goal-block",
+      "label": "산 정상 목표",
+      "category": "Journey",
+      "keywords": "mountain goal journey achievement 산 목표 성취",
+      "mode": "block",
+      "defaultText": "목표",
+      "labelPosition": "bottom",
+      "w": 210,
+      "h": 170,
+      "viewBox": "0 0 240 190",
+      "content": "<path d=\"M12 155L80 65L111 105L150 35L228 155H12Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"6\" stroke-linejoin=\"round\"/><path d=\"M150 35V14H194L181 26L194 38H150\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"5\" stroke-linejoin=\"round\"/>"
     }
   ],
   "templates": [
     {
-      "id": "brain-percent",
-      "name": "머릿속 생각 비율",
-      "category": "Life",
-      "keywords": "brain percent thoughts 머릿속 생각 비율",
-      "theme": "soft",
+      "id": "brain-balance",
+      "name": "머릿속 생각 지도 Pro",
+      "category": "Smart / Life",
+      "keywords": "brain mind percent 머릿속 생각 지도 비율",
+      "theme": "paper",
+      "description": "머리 실루엣 내부 6개 영역의 생각과 %를 직접 편집",
       "nodes": [
         {
           "id": "brain",
-          "type": "circle",
-          "x": 520,
-          "y": 210,
-          "w": 180,
-          "h": 180,
-          "label": "내 머리"
+          "type": "brain-map",
+          "x": 160,
+          "y": 40,
+          "label": "",
+          "w": 760,
+          "h": 650,
+          "style": {
+            "portCount": 0
+          },
+          "data": {
+            "title": "요즘 내 머릿속",
+            "regions": [
+              {
+                "label": "일 / 공부",
+                "percent": 32,
+                "color": "#c4b5fd"
+              },
+              {
+                "label": "가족",
+                "percent": 18,
+                "color": "#93c5fd"
+              },
+              {
+                "label": "친구 / 관계",
+                "percent": 14,
+                "color": "#f9a8d4"
+              },
+              {
+                "label": "건강",
+                "percent": 12,
+                "color": "#86efac"
+              },
+              {
+                "label": "취미 / 휴식",
+                "percent": 14,
+                "color": "#fde68a"
+              },
+              {
+                "label": "돈 / 기타",
+                "percent": 10,
+                "color": "#fdba74"
+              }
+            ]
+          }
         },
         {
-          "id": "a",
-          "type": "callout",
-          "x": 100,
-          "y": 60,
-          "w": 210,
-          "h": 110,
-          "label": "일 40%"
-        },
-        {
-          "id": "b",
-          "type": "callout",
-          "x": 100,
-          "y": 360,
-          "w": 210,
-          "h": 110,
-          "label": "가족 20%"
-        },
-        {
-          "id": "c",
-          "type": "callout",
-          "x": 900,
-          "y": 60,
-          "w": 210,
-          "h": 110,
-          "label": "취미 15%"
-        },
-        {
-          "id": "d",
-          "type": "callout",
-          "x": 900,
-          "y": 360,
-          "w": 210,
-          "h": 110,
-          "label": "건강 10%"
-        },
-        {
-          "id": "e",
+          "id": "memo1",
           "type": "note",
-          "x": 500,
-          "y": 20,
-          "w": 210,
-          "h": 100,
-          "label": "돈 10%"
+          "x": 970,
+          "y": 100,
+          "label": "이번 주 가장 큰 생각\n→ 일 / 공부"
         },
         {
-          "id": "f",
+          "id": "memo2",
           "type": "note",
-          "x": 500,
+          "x": 970,
+          "y": 260,
+          "label": "줄이고 싶은 생각\n→ 걱정 / 기타"
+        },
+        {
+          "id": "memo3",
+          "type": "note",
+          "x": 970,
+          "y": 420,
+          "label": "더 늘리고 싶은 것\n→ 건강 / 휴식"
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "daily-plan",
+      "name": "24시간 원형 생활계획표 Pro",
+      "category": "Smart / Planner",
+      "keywords": "daily planner 24h wheel 생활계획표 시간 비율",
+      "theme": "minimal",
+      "description": "시작/종료 시간을 바꾸면 실제 원형 구간 비율이 자동 변경",
+      "nodes": [
+        {
+          "id": "wheel",
+          "type": "radial-plan",
+          "x": 80,
+          "y": 50,
+          "label": "",
+          "w": 620,
+          "h": 620,
+          "style": {
+            "portCount": 0
+          },
+          "data": {
+            "title": "나의 24시간",
+            "clockMode": 24,
+            "segments": [
+              {
+                "label": "수면",
+                "start": 0,
+                "end": 7,
+                "color": "#6366f1"
+              },
+              {
+                "label": "아침/이동",
+                "start": 7,
+                "end": 9,
+                "color": "#f59e0b"
+              },
+              {
+                "label": "일/학교",
+                "start": 9,
+                "end": 17,
+                "color": "#22c55e"
+              },
+              {
+                "label": "운동",
+                "start": 17,
+                "end": 19,
+                "color": "#06b6d4"
+              },
+              {
+                "label": "저녁/가족",
+                "start": 19,
+                "end": 21,
+                "color": "#ec4899"
+              },
+              {
+                "label": "취미/정리",
+                "start": 21,
+                "end": 24,
+                "color": "#8b5cf6"
+              }
+            ]
+          }
+        },
+        {
+          "id": "goal",
+          "type": "card",
+          "x": 780,
+          "y": 80,
+          "label": "오늘의 핵심 목표\n한 가지에 집중하기",
+          "w": 330,
+          "h": 120,
+          "style": {
+            "autoTextFit": true
+          }
+        },
+        {
+          "id": "todo",
+          "type": "note",
+          "x": 780,
+          "y": 240,
+          "label": "체크리스트\n□ 운동\n□ 독서\n□ 정리",
+          "w": 330,
+          "h": 190,
+          "style": {
+            "autoTextFit": true
+          }
+        },
+        {
+          "id": "review",
+          "type": "callout",
+          "x": 780,
           "y": 470,
-          "w": 210,
-          "h": 100,
-          "label": "기타 5%"
+          "label": "오늘의 회고\n잘한 점 / 바꿀 점",
+          "w": 330,
+          "h": 130,
+          "style": {
+            "autoTextFit": true
+          }
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "weekly-planner",
+      "name": "주간 계획 보드",
+      "category": "Life",
+      "keywords": "weekly planner week schedule 주간 계획",
+      "theme": "paper",
+      "nodes": [
+        {
+          "id": "n1",
+          "type": "swimlane",
+          "x": 60,
+          "y": 60,
+          "label": "월",
+          "w": 1080,
+          "h": 78
+        },
+        {
+          "id": "n2",
+          "type": "swimlane",
+          "x": 60,
+          "y": 150,
+          "label": "화",
+          "w": 1080,
+          "h": 78
+        },
+        {
+          "id": "n3",
+          "type": "swimlane",
+          "x": 60,
+          "y": 240,
+          "label": "수",
+          "w": 1080,
+          "h": 78
+        },
+        {
+          "id": "n4",
+          "type": "swimlane",
+          "x": 60,
+          "y": 330,
+          "label": "목",
+          "w": 1080,
+          "h": 78
+        },
+        {
+          "id": "n5",
+          "type": "swimlane",
+          "x": 60,
+          "y": 420,
+          "label": "금",
+          "w": 1080,
+          "h": 78
+        },
+        {
+          "id": "n6",
+          "type": "swimlane",
+          "x": 60,
+          "y": 510,
+          "label": "주말",
+          "w": 1080,
+          "h": 90
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "monthly-focus",
+      "name": "월간 목표 캘린더",
+      "category": "Life",
+      "keywords": "monthly calendar goal month 월간 계획 달력 목표",
+      "theme": "soft",
+      "nodes": [
+        {
+          "id": "n1",
+          "type": "table",
+          "x": 70,
+          "y": 70,
+          "label": "월간 캘린더",
+          "w": 1180,
+          "h": 460
+        },
+        {
+          "id": "n2",
+          "type": "note",
+          "x": 1280,
+          "y": 90,
+          "label": "이번 달 목표"
+        },
+        {
+          "id": "n3",
+          "type": "note",
+          "x": 1280,
+          "y": 240,
+          "label": "중요 일정"
+        },
+        {
+          "id": "n4",
+          "type": "note",
+          "x": 1280,
+          "y": 390,
+          "label": "회고"
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "habit-tracker",
+      "name": "습관 트래커",
+      "category": "Life",
+      "keywords": "habit tracker routine check 습관 트래커",
+      "theme": "minimal",
+      "nodes": [
+        {
+          "id": "n1",
+          "type": "table",
+          "x": 70,
+          "y": 80,
+          "label": "습관 트래커",
+          "w": 1200,
+          "h": 430
+        },
+        {
+          "id": "n2",
+          "type": "note",
+          "x": 1310,
+          "y": 90,
+          "label": "이번 주 보상"
+        },
+        {
+          "id": "n3",
+          "type": "note",
+          "x": 1310,
+          "y": 240,
+          "label": "놓친 이유"
+        },
+        {
+          "id": "n4",
+          "type": "note",
+          "x": 1310,
+          "y": 390,
+          "label": "개선 아이디어"
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "study-plan",
+      "name": "공부 계획표",
+      "category": "Education",
+      "keywords": "study planner learning school 공부 계획표",
+      "theme": "paper",
+      "nodes": [
+        {
+          "id": "n1",
+          "type": "swimlane",
+          "x": 70,
+          "y": 70,
+          "label": "월",
+          "w": 1120,
+          "h": 84
+        },
+        {
+          "id": "n2",
+          "type": "swimlane",
+          "x": 70,
+          "y": 166,
+          "label": "화",
+          "w": 1120,
+          "h": 84
+        },
+        {
+          "id": "n3",
+          "type": "swimlane",
+          "x": 70,
+          "y": 262,
+          "label": "수",
+          "w": 1120,
+          "h": 84
+        },
+        {
+          "id": "n4",
+          "type": "swimlane",
+          "x": 70,
+          "y": 358,
+          "label": "목",
+          "w": 1120,
+          "h": 84
+        },
+        {
+          "id": "n5",
+          "type": "swimlane",
+          "x": 70,
+          "y": 454,
+          "label": "금",
+          "w": 1120,
+          "h": 84
+        },
+        {
+          "id": "n6",
+          "type": "note",
+          "x": 1230,
+          "y": 100,
+          "label": "시험 일정"
+        },
+        {
+          "id": "n7",
+          "type": "note",
+          "x": 1230,
+          "y": 250,
+          "label": "집중 과목"
+        },
+        {
+          "id": "n8",
+          "type": "note",
+          "x": 1230,
+          "y": 400,
+          "label": "복습 체크"
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "meal-planner",
+      "name": "주간 식단표",
+      "category": "Life",
+      "keywords": "meal planner food weekly diet 식단표",
+      "theme": "soft",
+      "nodes": [
+        {
+          "id": "n1",
+          "type": "table",
+          "x": 70,
+          "y": 80,
+          "label": "식단표",
+          "w": 1240,
+          "h": 430
+        },
+        {
+          "id": "n2",
+          "type": "note",
+          "x": 1340,
+          "y": 90,
+          "label": "장보기"
+        },
+        {
+          "id": "n3",
+          "type": "note",
+          "x": 1340,
+          "y": 250,
+          "label": "영양 체크"
+        },
+        {
+          "id": "n4",
+          "type": "note",
+          "x": 1340,
+          "y": 400,
+          "label": "레시피 아이디어"
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "kanban-board",
+      "name": "칸반 업무 보드",
+      "category": "Productivity",
+      "keywords": "kanban board todo doing done 칸반 보드",
+      "theme": "minimal",
+      "nodes": [
+        {
+          "id": "g1",
+          "type": "group",
+          "x": 60,
+          "y": 70,
+          "label": "할 일",
+          "w": 310,
+          "h": 430
+        },
+        {
+          "id": "g2",
+          "type": "group",
+          "x": 410,
+          "y": 70,
+          "label": "진행 중",
+          "w": 310,
+          "h": 430
+        },
+        {
+          "id": "g3",
+          "type": "group",
+          "x": 760,
+          "y": 70,
+          "label": "검토",
+          "w": 310,
+          "h": 430
+        },
+        {
+          "id": "g4",
+          "type": "group",
+          "x": 1110,
+          "y": 70,
+          "label": "완료",
+          "w": 310,
+          "h": 430
+        },
+        {
+          "id": "n1",
+          "type": "note",
+          "x": 100,
+          "y": 130,
+          "label": "작업 A"
+        },
+        {
+          "id": "n2",
+          "type": "note",
+          "x": 100,
+          "y": 260,
+          "label": "작업 B"
+        },
+        {
+          "id": "n3",
+          "type": "note",
+          "x": 450,
+          "y": 150,
+          "label": "작업 C"
+        },
+        {
+          "id": "n4",
+          "type": "note",
+          "x": 800,
+          "y": 170,
+          "label": "작업 D"
+        },
+        {
+          "id": "n5",
+          "type": "note",
+          "x": 1150,
+          "y": 190,
+          "label": "작업 E"
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "swot-analysis",
+      "name": "SWOT 분석",
+      "category": "Planning",
+      "keywords": "swot strategy planning 강점 약점 기회 위협",
+      "theme": "blueprint",
+      "nodes": [
+        {
+          "id": "g1",
+          "type": "group",
+          "x": 80,
+          "y": 70,
+          "label": "Strengths",
+          "w": 420,
+          "h": 220
+        },
+        {
+          "id": "g2",
+          "type": "group",
+          "x": 540,
+          "y": 70,
+          "label": "Weaknesses",
+          "w": 420,
+          "h": 220
+        },
+        {
+          "id": "g3",
+          "type": "group",
+          "x": 80,
+          "y": 330,
+          "label": "Opportunities",
+          "w": 420,
+          "h": 220
+        },
+        {
+          "id": "g4",
+          "type": "group",
+          "x": 540,
+          "y": 330,
+          "label": "Threats",
+          "w": 420,
+          "h": 220
+        },
+        {
+          "id": "n1",
+          "type": "note",
+          "x": 120,
+          "y": 125,
+          "label": "강점 메모"
+        },
+        {
+          "id": "n2",
+          "type": "note",
+          "x": 580,
+          "y": 125,
+          "label": "약점 메모"
+        },
+        {
+          "id": "n3",
+          "type": "note",
+          "x": 120,
+          "y": 385,
+          "label": "기회 메모"
+        },
+        {
+          "id": "n4",
+          "type": "note",
+          "x": 580,
+          "y": 385,
+          "label": "위협 메모"
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "eisenhower",
+      "name": "아이젠하워 매트릭스",
+      "category": "Productivity",
+      "keywords": "eisenhower urgent important matrix 우선순위",
+      "theme": "minimal",
+      "nodes": [
+        {
+          "id": "g1",
+          "type": "group",
+          "x": 80,
+          "y": 70,
+          "label": "긴급 / 중요",
+          "w": 420,
+          "h": 220
+        },
+        {
+          "id": "g2",
+          "type": "group",
+          "x": 540,
+          "y": 70,
+          "label": "긴급X / 중요",
+          "w": 420,
+          "h": 220
+        },
+        {
+          "id": "g3",
+          "type": "group",
+          "x": 80,
+          "y": 330,
+          "label": "긴급 / 중요X",
+          "w": 420,
+          "h": 220
+        },
+        {
+          "id": "g4",
+          "type": "group",
+          "x": 540,
+          "y": 330,
+          "label": "긴급X / 중요X",
+          "w": 420,
+          "h": 220
+        },
+        {
+          "id": "n1",
+          "type": "note",
+          "x": 120,
+          "y": 125,
+          "label": "지금 하기"
+        },
+        {
+          "id": "n2",
+          "type": "note",
+          "x": 580,
+          "y": 125,
+          "label": "계획하기"
+        },
+        {
+          "id": "n3",
+          "type": "note",
+          "x": 120,
+          "y": 385,
+          "label": "위임하기"
+        },
+        {
+          "id": "n4",
+          "type": "note",
+          "x": 580,
+          "y": 385,
+          "label": "줄이기"
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "quarter-roadmap",
+      "name": "분기 로드맵",
+      "category": "Planning",
+      "keywords": "quarter roadmap timeline plan 분기 로드맵 타임라인",
+      "theme": "paper",
+      "nodes": [
+        {
+          "id": "n1",
+          "type": "chevron",
+          "x": 90,
+          "y": 200,
+          "label": "Q1"
+        },
+        {
+          "id": "n2",
+          "type": "chevron",
+          "x": 340,
+          "y": 200,
+          "label": "Q2"
+        },
+        {
+          "id": "n3",
+          "type": "chevron",
+          "x": 590,
+          "y": 200,
+          "label": "Q3"
+        },
+        {
+          "id": "n4",
+          "type": "chevron",
+          "x": 840,
+          "y": 200,
+          "label": "Q4"
+        },
+        {
+          "id": "m1",
+          "type": "note",
+          "x": 100,
+          "y": 70,
+          "label": "핵심 과제"
+        },
+        {
+          "id": "m2",
+          "type": "note",
+          "x": 350,
+          "y": 70,
+          "label": "성장 실험"
+        },
+        {
+          "id": "m3",
+          "type": "note",
+          "x": 600,
+          "y": 70,
+          "label": "자동화"
+        },
+        {
+          "id": "m4",
+          "type": "note",
+          "x": 850,
+          "y": 70,
+          "label": "확장"
         }
       ],
       "edges": [
         {
           "id": "e1",
-          "source": "brain",
-          "target": "a",
-          "sourcePort": "left",
-          "targetPort": "right",
+          "source": "n1",
+          "target": "n2",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "label": "",
+          "routing": "orthogonal"
+        },
+        {
+          "id": "e2",
+          "source": "n2",
+          "target": "n3",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "label": "",
+          "routing": "orthogonal"
+        },
+        {
+          "id": "e3",
+          "source": "n3",
+          "target": "n4",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "label": "",
+          "routing": "orthogonal"
+        }
+      ]
+    },
+    {
+      "id": "travel-checklist",
+      "name": "여행 준비 체크리스트",
+      "category": "Lifestyle",
+      "keywords": "travel checklist packing 여행 준비 체크리스트",
+      "theme": "soft",
+      "nodes": [
+        {
+          "id": "g1",
+          "type": "group",
+          "x": 70,
+          "y": 70,
+          "label": "출발 전",
+          "w": 380,
+          "h": 430
+        },
+        {
+          "id": "g2",
+          "type": "group",
+          "x": 490,
+          "y": 70,
+          "label": "짐싸기",
+          "w": 380,
+          "h": 430
+        },
+        {
+          "id": "g3",
+          "type": "group",
+          "x": 910,
+          "y": 70,
+          "label": "현지 일정",
+          "w": 380,
+          "h": 430
+        },
+        {
+          "id": "n1",
+          "type": "note",
+          "x": 110,
+          "y": 130,
+          "label": "예약 확인"
+        },
+        {
+          "id": "n2",
+          "type": "note",
+          "x": 530,
+          "y": 130,
+          "label": "의류"
+        },
+        {
+          "id": "n3",
+          "type": "note",
+          "x": 950,
+          "y": 130,
+          "label": "관광"
+        },
+        {
+          "id": "n4",
+          "type": "note",
+          "x": 530,
+          "y": 260,
+          "label": "세면도구"
+        },
+        {
+          "id": "n5",
+          "type": "note",
+          "x": 950,
+          "y": 260,
+          "label": "맛집"
+        },
+        {
+          "id": "n6",
+          "type": "note",
+          "x": 110,
+          "y": 260,
+          "label": "환전"
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "focus-12h-wheel",
+      "name": "12시간 집중 계획표",
+      "category": "Smart / Planner",
+      "keywords": "12h focus study wheel 공부 집중 계획표",
+      "theme": "soft",
+      "description": "12시간 단위로 공부·업무 시간을 실제 비율로 배치",
+      "nodes": [
+        {
+          "id": "wheel",
+          "type": "radial-plan",
+          "x": 80,
+          "y": 60,
+          "label": "",
+          "w": 600,
+          "h": 600,
+          "style": {
+            "portCount": 0
+          },
+          "data": {
+            "title": "집중 12시간",
+            "clockMode": 12,
+            "segments": [
+              {
+                "label": "준비",
+                "start": 0,
+                "end": 1,
+                "color": "#f59e0b"
+              },
+              {
+                "label": "집중 공부",
+                "start": 1,
+                "end": 4,
+                "color": "#6366f1"
+              },
+              {
+                "label": "점심/휴식",
+                "start": 4,
+                "end": 5,
+                "color": "#22c55e"
+              },
+              {
+                "label": "프로젝트",
+                "start": 5,
+                "end": 8,
+                "color": "#06b6d4"
+              },
+              {
+                "label": "운동",
+                "start": 8,
+                "end": 9,
+                "color": "#ec4899"
+              },
+              {
+                "label": "자유시간",
+                "start": 9,
+                "end": 12,
+                "color": "#8b5cf6"
+              }
+            ]
+          }
+        },
+        {
+          "id": "goal",
+          "type": "card",
+          "x": 760,
+          "y": 90,
+          "label": "오늘의 집중 목표",
+          "w": 340,
+          "h": 100
+        },
+        {
+          "id": "rule",
+          "type": "note",
+          "x": 760,
+          "y": 230,
+          "label": "집중 규칙\n25분 집중 + 5분 휴식\n알림 최소화",
+          "w": 340,
+          "h": 170
+        },
+        {
+          "id": "reward",
+          "type": "callout",
+          "x": 760,
+          "y": 450,
+          "label": "완료 보상\n산책 / 영화 / 게임",
+          "w": 340,
+          "h": 130
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "visual-story-flow",
+      "name": "비주얼 스토리 플로우",
+      "category": "Creative",
+      "keywords": "story visual image flow storyboard 이미지 스토리",
+      "theme": "editorial",
+      "description": "이미지 3장을 직접 넣어 이야기 흐름을 구성",
+      "nodes": [
+        {
+          "id": "img1",
+          "type": "image",
+          "x": 70,
+          "y": 80,
+          "label": "장면 1",
+          "w": 260,
+          "h": 180,
+          "media": {
+            "src": "",
+            "fit": "cover",
+            "opacity": 1,
+            "showCaption": true
+          }
+        },
+        {
+          "id": "n1",
+          "type": "callout",
+          "x": 390,
+          "y": 100,
+          "label": "문제 상황"
+        },
+        {
+          "id": "img2",
+          "type": "image",
+          "x": 640,
+          "y": 80,
+          "label": "장면 2",
+          "w": 260,
+          "h": 180,
+          "media": {
+            "src": "",
+            "fit": "cover",
+            "opacity": 1,
+            "showCaption": true
+          }
+        },
+        {
+          "id": "n2",
+          "type": "callout",
+          "x": 960,
+          "y": 100,
+          "label": "변화 / 행동"
+        },
+        {
+          "id": "img3",
+          "type": "image",
+          "x": 1210,
+          "y": 80,
+          "label": "장면 3",
+          "w": 260,
+          "h": 180,
+          "media": {
+            "src": "",
+            "fit": "cover",
+            "opacity": 1,
+            "showCaption": true
+          }
+        },
+        {
+          "id": "note",
+          "type": "note",
+          "x": 520,
+          "y": 350,
+          "label": "스토리 메시지\n누가 → 무엇을 → 왜 → 어떻게",
+          "w": 520,
+          "h": 160
+        }
+      ],
+      "edges": [
+        {
+          "id": "e1",
+          "source": "img1",
+          "target": "n1",
+          "sourcePort": "right",
+          "targetPort": "left",
           "routing": "bezier",
           "label": ""
         },
         {
           "id": "e2",
-          "source": "brain",
-          "target": "b",
-          "sourcePort": "left",
-          "targetPort": "right",
+          "source": "n1",
+          "target": "img2",
+          "sourcePort": "right",
+          "targetPort": "left",
           "routing": "bezier",
           "label": ""
         },
         {
           "id": "e3",
-          "source": "brain",
+          "source": "img2",
+          "target": "n2",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "routing": "bezier",
+          "label": ""
+        },
+        {
+          "id": "e4",
+          "source": "n2",
+          "target": "img3",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "routing": "bezier",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "id": "life-balance-board",
+      "name": "라이프 밸런스 대시보드",
+      "category": "Life",
+      "keywords": "life balance health money family hobby dashboard 생활 밸런스",
+      "theme": "clay",
+      "description": "생각 비율과 실행 항목을 한 장에 정리",
+      "nodes": [
+        {
+          "id": "brain",
+          "type": "brain-map",
+          "x": 80,
+          "y": 40,
+          "label": "",
+          "w": 600,
+          "h": 520,
+          "style": {
+            "portCount": 0
+          },
+          "data": {
+            "title": "내 관심사",
+            "regions": [
+              {
+                "label": "일 / 공부",
+                "percent": 32,
+                "color": "#c4b5fd"
+              },
+              {
+                "label": "가족",
+                "percent": 18,
+                "color": "#93c5fd"
+              },
+              {
+                "label": "친구 / 관계",
+                "percent": 14,
+                "color": "#f9a8d4"
+              },
+              {
+                "label": "건강",
+                "percent": 12,
+                "color": "#86efac"
+              },
+              {
+                "label": "취미 / 휴식",
+                "percent": 14,
+                "color": "#fde68a"
+              },
+              {
+                "label": "돈 / 기타",
+                "percent": 10,
+                "color": "#fdba74"
+              }
+            ]
+          }
+        },
+        {
+          "id": "card1",
+          "type": "card",
+          "x": 760,
+          "y": 70,
+          "label": "이번 달 최우선\n건강 루틴 만들기",
+          "w": 330,
+          "h": 110
+        },
+        {
+          "id": "card2",
+          "type": "card",
+          "x": 760,
+          "y": 220,
+          "label": "줄일 것\n야근 / 무의미한 스크롤",
+          "w": 330,
+          "h": 110
+        },
+        {
+          "id": "card3",
+          "type": "card",
+          "x": 760,
+          "y": 370,
+          "label": "늘릴 것\n가족 / 독서 / 운동",
+          "w": 330,
+          "h": 110
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "photo-mood-map",
+      "name": "이미지 무드맵",
+      "category": "Creative",
+      "keywords": "moodboard photos images inspiration 무드보드 이미지",
+      "theme": "soft",
+      "description": "이미지 파일을 넣어 색/컨셉/무드를 빠르게 구성",
+      "nodes": [
+        {
+          "id": "i1",
+          "type": "image",
+          "x": 70,
+          "y": 70,
+          "label": "Reference A",
+          "w": 300,
+          "h": 210,
+          "media": {
+            "src": "",
+            "fit": "cover",
+            "opacity": 1,
+            "showCaption": true
+          }
+        },
+        {
+          "id": "i2",
+          "type": "image",
+          "x": 400,
+          "y": 70,
+          "label": "Reference B",
+          "w": 300,
+          "h": 210,
+          "media": {
+            "src": "",
+            "fit": "cover",
+            "opacity": 1,
+            "showCaption": true
+          }
+        },
+        {
+          "id": "i3",
+          "type": "image",
+          "x": 730,
+          "y": 70,
+          "label": "Reference C",
+          "w": 300,
+          "h": 210,
+          "media": {
+            "src": "",
+            "fit": "cover",
+            "opacity": 1,
+            "showCaption": true
+          }
+        },
+        {
+          "id": "i4",
+          "type": "image",
+          "x": 1060,
+          "y": 70,
+          "label": "Reference D",
+          "w": 300,
+          "h": 210,
+          "media": {
+            "src": "",
+            "fit": "cover",
+            "opacity": 1,
+            "showCaption": true
+          }
+        },
+        {
+          "id": "idea",
+          "type": "note",
+          "x": 400,
+          "y": 340,
+          "label": "키워드\n따뜻함 · 자연 · 리듬 · 여백",
+          "w": 630,
+          "h": 150
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "decision-canvas-pro",
+      "name": "의사결정 캔버스 Pro",
+      "category": "Planning",
+      "keywords": "decision canvas options criteria 의사결정 선택 비교",
+      "theme": "swiss2",
+      "description": "세 선택지를 동일 기준으로 비교하는 의사결정 템플릿",
+      "nodes": [
+        {
+          "id": "goal",
+          "type": "card",
+          "x": 520,
+          "y": 50,
+          "label": "결정할 문제",
+          "w": 360,
+          "h": 100
+        },
+        {
+          "id": "a",
+          "type": "group",
+          "x": 70,
+          "y": 220,
+          "label": "선택지 A",
+          "w": 380,
+          "h": 300
+        },
+        {
+          "id": "b",
+          "type": "group",
+          "x": 500,
+          "y": 220,
+          "label": "선택지 B",
+          "w": 380,
+          "h": 300
+        },
+        {
+          "id": "c",
+          "type": "group",
+          "x": 930,
+          "y": 220,
+          "label": "선택지 C",
+          "w": 380,
+          "h": 300
+        },
+        {
+          "id": "na",
+          "type": "note",
+          "x": 110,
+          "y": 280,
+          "label": "장점\n단점\n비용\n기대효과",
+          "w": 300,
+          "h": 170
+        },
+        {
+          "id": "nb",
+          "type": "note",
+          "x": 540,
+          "y": 280,
+          "label": "장점\n단점\n비용\n기대효과",
+          "w": 300,
+          "h": 170
+        },
+        {
+          "id": "nc",
+          "type": "note",
+          "x": 970,
+          "y": 280,
+          "label": "장점\n단점\n비용\n기대효과",
+          "w": 300,
+          "h": 170
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "learning-map-pro",
+      "name": "학습 로드맵 Pro",
+      "category": "Education",
+      "keywords": "study learning roadmap milestone 공부 학습 로드맵",
+      "theme": "blueprint",
+      "description": "기초→연습→프로젝트→피드백 순환형 학습 구조",
+      "nodes": [
+        {
+          "id": "s",
+          "type": "terminator",
+          "x": 70,
+          "y": 240,
+          "label": "시작"
+        },
+        {
+          "id": "p1",
+          "type": "card",
+          "x": 290,
+          "y": 120,
+          "label": "기초\n개념 이해",
+          "w": 210,
+          "h": 120
+        },
+        {
+          "id": "p2",
+          "type": "card",
+          "x": 570,
+          "y": 250,
+          "label": "연습\n작은 문제",
+          "w": 210,
+          "h": 120
+        },
+        {
+          "id": "p3",
+          "type": "card",
+          "x": 850,
+          "y": 110,
+          "label": "프로젝트\n실전 적용",
+          "w": 210,
+          "h": 120
+        },
+        {
+          "id": "p4",
+          "type": "card",
+          "x": 1130,
+          "y": 250,
+          "label": "피드백\n약점 보완",
+          "w": 210,
+          "h": 120
+        },
+        {
+          "id": "e",
+          "type": "terminator",
+          "x": 1410,
+          "y": 150,
+          "label": "목표 달성"
+        }
+      ],
+      "edges": [
+        {
+          "id": "e1",
+          "source": "s",
+          "target": "p1",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "routing": "bezier",
+          "label": ""
+        },
+        {
+          "id": "e2",
+          "source": "p1",
+          "target": "p2",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "routing": "bezier",
+          "label": ""
+        },
+        {
+          "id": "e3",
+          "source": "p2",
+          "target": "p3",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "routing": "bezier",
+          "label": ""
+        },
+        {
+          "id": "e4",
+          "source": "p3",
+          "target": "p4",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "routing": "bezier",
+          "label": ""
+        },
+        {
+          "id": "e5",
+          "source": "p4",
+          "target": "e",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "routing": "bezier",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "id": "meeting-map-pro",
+      "name": "회의 한 장 정리",
+      "category": "Productivity",
+      "keywords": "meeting agenda decisions action 회의 정리 액션",
+      "theme": "swiss",
+      "description": "안건·논의·결정·후속 액션을 한 화면에 정리",
+      "nodes": [
+        {
+          "id": "a",
+          "type": "card",
+          "x": 80,
+          "y": 70,
+          "label": "오늘의 안건",
+          "w": 300,
+          "h": 110
+        },
+        {
+          "id": "b",
+          "type": "group",
+          "x": 430,
+          "y": 70,
+          "label": "핵심 논의",
+          "w": 520,
+          "h": 330
+        },
+        {
+          "id": "c",
+          "type": "note",
+          "x": 480,
+          "y": 140,
+          "label": "쟁점 1\n쟁점 2\n쟁점 3",
+          "w": 420,
+          "h": 190
+        },
+        {
+          "id": "d",
+          "type": "group",
+          "x": 1000,
+          "y": 70,
+          "label": "결정 / 액션",
+          "w": 430,
+          "h": 330
+        },
+        {
+          "id": "e",
+          "type": "note",
+          "x": 1050,
+          "y": 140,
+          "label": "결정사항\n담당자\n마감일",
+          "w": 330,
+          "h": 190
+        },
+        {
+          "id": "f",
+          "type": "callout",
+          "x": 510,
+          "y": 450,
+          "label": "다음 회의까지 확인할 것",
+          "w": 420,
+          "h": 120
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "personal-finance-map",
+      "name": "개인 재무 맵",
+      "category": "Life / Finance",
+      "keywords": "budget finance money saving expense 재무 예산 돈",
+      "theme": "luxe",
+      "description": "수입·지출 비율·저축 목표를 시각적으로 관리",
+      "nodes": [
+        {
+          "id": "income",
+          "type": "card",
+          "x": 70,
+          "y": 80,
+          "label": "월 수입\n3,500,000원",
+          "w": 260,
+          "h": 120
+        },
+        {
+          "id": "budget",
+          "type": "brain-map",
+          "x": 390,
+          "y": 40,
+          "label": "",
+          "w": 600,
+          "h": 520,
+          "style": {
+            "portCount": 0
+          },
+          "data": {
+            "title": "돈의 사용처",
+            "regions": [
+              {
+                "label": "주거",
+                "percent": 30,
+                "color": "#d6b36a"
+              },
+              {
+                "label": "생활",
+                "percent": 20,
+                "color": "#93c5fd"
+              },
+              {
+                "label": "저축",
+                "percent": 20,
+                "color": "#86efac"
+              },
+              {
+                "label": "취미",
+                "percent": 10,
+                "color": "#f9a8d4"
+              },
+              {
+                "label": "교육",
+                "percent": 10,
+                "color": "#c4b5fd"
+              },
+              {
+                "label": "기타",
+                "percent": 10,
+                "color": "#fdba74"
+              }
+            ]
+          }
+        },
+        {
+          "id": "goal",
+          "type": "note",
+          "x": 1050,
+          "y": 90,
+          "label": "이번 달 저축 목표\n700,000원",
+          "w": 330,
+          "h": 130
+        },
+        {
+          "id": "rule",
+          "type": "callout",
+          "x": 1050,
+          "y": 270,
+          "label": "지출 규칙\n고정비 먼저 → 저축 → 생활비",
+          "w": 330,
+          "h": 160
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "workout-week",
+      "name": "주간 운동 루틴",
+      "category": "Life",
+      "keywords": "workout fitness weekly gym routine 운동 루틴",
+      "theme": "clay",
+      "description": "요일별 운동과 주간 목표를 카드로 구성",
+      "nodes": [
+        {
+          "id": "m",
+          "type": "card",
+          "x": 70,
+          "y": 80,
+          "label": "월\n상체",
+          "w": 180,
+          "h": 130
+        },
+        {
+          "id": "t",
+          "type": "card",
+          "x": 280,
+          "y": 80,
+          "label": "화\n걷기",
+          "w": 180,
+          "h": 130
+        },
+        {
+          "id": "w",
+          "type": "card",
+          "x": 490,
+          "y": 80,
+          "label": "수\n하체",
+          "w": 180,
+          "h": 130
+        },
+        {
+          "id": "th",
+          "type": "card",
+          "x": 700,
+          "y": 80,
+          "label": "목\n휴식",
+          "w": 180,
+          "h": 130
+        },
+        {
+          "id": "f",
+          "type": "card",
+          "x": 910,
+          "y": 80,
+          "label": "금\n전신",
+          "w": 180,
+          "h": 130
+        },
+        {
+          "id": "sa",
+          "type": "card",
+          "x": 1120,
+          "y": 80,
+          "label": "토\n러닝",
+          "w": 180,
+          "h": 130
+        },
+        {
+          "id": "su",
+          "type": "card",
+          "x": 1330,
+          "y": 80,
+          "label": "일\n스트레칭",
+          "w": 180,
+          "h": 130
+        },
+        {
+          "id": "memo",
+          "type": "note",
+          "x": 420,
+          "y": 300,
+          "label": "주간 목표\n운동 5회 · 150분\n수면 7시간+",
+          "w": 500,
+          "h": 160
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "trip-day-plan",
+      "name": "여행 하루 타임라인",
+      "category": "Travel",
+      "keywords": "travel itinerary day timeline 여행 일정",
+      "theme": "editorial",
+      "description": "사진과 시간을 섞어 여행 하루 동선을 구성",
+      "nodes": [
+        {
+          "id": "s",
+          "type": "terminator",
+          "x": 70,
+          "y": 190,
+          "label": "08:00 출발"
+        },
+        {
+          "id": "a",
+          "type": "image",
+          "x": 290,
+          "y": 100,
+          "label": "첫 장소",
+          "w": 250,
+          "h": 180,
+          "media": {
+            "src": "",
+            "fit": "cover",
+            "opacity": 1,
+            "showCaption": true
+          }
+        },
+        {
+          "id": "b",
+          "type": "card",
+          "x": 610,
+          "y": 160,
+          "label": "12:00 점심",
+          "w": 220,
+          "h": 110
+        },
+        {
+          "id": "c",
+          "type": "image",
+          "x": 900,
+          "y": 100,
+          "label": "오후 장소",
+          "w": 250,
+          "h": 180,
+          "media": {
+            "src": "",
+            "fit": "cover",
+            "opacity": 1,
+            "showCaption": true
+          }
+        },
+        {
+          "id": "d",
+          "type": "card",
+          "x": 1220,
+          "y": 160,
+          "label": "18:00 저녁",
+          "w": 220,
+          "h": 110
+        },
+        {
+          "id": "e",
+          "type": "terminator",
+          "x": 1510,
+          "y": 190,
+          "label": "21:00 귀가"
+        }
+      ],
+      "edges": [
+        {
+          "id": "e1",
+          "source": "s",
+          "target": "a",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "routing": "bezier",
+          "label": ""
+        },
+        {
+          "id": "e2",
+          "source": "a",
+          "target": "b",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "routing": "bezier",
+          "label": ""
+        },
+        {
+          "id": "e3",
+          "source": "b",
           "target": "c",
           "sourcePort": "right",
           "targetPort": "left",
@@ -247,7 +2337,7 @@
         },
         {
           "id": "e4",
-          "source": "brain",
+          "source": "c",
           "target": "d",
           "sourcePort": "right",
           "targetPort": "left",
@@ -256,479 +2346,751 @@
         },
         {
           "id": "e5",
-          "source": "brain",
+          "source": "d",
           "target": "e",
-          "sourcePort": "top",
-          "targetPort": "bottom",
-          "routing": "bezier",
-          "label": ""
-        },
-        {
-          "id": "e6",
-          "source": "brain",
-          "target": "f",
-          "sourcePort": "bottom",
-          "targetPort": "top",
+          "sourcePort": "right",
+          "targetPort": "left",
           "routing": "bezier",
           "label": ""
         }
       ]
     },
     {
-      "id": "daily-life-plan",
-      "name": "일간 생활 계획표",
-      "category": "Planner",
-      "keywords": "daily schedule life planner 일간 생활 계획표",
-      "theme": "minimal",
-      "nodes": [
-        {
-          "id": "g",
-          "type": "group",
-          "x": 60,
-          "y": 50,
-          "w": 1180,
-          "h": 540,
-          "label": "오늘의 생활 계획"
-        },
-        {
-          "id": "m",
-          "type": "swimlane",
-          "x": 100,
-          "y": 110,
-          "w": 1060,
-          "h": 105,
-          "label": "06–10 아침"
-        },
-        {
-          "id": "d",
-          "type": "swimlane",
-          "x": 100,
-          "y": 230,
-          "w": 1060,
-          "h": 105,
-          "label": "10–17 낮"
-        },
-        {
-          "id": "e",
-          "type": "swimlane",
-          "x": 100,
-          "y": 350,
-          "w": 1060,
-          "h": 105,
-          "label": "17–22 저녁"
-        },
-        {
-          "id": "n",
-          "type": "swimlane",
-          "x": 100,
-          "y": 470,
-          "w": 1060,
-          "h": 85,
-          "label": "22–24 밤"
-        }
-      ],
-      "edges": []
-    },
-    {
-      "id": "weekly-life-plan",
-      "name": "주간 생활 계획표",
-      "category": "Planner",
-      "keywords": "weekly week schedule 주간 계획표",
+      "id": "reading-notes-map",
+      "name": "독서 노트 맵",
+      "category": "Education",
+      "keywords": "book reading notes summary 독서 노트",
       "theme": "paper",
+      "description": "책 표지·핵심 문장·아이디어·적용점을 연결",
       "nodes": [
         {
-          "id": "mon",
-          "type": "swimlane",
-          "x": 60,
-          "y": 50,
-          "w": 1160,
-          "h": 75,
-          "label": "월"
-        },
-        {
-          "id": "tue",
-          "type": "swimlane",
-          "x": 60,
-          "y": 135,
-          "w": 1160,
-          "h": 75,
-          "label": "화"
-        },
-        {
-          "id": "wed",
-          "type": "swimlane",
-          "x": 60,
-          "y": 220,
-          "w": 1160,
-          "h": 75,
-          "label": "수"
-        },
-        {
-          "id": "thu",
-          "type": "swimlane",
-          "x": 60,
-          "y": 305,
-          "w": 1160,
-          "h": 75,
-          "label": "목"
-        },
-        {
-          "id": "fri",
-          "type": "swimlane",
-          "x": 60,
-          "y": 390,
-          "w": 1160,
-          "h": 75,
-          "label": "금"
-        },
-        {
-          "id": "weekend",
-          "type": "swimlane",
-          "x": 60,
-          "y": 475,
-          "w": 1160,
-          "h": 95,
-          "label": "주말"
-        }
-      ],
-      "edges": []
-    },
-    {
-      "id": "monthly-board",
-      "name": "월간 목표 보드",
-      "category": "Planner",
-      "keywords": "monthly month goals 월간 목표 계획",
-      "theme": "soft",
-      "nodes": [
-        {
-          "id": "cal",
-          "type": "table",
-          "x": 60,
-          "y": 60,
-          "w": 1040,
-          "h": 480,
-          "label": "이번 달 일정"
-        },
-        {
-          "id": "goal",
-          "type": "note",
-          "x": 1140,
-          "y": 80,
-          "w": 270,
-          "h": 130,
-          "label": "이번 달 목표"
-        },
-        {
-          "id": "important",
-          "type": "note",
-          "x": 1140,
-          "y": 235,
-          "w": 270,
-          "h": 130,
-          "label": "중요 일정"
-        },
-        {
-          "id": "review",
-          "type": "note",
-          "x": 1140,
-          "y": 390,
-          "w": 270,
-          "h": 130,
-          "label": "월말 회고"
-        }
-      ],
-      "edges": []
-    },
-    {
-      "id": "habit-board",
-      "name": "습관 트래커",
-      "category": "Planner",
-      "keywords": "habit tracker routine 습관 트래커",
-      "theme": "minimal",
-      "nodes": [
-        {
-          "id": "table",
-          "type": "table",
+          "id": "book",
+          "type": "image",
           "x": 70,
-          "y": 70,
-          "w": 1100,
-          "h": 450,
-          "label": "습관 × 날짜"
+          "y": 80,
+          "label": "책 표지",
+          "w": 260,
+          "h": 360,
+          "media": {
+            "src": "",
+            "fit": "contain",
+            "opacity": 1,
+            "showCaption": true
+          }
         },
         {
           "id": "why",
-          "type": "note",
-          "x": 1210,
-          "y": 90,
-          "w": 260,
-          "h": 125,
-          "label": "이번 달 핵심 습관"
+          "type": "callout",
+          "x": 400,
+          "y": 70,
+          "label": "왜 읽었나?",
+          "w": 300,
+          "h": 120
         },
         {
-          "id": "reward",
+          "id": "quote",
           "type": "note",
-          "x": 1210,
-          "y": 250,
-          "w": 260,
-          "h": 125,
-          "label": "보상"
+          "x": 400,
+          "y": 240,
+          "label": "기억할 문장\n“...”",
+          "w": 300,
+          "h": 180
         },
         {
-          "id": "review",
+          "id": "ideas",
+          "type": "group",
+          "x": 760,
+          "y": 70,
+          "label": "핵심 아이디어",
+          "w": 520,
+          "h": 350
+        },
+        {
+          "id": "i1",
           "type": "note",
-          "x": 1210,
-          "y": 410,
-          "w": 260,
-          "h": 125,
-          "label": "회고"
+          "x": 810,
+          "y": 130,
+          "label": "아이디어 1",
+          "w": 200,
+          "h": 100
+        },
+        {
+          "id": "i2",
+          "type": "note",
+          "x": 1030,
+          "y": 130,
+          "label": "아이디어 2",
+          "w": 200,
+          "h": 100
+        },
+        {
+          "id": "i3",
+          "type": "note",
+          "x": 920,
+          "y": 260,
+          "label": "내가 적용할 것",
+          "w": 220,
+          "h": 100
         }
       ],
       "edges": []
     },
     {
-      "id": "kanban-life",
-      "name": "칸반 생활 보드",
+      "id": "retrospective-pro",
+      "name": "회고 보드 Pro",
       "category": "Productivity",
-      "keywords": "kanban todo doing done 칸반 할일",
-      "theme": "minimal",
+      "keywords": "retrospective kpt start stop continue 회고",
+      "theme": "neobrutal",
+      "description": "KPT 회고를 강한 시각 구획으로 정리",
       "nodes": [
         {
           "id": "g1",
           "type": "group",
-          "x": 50,
-          "y": 60,
-          "w": 320,
-          "h": 470,
-          "label": "해야 할 일"
+          "x": 70,
+          "y": 70,
+          "label": "KEEP · 계속",
+          "w": 380,
+          "h": 390
         },
         {
           "id": "g2",
           "type": "group",
-          "x": 400,
-          "y": 60,
-          "w": 320,
-          "h": 470,
-          "label": "진행 중"
+          "x": 490,
+          "y": 70,
+          "label": "PROBLEM · 문제",
+          "w": 380,
+          "h": 390
         },
         {
           "id": "g3",
           "type": "group",
-          "x": 750,
-          "y": 60,
-          "w": 320,
-          "h": 470,
-          "label": "기다리는 중"
-        },
-        {
-          "id": "g4",
-          "type": "group",
-          "x": 1100,
-          "y": 60,
-          "w": 320,
-          "h": 470,
-          "label": "완료"
+          "x": 910,
+          "y": 70,
+          "label": "TRY · 시도",
+          "w": 380,
+          "h": 390
         },
         {
           "id": "n1",
           "type": "note",
-          "x": 90,
-          "y": 130,
-          "w": 220,
-          "h": 110,
-          "label": "할 일 적기"
+          "x": 110,
+          "y": 140,
+          "label": "잘한 것"
         },
         {
           "id": "n2",
           "type": "note",
-          "x": 440,
-          "y": 160,
-          "w": 220,
-          "h": 110,
-          "label": "오늘 집중"
+          "x": 530,
+          "y": 140,
+          "label": "막힌 것"
         },
         {
           "id": "n3",
           "type": "note",
-          "x": 790,
-          "y": 190,
-          "w": 220,
-          "h": 110,
-          "label": "답변 대기"
+          "x": 950,
+          "y": 140,
+          "label": "다음 실험"
         },
         {
-          "id": "n4",
+          "id": "m",
+          "type": "callout",
+          "x": 460,
+          "y": 510,
+          "label": "다음 주 한 가지 변화",
+          "w": 440,
+          "h": 120
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "idea-garden",
+      "name": "아이디어 가든",
+      "category": "Brainstorm",
+      "keywords": "idea garden brainstorm organic creativity 아이디어",
+      "theme": "biophilic",
+      "description": "유기적인 클라우드와 곡선 연결로 발산형 아이디어 구성",
+      "nodes": [
+        {
+          "id": "center",
+          "type": "circle",
+          "x": 560,
+          "y": 230,
+          "label": "핵심 질문",
+          "w": 180,
+          "h": 180
+        },
+        {
+          "id": "a",
+          "type": "cloud",
+          "x": 150,
+          "y": 90,
+          "label": "씨앗 아이디어 A",
+          "w": 240,
+          "h": 130
+        },
+        {
+          "id": "b",
+          "type": "cloud",
+          "x": 150,
+          "y": 390,
+          "label": "씨앗 아이디어 B",
+          "w": 240,
+          "h": 130
+        },
+        {
+          "id": "c",
+          "type": "cloud",
+          "x": 930,
+          "y": 90,
+          "label": "성장 아이디어 C",
+          "w": 240,
+          "h": 130
+        },
+        {
+          "id": "d",
+          "type": "cloud",
+          "x": 930,
+          "y": 390,
+          "label": "성장 아이디어 D",
+          "w": 240,
+          "h": 130
+        },
+        {
+          "id": "memo",
           "type": "note",
-          "x": 1140,
-          "y": 220,
-          "w": 220,
-          "h": 110,
-          "label": "완료한 일"
-        }
-      ],
-      "edges": []
-    },
-    {
-      "id": "swot-board",
-      "name": "SWOT 분석",
-      "category": "Planning",
-      "keywords": "swot strength weakness opportunity threat 전략",
-      "theme": "blueprint",
-      "nodes": [
-        {
-          "id": "s",
-          "type": "group",
-          "x": 70,
-          "y": 60,
-          "w": 430,
-          "h": 230,
-          "label": "Strengths · 강점"
-        },
-        {
-          "id": "w",
-          "type": "group",
-          "x": 540,
-          "y": 60,
-          "w": 430,
-          "h": 230,
-          "label": "Weaknesses · 약점"
-        },
-        {
-          "id": "o",
-          "type": "group",
-          "x": 70,
-          "y": 330,
-          "w": 430,
-          "h": 230,
-          "label": "Opportunities · 기회"
-        },
-        {
-          "id": "t",
-          "type": "group",
-          "x": 540,
-          "y": 330,
-          "w": 430,
-          "h": 230,
-          "label": "Threats · 위협"
-        }
-      ],
-      "edges": []
-    },
-    {
-      "id": "eisenhower-board",
-      "name": "아이젠하워 매트릭스",
-      "category": "Productivity",
-      "keywords": "urgent important priority 아이젠하워 우선순위",
-      "theme": "minimal",
-      "nodes": [
-        {
-          "id": "q1",
-          "type": "group",
-          "x": 70,
-          "y": 60,
-          "w": 440,
-          "h": 235,
-          "label": "긴급 + 중요 · 지금"
-        },
-        {
-          "id": "q2",
-          "type": "group",
-          "x": 550,
-          "y": 60,
-          "w": 440,
-          "h": 235,
-          "label": "중요 · 계획"
-        },
-        {
-          "id": "q3",
-          "type": "group",
-          "x": 70,
-          "y": 335,
-          "w": 440,
-          "h": 235,
-          "label": "긴급 · 위임"
-        },
-        {
-          "id": "q4",
-          "type": "group",
-          "x": 550,
-          "y": 335,
-          "w": 440,
-          "h": 235,
-          "label": "둘 다 아님 · 줄이기"
-        }
-      ],
-      "edges": []
-    },
-    {
-      "id": "quarter-roadmap-json",
-      "name": "분기 로드맵",
-      "category": "Planning",
-      "keywords": "quarter roadmap q1 q2 q3 q4 분기 로드맵",
-      "theme": "paper",
-      "nodes": [
-        {
-          "id": "q1",
-          "type": "process",
-          "x": 80,
-          "y": 210,
-          "w": 200,
-          "h": 100,
-          "label": "Q1 · 기반"
-        },
-        {
-          "id": "q2",
-          "type": "process",
-          "x": 360,
-          "y": 210,
-          "w": 200,
-          "h": 100,
-          "label": "Q2 · 실험"
-        },
-        {
-          "id": "q3",
-          "type": "process",
-          "x": 640,
-          "y": 210,
-          "w": 200,
-          "h": 100,
-          "label": "Q3 · 성장"
-        },
-        {
-          "id": "q4",
-          "type": "process",
-          "x": 920,
-          "y": 210,
-          "w": 200,
-          "h": 100,
-          "label": "Q4 · 확장"
+          "x": 530,
+          "y": 500,
+          "label": "연결해서 더 큰 아이디어 만들기",
+          "w": 300,
+          "h": 120
         }
       ],
       "edges": [
         {
-          "id": "r1",
-          "source": "q1",
-          "target": "q2",
+          "id": "e1",
+          "source": "center",
+          "target": "a",
+          "sourcePort": "left",
+          "targetPort": "right",
+          "routing": "bezier",
+          "label": ""
+        },
+        {
+          "id": "e2",
+          "source": "center",
+          "target": "b",
+          "sourcePort": "left",
+          "targetPort": "right",
+          "routing": "bezier",
+          "label": ""
+        },
+        {
+          "id": "e3",
+          "source": "center",
+          "target": "c",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "routing": "bezier",
+          "label": ""
+        },
+        {
+          "id": "e4",
+          "source": "center",
+          "target": "d",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "routing": "bezier",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "id": "family-tree-pro",
+      "name": "가족 관계도",
+      "category": "People",
+      "keywords": "family tree relationship genealogy 가족 관계도",
+      "theme": "softui",
+      "description": "가족 구성과 관계를 계층형으로 정리",
+      "nodes": [
+        {
+          "id": "g1",
+          "type": "card",
+          "x": 560,
+          "y": 60,
+          "label": "조부모",
+          "w": 240,
+          "h": 100
+        },
+        {
+          "id": "p1",
+          "type": "card",
+          "x": 310,
+          "y": 250,
+          "label": "부모 A",
+          "w": 220,
+          "h": 100
+        },
+        {
+          "id": "p2",
+          "type": "card",
+          "x": 830,
+          "y": 250,
+          "label": "부모 B",
+          "w": 220,
+          "h": 100
+        },
+        {
+          "id": "c1",
+          "type": "card",
+          "x": 190,
+          "y": 450,
+          "label": "나",
+          "w": 190,
+          "h": 100
+        },
+        {
+          "id": "c2",
+          "type": "card",
+          "x": 500,
+          "y": 450,
+          "label": "형제/자매",
+          "w": 190,
+          "h": 100
+        },
+        {
+          "id": "c3",
+          "type": "card",
+          "x": 810,
+          "y": 450,
+          "label": "친척",
+          "w": 190,
+          "h": 100
+        }
+      ],
+      "edges": [
+        {
+          "id": "e1",
+          "source": "g1",
+          "target": "p1",
+          "sourcePort": "bottom",
+          "targetPort": "top",
+          "routing": "orthogonal",
+          "label": ""
+        },
+        {
+          "id": "e2",
+          "source": "g1",
+          "target": "p2",
+          "sourcePort": "bottom",
+          "targetPort": "top",
+          "routing": "orthogonal",
+          "label": ""
+        },
+        {
+          "id": "e3",
+          "source": "p1",
+          "target": "c1",
+          "sourcePort": "bottom",
+          "targetPort": "top",
+          "routing": "orthogonal",
+          "label": ""
+        },
+        {
+          "id": "e4",
+          "source": "p1",
+          "target": "c2",
+          "sourcePort": "bottom",
+          "targetPort": "top",
+          "routing": "orthogonal",
+          "label": ""
+        },
+        {
+          "id": "e5",
+          "source": "p2",
+          "target": "c3",
+          "sourcePort": "bottom",
+          "targetPort": "top",
+          "routing": "orthogonal",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "id": "morning-routine-wheel",
+      "name": "아침 루틴 원형표",
+      "category": "Smart / Planner",
+      "keywords": "morning routine 12h wheel 아침 루틴",
+      "theme": "aurora",
+      "description": "12시간 원형표로 아침 루틴을 시간 비율에 맞춰 표현",
+      "nodes": [
+        {
+          "id": "wheel",
+          "type": "radial-plan",
+          "x": 100,
+          "y": 60,
+          "label": "",
+          "w": 580,
+          "h": 580,
+          "style": {
+            "portCount": 0
+          },
+          "data": {
+            "title": "나의 오전",
+            "clockMode": 12,
+            "segments": [
+              {
+                "label": "수면",
+                "start": 0,
+                "end": 6,
+                "color": "#6366f1"
+              },
+              {
+                "label": "기상/물",
+                "start": 6,
+                "end": 6.5,
+                "color": "#06b6d4"
+              },
+              {
+                "label": "운동",
+                "start": 6.5,
+                "end": 7.5,
+                "color": "#22c55e"
+              },
+              {
+                "label": "샤워/준비",
+                "start": 7.5,
+                "end": 8.5,
+                "color": "#f59e0b"
+              },
+              {
+                "label": "아침식사",
+                "start": 8.5,
+                "end": 9,
+                "color": "#ec4899"
+              },
+              {
+                "label": "집중 시작",
+                "start": 9,
+                "end": 12,
+                "color": "#8b5cf6"
+              }
+            ]
+          }
+        },
+        {
+          "id": "rule",
+          "type": "note",
+          "x": 760,
+          "y": 130,
+          "label": "좋은 아침의 조건\n· 휴대폰은 8시 이후\n· 물 한 잔\n· 10분 스트레칭",
+          "w": 360,
+          "h": 190
+        },
+        {
+          "id": "goal",
+          "type": "callout",
+          "x": 760,
+          "y": 390,
+          "label": "오늘 첫 번째 중요한 일은?",
+          "w": 360,
+          "h": 130
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "content-calendar-pro",
+      "name": "콘텐츠 캘린더 Pro",
+      "category": "Creative",
+      "keywords": "content calendar social publishing 콘텐츠 캘린더",
+      "theme": "y2k",
+      "description": "요일별 콘텐츠 슬롯과 아이디어 백로그를 함께 관리",
+      "nodes": [
+        {
+          "id": "m",
+          "type": "swimlane",
+          "x": 70,
+          "y": 70,
+          "label": "MON",
+          "w": 1250,
+          "h": 80
+        },
+        {
+          "id": "t",
+          "type": "swimlane",
+          "x": 70,
+          "y": 165,
+          "label": "TUE",
+          "w": 1250,
+          "h": 80
+        },
+        {
+          "id": "w",
+          "type": "swimlane",
+          "x": 70,
+          "y": 260,
+          "label": "WED",
+          "w": 1250,
+          "h": 80
+        },
+        {
+          "id": "th",
+          "type": "swimlane",
+          "x": 70,
+          "y": 355,
+          "label": "THU",
+          "w": 1250,
+          "h": 80
+        },
+        {
+          "id": "f",
+          "type": "swimlane",
+          "x": 70,
+          "y": 450,
+          "label": "FRI",
+          "w": 1250,
+          "h": 80
+        },
+        {
+          "id": "idea",
+          "type": "note",
+          "x": 1360,
+          "y": 100,
+          "label": "아이디어 백로그\n릴스\n블로그\n뉴스레터",
+          "w": 300,
+          "h": 220
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "problem-solution-map",
+      "name": "문제→해결 맵",
+      "category": "Product",
+      "keywords": "problem solution cause effect 문제 해결",
+      "theme": "gradient",
+      "description": "문제 원인에서 해결 가설과 검증으로 이어지는 제품 사고 템플릿",
+      "nodes": [
+        {
+          "id": "problem",
+          "type": "callout",
+          "x": 70,
+          "y": 210,
+          "label": "문제 정의\n무엇이 불편한가?",
+          "w": 280,
+          "h": 150
+        },
+        {
+          "id": "why1",
+          "type": "decision",
+          "x": 430,
+          "y": 100,
+          "label": "원인 A?"
+        },
+        {
+          "id": "why2",
+          "type": "decision",
+          "x": 430,
+          "y": 320,
+          "label": "원인 B?"
+        },
+        {
+          "id": "idea1",
+          "type": "card",
+          "x": 720,
+          "y": 80,
+          "label": "해결 가설 A",
+          "w": 260,
+          "h": 120
+        },
+        {
+          "id": "idea2",
+          "type": "card",
+          "x": 720,
+          "y": 300,
+          "label": "해결 가설 B",
+          "w": 260,
+          "h": 120
+        },
+        {
+          "id": "test",
+          "type": "subprocess",
+          "x": 1060,
+          "y": 190,
+          "label": "작게 검증",
+          "w": 260,
+          "h": 120
+        },
+        {
+          "id": "result",
+          "type": "terminator",
+          "x": 1400,
+          "y": 210,
+          "label": "학습 / 결정"
+        }
+      ],
+      "edges": [
+        {
+          "id": "e1",
+          "source": "problem",
+          "target": "why1",
           "sourcePort": "right",
           "targetPort": "left",
           "routing": "orthogonal",
           "label": ""
         },
         {
-          "id": "r2",
-          "source": "q2",
-          "target": "q3",
+          "id": "e2",
+          "source": "problem",
+          "target": "why2",
           "sourcePort": "right",
           "targetPort": "left",
           "routing": "orthogonal",
           "label": ""
         },
         {
-          "id": "r3",
-          "source": "q3",
-          "target": "q4",
+          "id": "e3",
+          "source": "why1",
+          "target": "idea1",
           "sourcePort": "right",
           "targetPort": "left",
           "routing": "orthogonal",
+          "label": ""
+        },
+        {
+          "id": "e4",
+          "source": "why2",
+          "target": "idea2",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "routing": "orthogonal",
+          "label": ""
+        },
+        {
+          "id": "e5",
+          "source": "idea1",
+          "target": "test",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "routing": "orthogonal",
+          "label": ""
+        },
+        {
+          "id": "e6",
+          "source": "idea2",
+          "target": "test",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "routing": "orthogonal",
+          "label": ""
+        },
+        {
+          "id": "e7",
+          "source": "test",
+          "target": "result",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "routing": "orthogonal",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "id": "goal-mountain",
+      "name": "목표 산행 맵",
+      "category": "Planning",
+      "keywords": "goal mountain milestone journey 목표 단계",
+      "theme": "handdrawn",
+      "description": "목표까지의 단계·장애물·자원을 손그림 스타일로 표현",
+      "nodes": [
+        {
+          "id": "start",
+          "type": "terminator",
+          "x": 70,
+          "y": 430,
+          "label": "현재"
+        },
+        {
+          "id": "m1",
+          "type": "chevron",
+          "x": 330,
+          "y": 350,
+          "label": "1단계"
+        },
+        {
+          "id": "m2",
+          "type": "chevron",
+          "x": 590,
+          "y": 270,
+          "label": "2단계"
+        },
+        {
+          "id": "m3",
+          "type": "chevron",
+          "x": 850,
+          "y": 190,
+          "label": "3단계"
+        },
+        {
+          "id": "goal",
+          "type": "triangle",
+          "x": 1130,
+          "y": 60,
+          "label": "정상 목표",
+          "w": 260,
+          "h": 220
+        },
+        {
+          "id": "risk",
+          "type": "note",
+          "x": 350,
+          "y": 70,
+          "label": "장애물 / 리스크"
+        },
+        {
+          "id": "gear",
+          "type": "note",
+          "x": 680,
+          "y": 470,
+          "label": "필요한 자원 / 도움"
+        }
+      ],
+      "edges": [
+        {
+          "id": "e1",
+          "source": "start",
+          "target": "m1",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "routing": "bezier",
+          "label": ""
+        },
+        {
+          "id": "e2",
+          "source": "m1",
+          "target": "m2",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "routing": "bezier",
+          "label": ""
+        },
+        {
+          "id": "e3",
+          "source": "m2",
+          "target": "m3",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "routing": "bezier",
+          "label": ""
+        },
+        {
+          "id": "e4",
+          "source": "m3",
+          "target": "goal",
+          "sourcePort": "right",
+          "targetPort": "left",
+          "routing": "bezier",
           "label": ""
         }
       ]
