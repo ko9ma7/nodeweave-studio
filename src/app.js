@@ -314,7 +314,7 @@ function sanitizeSvgSource(text,prefix,{normalizeColor=false}={}){
 }
 function cleanSourceUrl(value=''){try{const u=new URL(value);return ['http:','https:'].includes(u.protocol)?u.href:'';}catch{return'';}}
 function importSvgText(text,{name='SVG 자산',sourceUrl='',normalizeColor=false,point=viewportCenterWorld()}={}){
-  const prefix=uid('svg');const safe=sanitizeSvgSource(text,prefix,{normalizeColor});const w=140,h=140;const node={id:uid('node'),type:'custom-svg',x:snap(point.x-w/2),y:snap(point.y-h/2),w,h,label:'',style:{iconColor:doc.tokens.text,padding:8},customSvg:{...safe,name:name||'SVG 자산',origin:'user-import',sourceUrl:cleanSourceUrl(sourceUrl)}};
+  const prefix=uid('svg');const safe=sanitizeSvgSource(text,prefix,{normalizeColor});const w=140,h=140;const node={id:uid('node'),type:'custom-svg',x:snap(point.x-w/2),y:snap(point.y-h/2),w,h,label:'',style:{iconColor:doc.tokens.text,padding:8,portCount:0},customSvg:{...safe,name:name||'SVG 자산',origin:'user-import',sourceUrl:cleanSourceUrl(sourceUrl),mode:'icon',labelPosition:'none'}};
   commit(()=>{doc.nodes.push(node);selection={nodeIds:[node.id],edgeId:null};},'SVG 자산 추가');toast('안전 필터를 거쳐 SVG 자산을 추가했습니다.','success');return node;
 }
 async function importSvgShape(file,point=viewportCenterWorld()){
@@ -333,6 +333,11 @@ function saveCurrentProject(){const item=saveProject(doc.meta.name,snapshot());d
 
 function commandItems(query=''){
   const q=query.trim().toLowerCase();const items=[];
+  items.push(
+    {kind:'스마트',title:'24/12시간 원형 생활계획표',keywords:'생활계획 schedule radial time 24 12',run:()=>addNode('radial-plan')},
+    {kind:'스마트',title:'머릿속 생각 지도',keywords:'brain 머리 생각 비율 mind',run:()=>addNode('brain-map')},
+    {kind:'미디어',title:'이미지 넣기',keywords:'image photo picture 이미지 사진',run:()=>addNode('image')}
+  );
   SHAPES.forEach(s=>items.push({kind:'도형',title:s.label,keywords:s.keywords,run:()=>addNode(s.id)}));
   BUILTIN_ICONS.forEach(i=>items.push({kind:'SVG',title:i.label,keywords:i.keywords,run:()=>addBuiltinIcon(i.id)}));
   TEMPLATES.forEach(t=>items.push({kind:'템플릿',title:t.name,keywords:t.keywords,run:()=>loadTemplate(t.id)}));
