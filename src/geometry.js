@@ -23,53 +23,55 @@ export function shapePrimitive(node, tokens, extraClass='') {
   const common = `fill="${esc(s.fill)}" stroke="${esc(s.stroke)}" stroke-width="${s.strokeWidth}" opacity="${s.opacity}" vector-effect="non-scaling-stroke" class="node-shape ${extraClass}"`;
   const r = Math.max(0, Math.min(s.radius, Math.min(w,h)/2));
   if (type === 'custom-svg' && node.customSvg?.content) {
-    const vb=esc(node.customSvg.viewBox||'0 0 100 100');
-    return `<svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="${vb}" preserveAspectRatio="xMidYMid meet" overflow="visible" class="node-shape ${extraClass}">${node.customSvg.content}</svg>`;
+    const vb=node.customSvg.viewBox||'0 0 100 100';
+    const nums=String(vb).trim().split(/[\\s,]+/).map(Number);
+    const [vx,vy,vw,vh]=nums.length===4&&nums.every(Number.isFinite)?nums:[0,0,100,100];
+    const cx=vx+vw/2,cy=vy+vh/2;
+    const rotation=Number(node.style?.rotation)||0;
+    const padding=clamp(Number(node.style?.padding)||0,0,40);
+    const scale=Math.max(.2,(100-padding*2)/100);
+    const sx=(node.style?.flipX?-1:1)*scale,sy=(node.style?.flipY?-1:1)*scale;
+    const iconColor=node.style?.iconColor??tokens.text;
+    const bg=node.style?.iconBackground??'transparent';
+    const bgRect=bg&&bg!=='transparent'?`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.min(r,Math.min(w,h)/2)}" fill="${esc(bg)}" opacity="${s.opacity}"/>`:'';
+    const transform=`translate(${cx} ${cy}) rotate(${rotation}) scale(${sx} ${sy}) translate(${-cx} ${-cy})`;
+    return `${bgRect}<svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="${esc(vb)}" preserveAspectRatio="xMidYMid meet" overflow="visible" color="${esc(iconColor)}" opacity="${s.opacity}" class="node-shape ${extraClass}"><g transform="${transform}">${node.customSvg.content}</g></svg>`;
   }
-  if (type === 'decision') {
-    return `<polygon points="${x+w/2},${y} ${x+w},${y+h/2} ${x+w/2},${y+h} ${x},${y+h/2}" ${common}/>`;
+  if (type === 'decision' || type === 'gateway') {
+    const inner=type==='gateway'?`<path d="M ${x+w*.38} ${y+h*.38} L ${x+w*.62} ${y+h*.62} M ${x+w*.62} ${y+h*.38} L ${x+w*.38} ${y+h*.62}" fill="none" stroke="${esc(s.stroke)}" stroke-width="${Math.max(1,s.strokeWidth)}" vector-effect="non-scaling-stroke"/>`:'';
+    return `<polygon points="${x+w/2},${y} ${x+w},${y+h/2} ${x+w/2},${y+h} ${x},${y+h/2}" ${common}/>${inner}`;
   }
-  if (type === 'terminator') return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" ${common}/>`;
-  if (type === 'io') {
-    const k = Math.min(24,w*.16);
-    return `<polygon points="${x+k},${y} ${x+w},${y} ${x+w-k},${y+h} ${x},${y+h}" ${common}/>`;
-  }
-  if (type === 'database') {
-    const ry = Math.min(12,h*.13);
-    return `<path d="M ${x} ${y+ry} A ${w/2} ${ry} 0 0 1 ${x+w} ${y+ry} V ${y+h-ry} A ${w/2} ${ry} 0 0 1 ${x} ${y+h-ry} Z" ${common}/>
-      <ellipse cx="${x+w/2}" cy="${y+ry}" rx="${w/2}" ry="${ry}" ${common}/>
-      <path d="M ${x} ${y+h-ry} A ${w/2} ${ry} 0 0 0 ${x+w} ${y+h-ry}" fill="none" stroke="${esc(s.stroke)}" stroke-width="${s.strokeWidth}" vector-effect="non-scaling-stroke"/>`;
-  }
-  if (type === 'document') {
-    const wave=14;
-    const d=`M ${x} ${y} H ${x+w} V ${y+h-wave} C ${x+w*.76} ${y+h-wave*2.1}, ${x+w*.62} ${y+h+wave*.35}, ${x+w*.38} ${y+h-wave} C ${x+w*.2} ${y+h-wave*2.05}, ${x+w*.1} ${y+h+wave*.25}, ${x} ${y+h-wave} Z`;
-    return `<path d="${d}" ${common}/>`;
-  }
-  if (type === 'note') {
-    const f=Math.min(24,w*.16,h*.25);
-    return `<path d="M ${x} ${y} H ${x+w-f} L ${x+w} ${y+f} V ${y+h} H ${x} Z" ${common}/>
-      <path d="M ${x+w-f} ${y} V ${y+f} H ${x+w}" fill="none" stroke="${esc(s.stroke)}" stroke-width="${s.strokeWidth}" vector-effect="non-scaling-stroke"/>`;
-  }
-  if (type === 'circle') return `<ellipse cx="${x+w/2}" cy="${y+h/2}" rx="${w/2}" ry="${h/2}" ${common}/>`;
-  if (type === 'hexagon') {
-    const k=Math.min(28,w*.18);
-    return `<polygon points="${x+k},${y} ${x+w-k},${y} ${x+w},${y+h/2} ${x+w-k},${y+h} ${x+k},${y+h} ${x},${y+h/2}" ${common}/>`;
-  }
-  if (type === 'cloud') {
-    const d=`M ${x+w*.2} ${y+h*.74} C ${x+w*.05} ${y+h*.72}, ${x+w*.01} ${y+h*.53}, ${x+w*.12} ${y+h*.43} C ${x+w*.08} ${y+h*.23}, ${x+w*.3} ${y+h*.13}, ${x+w*.43} ${y+h*.25} C ${x+w*.55} ${y+h*.05}, ${x+w*.82} ${y+h*.14}, ${x+w*.82} ${y+h*.35} C ${x+w*.99} ${y+h*.37}, ${x+w*1.02} ${y+h*.62}, ${x+w*.86} ${y+h*.71} C ${x+w*.72} ${y+h*.79}, ${x+w*.36} ${y+h*.78}, ${x+w*.2} ${y+h*.74} Z`;
-    return `<path d="${d}" ${common}/>`;
-  }
-  if (type === 'group') {
-    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${esc(s.fill)}" fill-opacity="0.34" stroke="${esc(s.stroke)}" stroke-width="${s.strokeWidth}" stroke-dasharray="8 6" vector-effect="non-scaling-stroke" class="node-shape ${extraClass}"/>`;
-  }
-  if (type === 'swimlane') {
-    const header=Math.min(70, Math.max(44,w*.13));
-    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" ${common}/>
-      <path d="M ${x+header} ${y} V ${y+h}" fill="none" stroke="${esc(s.stroke)}" stroke-width="${s.strokeWidth}" vector-effect="non-scaling-stroke"/>`;
-  }
+  if(type==='terminator')return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}" ${common}/>`;
+  if(type==='io'){const k=Math.min(24,w*.16);return `<polygon points="${x+k},${y} ${x+w},${y} ${x+w-k},${y+h} ${x},${y+h}" ${common}/>`;}
+  if(type==='manual-input'){const k=Math.min(20,h*.28);return `<polygon points="${x},${y+k} ${x+w},${y} ${x+w},${y+h} ${x},${y+h}" ${common}/>`;}
+  if(type==='delay'){const rr=h/2;return `<path d="M ${x} ${y} H ${x+w-rr} A ${rr} ${rr} 0 0 1 ${x+w-rr} ${y+h} H ${x} Z" ${common}/>`;}
+  if(type==='offpage'){const tip=Math.min(26,h*.28);return `<path d="M ${x} ${y} H ${x+w} V ${y+h-tip} L ${x+w/2} ${y+h} L ${x} ${y+h-tip} Z" ${common}/>`;}
+  if(type==='subprocess'){const pad=Math.min(16,w*.09);return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" ${common}/><path d="M ${x+pad} ${y} V ${y+h} M ${x+w-pad} ${y} V ${y+h}" fill="none" stroke="${esc(s.stroke)}" stroke-width="${s.strokeWidth}" vector-effect="non-scaling-stroke"/>`;}
+  if(type==='database'){const ry=Math.min(12,h*.13);return `<path d="M ${x} ${y+ry} A ${w/2} ${ry} 0 0 1 ${x+w} ${y+ry} V ${y+h-ry} A ${w/2} ${ry} 0 0 1 ${x} ${y+h-ry} Z" ${common}/><ellipse cx="${x+w/2}" cy="${y+ry}" rx="${w/2}" ry="${ry}" ${common}/><path d="M ${x} ${y+h-ry} A ${w/2} ${ry} 0 0 0 ${x+w} ${y+h-ry}" fill="none" stroke="${esc(s.stroke)}" stroke-width="${s.strokeWidth}" vector-effect="non-scaling-stroke"/>`;}
+  if(type==='table')return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" ${common}/><path d="M ${x} ${y+h*.28} H ${x+w} M ${x+w*.34} ${y} V ${y+h} M ${x+w*.68} ${y} V ${y+h} M ${x} ${y+h*.52} H ${x+w} M ${x} ${y+h*.76} H ${x+w}" fill="none" stroke="${esc(s.stroke)}" stroke-width="${Math.max(.8,s.strokeWidth*.72)}" opacity=".75" vector-effect="non-scaling-stroke"/>`;
+  if(type==='queue')return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.min(h/2,r+10)}" ${common}/><path d="M ${x+w*.25} ${y+h*.32} H ${x+w*.76} M ${x+w*.25} ${y+h*.5} H ${x+w*.68} M ${x+w*.25} ${y+h*.68} H ${x+w*.58}" fill="none" stroke="${esc(s.stroke)}" stroke-width="${Math.max(1,s.strokeWidth)}" vector-effect="non-scaling-stroke"/>`;
+  if(type==='document'){const wave=14,d=`M ${x} ${y} H ${x+w} V ${y+h-wave} C ${x+w*.76} ${y+h-wave*2.1}, ${x+w*.62} ${y+h+wave*.35}, ${x+w*.38} ${y+h-wave} C ${x+w*.2} ${y+h-wave*2.05}, ${x+w*.1} ${y+h+wave*.25}, ${x} ${y+h-wave} Z`;return `<path d="${d}" ${common}/>`;}
+  if(type==='folder'){const tw=w*.35,th=Math.min(22,h*.24);return `<path d="M ${x} ${y+th} V ${y+7} H ${x+tw} L ${x+tw+18} ${y+th} H ${x+w} V ${y+h} H ${x} Z" ${common}/>`;}
+  if(type==='package'){const top=h*.28;return `<path d="M ${x+w/2} ${y} L ${x+w} ${y+top} V ${y+h-top*.15} L ${x+w/2} ${y+h} L ${x} ${y+h-top*.15} V ${y+top} Z" ${common}/><path d="M ${x} ${y+top} L ${x+w/2} ${y+top*2} L ${x+w} ${y+top} M ${x+w/2} ${y+top*2} V ${y+h}" fill="none" stroke="${esc(s.stroke)}" stroke-width="${s.strokeWidth}" vector-effect="non-scaling-stroke"/>`;}
+  if(type==='note'){const f=Math.min(24,w*.16,h*.25);return `<path d="M ${x} ${y} H ${x+w-f} L ${x+w} ${y+f} V ${y+h} H ${x} Z" ${common}/><path d="M ${x+w-f} ${y} V ${y+f} H ${x+w}" fill="none" stroke="${esc(s.stroke)}" stroke-width="${s.strokeWidth}" vector-effect="non-scaling-stroke"/>`;}
+  if(type==='callout'){const tail=Math.min(24,h*.24);return `<path d="M ${x+r} ${y} H ${x+w-r} Q ${x+w} ${y} ${x+w} ${y+r} V ${y+h-tail-r} Q ${x+w} ${y+h-tail} ${x+w-r} ${y+h-tail} H ${x+w*.42} L ${x+w*.3} ${y+h} L ${x+w*.31} ${y+h-tail} H ${x+r} Q ${x} ${y+h-tail} ${x} ${y+h-tail-r} V ${y+r} Q ${x} ${y} ${x+r} ${y} Z" ${common}/>`;}
+  if(type==='card')return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.max(10,r)}" ${common}/><path d="M ${x+14} ${y+22} H ${x+w-14}" fill="none" stroke="${esc(s.stroke)}" stroke-width="${Math.max(.8,s.strokeWidth*.7)}" opacity=".55" vector-effect="non-scaling-stroke"/>`;
+  if(type==='circle')return `<ellipse cx="${x+w/2}" cy="${y+h/2}" rx="${w/2}" ry="${h/2}" ${common}/>`;
+  if(type==='triangle')return `<polygon points="${x+w/2},${y} ${x+w},${y+h} ${x},${y+h}" ${common}/>`;
+  if(type==='hexagon'){const k=Math.min(28,w*.18);return `<polygon points="${x+k},${y} ${x+w-k},${y} ${x+w},${y+h/2} ${x+w-k},${y+h} ${x+k},${y+h} ${x},${y+h/2}" ${common}/>`;}
+  if(type==='star'){const cx=x+w/2,cy=y+h/2,o=Math.min(w,h)/2,i=o*.46,pts=Array.from({length:10},(_,k)=>{const a=-Math.PI/2+k*Math.PI/5,rr=k%2?i:o;return `${cx+Math.cos(a)*rr},${cy+Math.sin(a)*rr}`;}).join(' ');return `<polygon points="${pts}" ${common}/>`;}
+  if(type==='cloud'){const d=`M ${x+w*.2} ${y+h*.74} C ${x+w*.05} ${y+h*.72}, ${x+w*.01} ${y+h*.53}, ${x+w*.12} ${y+h*.43} C ${x+w*.08} ${y+h*.23}, ${x+w*.3} ${y+h*.13}, ${x+w*.43} ${y+h*.25} C ${x+w*.55} ${y+h*.05}, ${x+w*.82} ${y+h*.14}, ${x+w*.82} ${y+h*.35} C ${x+w*.99} ${y+h*.37}, ${x+w*1.02} ${y+h*.62}, ${x+w*.86} ${y+h*.71} C ${x+w*.72} ${y+h*.79}, ${x+w*.36} ${y+h*.78}, ${x+w*.2} ${y+h*.74} Z`;return `<path d="${d}" ${common}/>`;}
+  if(type==='server')return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" ${common}/><path d="M ${x} ${y+h*.33} H ${x+w} M ${x} ${y+h*.66} H ${x+w}" fill="none" stroke="${esc(s.stroke)}" stroke-width="${s.strokeWidth}" vector-effect="non-scaling-stroke"/><circle cx="${x+18}" cy="${y+h*.165}" r="3" fill="${esc(s.stroke)}"/><circle cx="${x+18}" cy="${y+h*.495}" r="3" fill="${esc(s.stroke)}"/><circle cx="${x+18}" cy="${y+h*.825}" r="3" fill="${esc(s.stroke)}"/>`;
+  if(type==='browser')return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" ${common}/><path d="M ${x} ${y+28} H ${x+w}" fill="none" stroke="${esc(s.stroke)}" stroke-width="${s.strokeWidth}" vector-effect="non-scaling-stroke"/><circle cx="${x+14}" cy="${y+14}" r="3" fill="${esc(s.stroke)}"/>`;
+  if(type==='mobile')return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.max(14,r)}" ${common}/><path d="M ${x+w*.36} ${y+12} H ${x+w*.64} M ${x+w*.43} ${y+h-12} H ${x+w*.57}" fill="none" stroke="${esc(s.stroke)}" stroke-width="${s.strokeWidth}" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
+  if(type==='laptop'){const sh=h*.72;return `<rect x="${x+w*.08}" y="${y}" width="${w*.84}" height="${sh}" rx="${Math.max(6,r*.55)}" ${common}/><path d="M ${x} ${y+sh} H ${x+w} L ${x+w*.9} ${y+h} H ${x+w*.1} Z" ${common}/>`;}
+  if(type==='actor'){const cx=x+w/2,hr=Math.min(16,w*.15),hy=y+22,bt=hy+hr+8,ly=y+h-22;return `<circle cx="${cx}" cy="${hy}" r="${hr}" ${common}/><path d="M ${cx} ${bt} V ${ly-20} M ${x+w*.25} ${bt+18} H ${x+w*.75} M ${cx} ${ly-20} L ${x+w*.3} ${ly} M ${cx} ${ly-20} L ${x+w*.7} ${ly}" fill="none" stroke="${esc(s.stroke)}" stroke-width="${Math.max(2,s.strokeWidth*1.25)}" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;}
+  if(type==='shield'){const d=`M ${x+w/2} ${y} L ${x+w*.88} ${y+h*.17} V ${y+h*.49} C ${x+w*.88} ${y+h*.75} ${x+w*.7} ${y+h*.91} ${x+w/2} ${y+h} C ${x+w*.3} ${y+h*.91} ${x+w*.12} ${y+h*.75} ${x+w*.12} ${y+h*.49} V ${y+h*.17} Z`;return `<path d="${d}" ${common}/>`;}
+  if(type==='image')return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" ${common}/><circle cx="${x+w*.28}" cy="${y+h*.3}" r="${Math.min(10,w*.06)}" fill="none" stroke="${esc(s.stroke)}" stroke-width="${s.strokeWidth}"/><path d="M ${x+w*.12} ${y+h*.78} L ${x+w*.38} ${y+h*.52} L ${x+w*.53} ${y+h*.66} L ${x+w*.68} ${y+h*.48} L ${x+w*.88} ${y+h*.78}" fill="none" stroke="${esc(s.stroke)}" stroke-width="${s.strokeWidth}" vector-effect="non-scaling-stroke"/>`;
+  if(type==='group')return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${esc(s.fill)}" fill-opacity="0.34" stroke="${esc(s.stroke)}" stroke-width="${s.strokeWidth}" stroke-dasharray="8 6" vector-effect="non-scaling-stroke" class="node-shape ${extraClass}"/>`;
+  if(type==='swimlane'){const header=Math.min(70,Math.max(44,w*.13));return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" ${common}/><path d="M ${x+header} ${y} V ${y+h}" fill="none" stroke="${esc(s.stroke)}" stroke-width="${s.strokeWidth}" vector-effect="non-scaling-stroke"/>`;}
   return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" ${common}/>`;
 }
-
 function textBox(node) {
   const {x,y,w=180,h=84,type} = node;
   if (type === 'swimlane') {
@@ -80,6 +82,13 @@ function textBox(node) {
   if (type === 'document') return {x:x+10,y:y+6,w:w-20,h:h-20};
   if (type === 'note') return {x:x+10,y:y+8,w:w-28,h:h-16};
   if (type === 'group') return {x:x+12,y:y+8,w:w-24,h:28, align:'start'};
+  if (type === 'actor') return {x:x+6,y:y+h-28,w:w-12,h:24};
+  if (type === 'browser') return {x:x+10,y:y+30,w:w-20,h:h-34};
+  if (type === 'mobile') return {x:x+8,y:y+24,w:w-16,h:h-48};
+  if (type === 'laptop') return {x:x+18,y:y+12,w:w-36,h:h*.52};
+  if (type === 'triangle') return {x:x+w*.2,y:y+h*.35,w:w*.6,h:h*.45};
+  if (type === 'shield') return {x:x+w*.18,y:y+h*.22,w:w*.64,h:h*.55};
+  if (type === 'gateway') return {x:x+w*.18,y:y+h*.18,w:w*.64,h:h*.64};
   if (type === 'decision') return {x:x+w*.16,y:y+h*.18,w:w*.68,h:h*.64};
   return {x:x+10,y:y+8,w:w-20,h:h-16};
 }
