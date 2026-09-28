@@ -2,6 +2,16 @@
 
 All notable changes to NodeWeave Studio are documented here.
 
+## [1.5.7] - 2026-09-29
+
+### Changed
+
+- simplified the left library top-level navigation to Shapes, SVG, and Templates only
+- removed the promoted Smart Tools row; planners, brain maps, and image nodes now live in their normal library categories/templates
+- replaced expanding category chip rows with compact category comboboxes in both the sidebar and full library browser
+- redrew the brain-map template as a calmer left-facing worksheet-style human profile with softer facial contours
+- replaced overlapping oval thought regions with six cleaner organic compartments and compact percentage badges
+
 ## [1.5.6] - 2026-09-29
 
 ### Improved
