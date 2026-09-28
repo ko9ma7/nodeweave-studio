@@ -1,6 +1,6 @@
 {
   "name": "nodeweave-studio",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "private": true,
   "description": "SVG-first diagram studio with smart 12/24h planners, brain maps, real image nodes, shareable links, JSON-extensible assets, advanced style packs, and smart ports.",
   "homepage": "https://ko9ma7.github.io/nodeweave-studio/",
