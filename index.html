@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>NodeWeave Studio — SVG-first 다이어그램 편집기</title>
-  <meta name="description" content="연결 가능한 도형, 검색 가능한 템플릿, 디자인 토큰, 자동 레이아웃, SVG·PNG·WebP·HTML 내보내기를 지원하는 로컬 우선 다이어그램 편집기.">
+  <meta name="description" content="30개 이상의 도형, 재사용 SVG 심볼, 확장 템플릿, 디자인 토큰, 자동 레이아웃, SVG·PNG·WebP·HTML 내보내기를 지원하는 로컬 우선 다이어그램 편집기.">
   <meta name="theme-color" content="#5b5cf0">
   <meta name="color-scheme" content="light dark">
   <link rel="canonical" href="__SITE_URL__/">
@@ -13,7 +13,7 @@
   <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
   <link rel="manifest" href="./manifest.webmanifest">
   <meta property="og:title" content="NodeWeave Studio — SVG-first 다이어그램 편집기">
-  <meta property="og:description" content="도형과 흐름을 빠르게 연결하고 스타일 토큰을 한 번에 바꾼 뒤 SVG·PNG·WebP·HTML로 내보내세요.">
+  <meta property="og:description" content="도형·SVG 심볼·템플릿을 조합하고 스타일 토큰을 한 번에 바꾼 뒤 SVG·PNG·WebP·HTML로 내보내세요.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="__SITE_URL__/">
   <meta property="og:image" content="__SITE_URL__/assets/og-image.png">
@@ -61,11 +61,24 @@
     </header>
 
     <aside id="left-panel" class="left-panel" aria-label="도형 및 템플릿">
-      <div class="panel-heading"><div><strong>라이브러리</strong><span>도형을 클릭하거나 캔버스로 드래그하세요.</span></div></div>
-      <div class="search-box"><span aria-hidden="true">⌕</span><input id="shape-search" type="search" placeholder="도형 검색 · decision, DB…" autocomplete="off" aria-label="도형 검색"></div>
+      <div class="panel-heading"><div><strong>라이브러리</strong><span>도형·SVG 심볼·템플릿을 빠르게 찾으세요.</span></div></div>
+      <div class="library-tabs" role="tablist" aria-label="라이브러리 종류">
+        <button class="library-tab is-active" data-library-tab="shapes" role="tab">도형 <span id="shape-total"></span></button>
+        <button class="library-tab" data-library-tab="icons" role="tab">SVG <span id="icon-total"></span></button>
+        <button class="library-tab" data-library-tab="templates" role="tab">템플릿 <span id="template-total"></span></button>
+      </div>
+      <div class="search-box"><span aria-hidden="true">⌕</span><input id="shape-search" type="search" placeholder="도형 검색 · decision, DB…" autocomplete="off" aria-label="라이브러리 검색"></div>
       <div class="panel-scroll">
-        <section><div id="shape-list"></div></section>
-        <section class="template-section"><div class="section-title"><strong>템플릿</strong><span>즉시 시작</span></div><div id="template-list" class="template-list"></div></section>
+        <section id="shape-section"><div id="shape-list"></div></section>
+        <section id="icon-section" hidden>
+          <div class="external-svg-card">
+            <div><strong>외부 SVG 가져오기</strong><span>Koboyo 등에서 SVG를 복사한 뒤 NodeWeave에 붙여넣을 수 있습니다.</span></div>
+            <div class="external-svg-actions"><a class="compact-link" href="https://koboyo.com/icons" target="_blank" rel="noopener noreferrer">Koboyo 탐색 ↗</a><button id="paste-svg-btn" class="compact-btn">SVG 붙여넣기</button></div>
+            <small>외부 아이콘은 각 제공처의 라이선스를 확인하세요. NodeWeave에는 Koboyo 아이콘 라이브러리를 번들하지 않습니다.</small>
+          </div>
+          <div id="icon-list"></div>
+        </section>
+        <section id="template-section" class="template-section" hidden><div class="section-title"><strong>템플릿</strong><span>즉시 시작</span></div><div id="template-list" class="template-list"></div></section>
       </div>
     </aside>
 
@@ -120,6 +133,18 @@
       <div class="project-actions"><button id="project-save-btn" class="primary-btn">현재 프로젝트 저장</button><button id="project-new-btn">빈 다이어그램</button><label class="file-btn">JSON 불러오기<input id="import-input" type="file" accept="application/json,.json,.nodeweave" hidden></label><label class="file-btn">SVG 도형 가져오기<input id="svg-import-input" type="file" accept="image/svg+xml,.svg" hidden></label></div>
       <div id="saved-projects" class="saved-projects"></div>
     </div>
+  </dialog>
+
+  <dialog id="svg-paste-dialog" class="modal">
+    <form id="svg-paste-form" class="modal-card svg-paste-modal">
+      <div class="modal-head"><div><span class="eyebrow">SVG ASSET</span><h2>SVG 붙여넣기</h2><p>복사한 SVG 코드를 안전 필터를 거쳐 편집 가능한 캔버스 자산으로 추가합니다.</p></div><button type="button" class="icon-btn" data-close aria-label="닫기">×</button></div>
+      <div class="svg-source-help"><strong>빠른 사용법</strong><span>외부 사이트에서 SVG를 복사 → 여기에 붙여넣기 → 추가. 캔버스에서 색상·회전·반전·크기를 다시 조절할 수 있습니다.</span></div>
+      <label>자산 이름<input id="svg-asset-name" type="text" maxlength="80" placeholder="예: Search icon"></label>
+      <label>SVG 코드<textarea id="svg-paste-input" rows="12" spellcheck="false" placeholder="<svg viewBox=&quot;0 0 24 24&quot;>…</svg>" required></textarea></label>
+      <div class="field-row"><label>출처 URL (선택)<input id="svg-source-url" type="url" placeholder="https://…"></label><label class="switch-row normalize-switch"><span>단색으로 정규화</span><input id="svg-normalize-color" type="checkbox"></label></div>
+      <p class="form-note">단색 정규화는 고정 fill/stroke 색을 <code>currentColor</code>로 바꿉니다. 다색 일러스트에는 끄는 것을 권장합니다.</p>
+      <div class="modal-actions"><button type="button" data-close>취소</button><button class="primary-btn" type="submit">캔버스에 추가</button></div>
+    </form>
   </dialog>
 
   <dialog id="command-dialog" class="modal command-modal">
