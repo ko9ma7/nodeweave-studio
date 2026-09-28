@@ -98,3 +98,61 @@ body.left-closed{--left:0px}body.left-closed .left-panel{display:none}body.right
 .left-panel>.library-filters::after{content:"";flex:0 0 6px;height:1px}
 .left-panel .panel-scroll>section{min-width:0}
 .left-panel .panel-scroll .browser-group-header{margin-top:6px}
+
+/* v1.5.5 robust left library split */
+.left-panel{
+  display:grid!important;
+  grid-template-rows:max-content minmax(0,1fr)!important;
+  min-height:0;
+  overflow:hidden;
+}
+.library-toolbar{
+  min-width:0;
+  position:relative;
+  z-index:2;
+  overflow:visible;
+  background:var(--panel);
+  border-bottom:1px solid var(--border);
+}
+.library-toolbar>.panel-heading,
+.library-toolbar>.library-tabs,
+.library-toolbar>.smart-tool-strip,
+.library-toolbar>.search-box,
+.library-toolbar>.library-control-row,
+.library-toolbar>.panel-actions,
+.library-toolbar>.library-filters{
+  flex:none!important;
+}
+.library-toolbar>.library-filters{
+  display:flex;
+  align-items:center;
+  min-height:38px;
+  height:38px;
+  padding:2px 12px 8px;
+  overflow-x:auto;
+  overflow-y:visible;
+  scrollbar-width:none;
+  white-space:nowrap;
+  mask-image:none!important;
+  -webkit-mask-image:none!important;
+}
+.library-toolbar>.library-filters::-webkit-scrollbar{display:none}
+.library-toolbar>.library-filters .filter-chip{
+  flex:0 0 auto;
+  height:28px;
+  min-height:28px;
+  max-height:28px;
+  margin:0;
+  overflow:visible;
+}
+.left-panel>.panel-scroll{
+  grid-row:2;
+  min-height:0!important;
+  height:auto!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  position:relative;
+  z-index:1;
+  border-top:0!important;
+  padding-top:8px!important;
+}
