@@ -2,6 +2,24 @@
 
 All notable changes to NodeWeave Studio are documented here.
 
+## [1.4.0] - 2026-09-28
+
+### Added
+
+- 39 JSON-managed visual Style Packs inspired by the style taxonomies in DesignBlock Studio and UI/UX Pro Max
+- full-style rendering tokens for canvas patterns, gradients, shadows, border treatment, connector treatment, typography, and port appearance
+- per-node connection ports: none, 4 sides, or 8 directions
+- circle, square, and diamond port handle styles
+- categorized Style Pack gallery with live miniature previews
+- export support for Style Pack gradients and connector styling
+- `catalog/styles.json` so additional visual styles can be added without editing the renderer catalog
+
+### Changed
+
+- style presets now change the diagram's visual language instead of only swapping colors
+- canvas backgrounds can render grids, dots, paper, scanlines, HUD, perspective, Memphis, Bauhaus, organic, and glow-oriented treatments
+- NodeWeave Studio version bumped to 1.4.0
+
 ## [1.1.0] - 2026-09-28
 
 ### Added
