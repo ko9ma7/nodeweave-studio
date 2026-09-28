@@ -2,6 +2,18 @@
 
 All notable changes to NodeWeave Studio are documented here.
 
+## [1.5.6] - 2026-09-29
+
+### Improved
+
+- preserve imported SVG root fill/stroke presentation attributes so `currentColor` artwork renders and recolors correctly
+- size newly imported SVGs from their original viewBox aspect ratio instead of forcing a square node
+- add non-destructive SVG effects: original, monochrome tint, soft shadow, sticker outline, glow, and color badge
+- add contain/cover/stretch fitting and aspect-ratio locking for SVG assets
+- detect fixed HEX paint slots and expose per-slot color overrides without rewriting the source SVG
+- add one-click clipboard SVG loading for copy/paste workflows from external icon sites
+- organize SVG color, effect, fitting, sizing, ports, and transform controls into a dedicated inspector section
+
 ## [1.5.5] - 2026-09-29
 
 ### Fixed
