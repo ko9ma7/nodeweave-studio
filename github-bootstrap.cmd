@@ -9,7 +9,7 @@ set "VISIBILITY=public"
 set "DESCRIPTION=SVG-first, local-first diagram editor with design tokens, auto layout, and SVG/PNG/WebP/HTML/JSON export."
 set "HOMEPAGE=https://ko9ma7.github.io/nodeweave-studio/"
 set "TOPICS=diagram-editor,svg-editor,flowchart,diagram,svg,local-first,github-pages,design-tool,mind-map,system-design,auto-layout,pwa,javascript,no-dependencies"
-set "INITIAL_TAG=v1.0.0"
+set "INITIAL_TAG=v1.1.0"
 rem =============================
 
 call :check_cmd git "Git"
