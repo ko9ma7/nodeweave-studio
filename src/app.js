@@ -110,10 +110,10 @@ function addEdge(source,sourcePort,target,targetPort){
 }
 
 function edgeMarkup(edge){
-  const g=edgeGeometry(edge,doc.nodes);if(!g)return'';const selected=selection.edgeId===edge.id;const stroke=edge.style?.stroke??(selected?doc.tokens.primary:doc.tokens.edge);const width=edge.style?.width??1.8;const dash=edge.style?.dash??'';const arrow=edge.style?.arrow!==false;
+  const g=edgeGeometry(edge,doc.nodes);if(!g)return'';const selected=selection.edgeId===edge.id;const stroke=edge.style?.stroke??(selected?doc.tokens.primary:doc.tokens.edge);const width=edge.style?.width??doc.tokens.edgeWidth??1.8;const dash=edge.style?.dash??doc.tokens.edgeDash??'';const arrow=edge.style?.arrow!==false;const cap=doc.tokens.edgeLinecap||'round';
   return `<g class="edge-group${selected?' is-selected':''}" data-edge-id="${esc(edge.id)}">
     <path class="edge-hit" d="${g.d}" fill="none" stroke="transparent" stroke-width="16" vector-effect="non-scaling-stroke"/>
-    <path class="edge-line" d="${g.d}" fill="none" stroke="${esc(stroke)}" stroke-width="${selected?Math.max(width,2.4):width}" ${dash?`stroke-dasharray="${esc(dash)}"`:''} ${arrow?'marker-end="url(#editor-arrow)"':''} vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/>
+    <path class="edge-line" d="${g.d}" fill="none" stroke="${esc(stroke)}" stroke-width="${selected?Math.max(width,2.4):width}" ${dash?`stroke-dasharray="${esc(dash)}"`:''} ${arrow?'marker-end="url(#editor-arrow)"':''} vector-effect="non-scaling-stroke" stroke-linecap="${esc(cap)}" stroke-linejoin="round"/>
     ${edge.label?`<text x="${g.label.x}" y="${g.label.y-8}" fill="${esc(doc.tokens.text)}" font-size="12" font-weight="700" text-anchor="middle" paint-order="stroke" stroke="${esc(doc.tokens.canvas)}" stroke-width="5" stroke-linejoin="round" pointer-events="none">${esc(edge.label)}</text>`:''}
   </g>`;
 }
