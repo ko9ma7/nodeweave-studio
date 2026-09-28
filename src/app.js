@@ -123,16 +123,36 @@ function nodeMarkup(node){
     ${selected?selectionRectMarkup(node,doc.tokens)+portsMarkup(node,doc.tokens):''}
   </g>`;
 }
+function canvasPatternStyle(){
+  const p=doc.tokens.pattern||'grid',g=doc.tokens.grid||'#dfe3ea',a=doc.tokens.accent||doc.tokens.primary;
+  if(p==='none')return 'none';
+  if(p==='dots'||p==='softdots')return `radial-gradient(circle at 1px 1px, ${g} 1px, transparent 1.4px)`;
+  if(p==='scanlines')return `repeating-linear-gradient(0deg, transparent 0 5px, ${g}55 6px)`;
+  if(p==='paper')return `linear-gradient(${g}55 1px,transparent 1px),linear-gradient(90deg,${g}55 1px,transparent 1px)`;
+  if(p==='lines')return `repeating-linear-gradient(0deg,transparent 0 31px,${g}66 32px)`;
+  if(p==='speed')return `repeating-linear-gradient(135deg,transparent 0 28px,${g}55 29px,${g}55 31px,transparent 32px)`;
+  if(p==='pixel')return `linear-gradient(${g}88 2px,transparent 2px),linear-gradient(90deg,${g}88 2px,transparent 2px)`;
+  if(['spark','confetti','memphis'].includes(p))return `radial-gradient(circle at 20% 22%,${a}55 0 3px,transparent 4px),radial-gradient(circle at 78% 68%,${doc.tokens.primary}44 0 4px,transparent 5px)`;
+  if(['orb','blob'].includes(p))return `radial-gradient(circle at 18% 15%,${doc.tokens.primary}24,transparent 32%),radial-gradient(circle at 84% 76%,${a}20,transparent 34%)`;
+  if(p==='constellation')return `radial-gradient(circle,${a}66 0 1px,transparent 1.5px)`;
+  if(p==='perspective')return `linear-gradient(${g}66 1px,transparent 1px),linear-gradient(90deg,${g}66 1px,transparent 1px)`;
+  if(p==='hud')return `linear-gradient(${g}55 1px,transparent 1px),linear-gradient(90deg,${g}55 1px,transparent 1px),radial-gradient(circle at 50% 50%,transparent 55%,${a}12 100%)`;
+  if(p==='bauhaus')return `radial-gradient(circle at 85% 15%,${doc.tokens.primary}18 0 70px,transparent 72px),linear-gradient(45deg,transparent 47%,${a}16 48% 52%,transparent 53%)`;
+  return `linear-gradient(${g} 1px,transparent 1px),linear-gradient(90deg,${g} 1px,transparent 1px)`;
+}
+
 function renderCanvas(){
   const gridSize=doc.settings.gridSize*viewport.scale;
   canvas.style.setProperty('--canvas-bg',doc.tokens.canvas);
   canvas.style.setProperty('--grid-color',doc.tokens.grid);
   canvas.style.setProperty('--grid-size',`${Math.max(8,gridSize)}px`);
+  canvas.style.backgroundImage=doc.settings.grid?canvasPatternStyle():'none';
+  canvas.style.backgroundSize=['dots','softdots','constellation'].includes(doc.tokens.pattern)?`${Math.max(10,gridSize)}px ${Math.max(10,gridSize)}px`:['scanlines','lines','speed'].includes(doc.tokens.pattern)?'100% 12px':`${Math.max(8,gridSize)}px ${Math.max(8,gridSize)}px`;
   canvas.classList.toggle('grid-off',!doc.settings.grid);
   const preview=connectPreview?`<path d="M ${connectPreview.start.x} ${connectPreview.start.y} L ${connectPreview.current.x} ${connectPreview.current.y}" fill="none" stroke="${esc(doc.tokens.primary)}" stroke-width="2" stroke-dasharray="6 5" vector-effect="non-scaling-stroke" pointer-events="none"/>`:'';
   const marqueeMarkup=marquee?`<rect x="${Math.min(marquee.start.x,marquee.current.x)}" y="${Math.min(marquee.start.y,marquee.current.y)}" width="${Math.abs(marquee.current.x-marquee.start.x)}" height="${Math.abs(marquee.current.y-marquee.start.y)}" fill="${esc(doc.tokens.primary)}" fill-opacity=".09" stroke="${esc(doc.tokens.primary)}" stroke-width="1.2" stroke-dasharray="5 4" vector-effect="non-scaling-stroke" pointer-events="none"/>`:'';
   viewportEl.setAttribute('transform',`translate(${viewport.x} ${viewport.y}) scale(${viewport.scale})`);
-  viewportEl.innerHTML=`<defs><marker id="editor-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M0 0 L10 5 L0 10 z" fill="context-stroke"/></marker></defs>
+  viewportEl.innerHTML=`<defs>${diagramStyleDefs(doc.tokens)}<marker id="editor-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M0 0 L10 5 L0 10 z" fill="context-stroke"/></marker></defs>
     <g class="edges-layer">${doc.edges.map(edgeMarkup).join('')}</g><g class="nodes-layer">${doc.nodes.map(nodeMarkup).join('')}</g><g>${preview}${marqueeMarkup}</g>`;
   $('#zoom-readout').textContent=`${Math.round(viewport.scale*100)}%`;
   $('#node-count').textContent=`${doc.nodes.length} 노드 · ${doc.edges.length} 연결`;
