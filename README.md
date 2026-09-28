@@ -48,6 +48,11 @@ That separation makes the editor easy to extend: a new shape can immediately par
 
 ## Highlights
 
+- **39 advanced visual Style Packs** — Swiss, Neumorphism, Glass, Brutalism, Clay, Aurora, Retro-Futurism, Flat, Skeuomorphic, OLED, Bento, Y2K, Cyberpunk, Biophilic, Memphis, Vaporwave, HUD, Pixel, E-Ink, Bauhaus, Editorial, Luxe, Hand Drawn, and more.
+- **Whole-diagram styling** — a style can change canvas pattern, node gradient/shadow, border treatment, connector width/dash/cap, typography weight, and port appearance together.
+- **JSON-extensible styles** — add another look in `catalog/styles.json` without hardcoding a new renderer component.
+- **Smart connection ports** — choose no ports, 4-side ports, or 8-direction ports per node, with circle/square/diamond handles.
+
 - **SVG-native editing** — nodes, labels, ports, and connectors share one vector-first document model.
 - **Fast connected flows** — create straight, Bézier, or orthogonal connectors directly from node ports.
 - **Expanded shape library** — 30+ flow, data, architecture, annotation, media, and container primitives.
