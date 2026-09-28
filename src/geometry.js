@@ -125,6 +125,21 @@ function brainMapMarkup(node,tokens){
     <text x="${X(.20)}" y="${Y(.915)}" fill="${esc(tokens.muted||tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="11" font-weight="700">합계 ${total}%</text>
   </g>`;
 }
+function applySvgPaintOverrides(content,overrides={}){
+  let out=String(content||'');
+  for(const [from,to] of Object.entries(overrides||{})){
+    if(!from||!to)continue;
+    for(const attr of ['fill','stroke','stop-color']) out=out.split(`${attr}="${from}"`).join(`${attr}="${to}"`).split(`${attr}='${from}'`).join(`${attr}='${to}'`);
+  }
+  return out;
+}
+function svgEffectDef(id,effect,color,accent){
+  if(effect==='shadow')return `<filter id="${id}" x="-35%" y="-35%" width="170%" height="180%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity=".24"/></filter>`;
+  if(effect==='glow')return `<filter id="${id}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur in="SourceAlpha" stdDeviation="3.2" result="b"/><feFlood flood-color="${esc(accent)}" flood-opacity=".72" result="c"/><feComposite in="c" in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
+  if(effect==='sticker')return `<filter id="${id}" x="-45%" y="-45%" width="190%" height="190%"><feMorphology in="SourceAlpha" operator="dilate" radius="2.4" result="d"/><feFlood flood-color="${esc(accent)}" result="f"/><feComposite in="f" in2="d" operator="in" result="o"/><feDropShadow dx="0" dy="3" stdDeviation="2" flood-color="#000000" flood-opacity=".18" result="s"/><feMerge><feMergeNode in="s"/><feMergeNode in="o"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
+  if(effect==='tint')return `<filter id="${id}" x="-20%" y="-20%" width="140%" height="140%"><feFlood flood-color="${esc(color)}" result="c"/><feComposite in="c" in2="SourceAlpha" operator="in"/></filter>`;
+  return '';
+}
 export function shapePrimitive(node, tokens, extraClass='') {
   const {x,y,w=180,h=84,type} = node;
   const s = resolveNodeStyle(node,tokens);
@@ -143,10 +158,29 @@ export function shapePrimitive(node, tokens, extraClass='') {
     const scale=Math.max(.2,(100-padding*2)/100);
     const sx=(node.style?.flipX?-1:1)*scale, sy=(node.style?.flipY?-1:1)*scale;
     const iconColor=node.style?.iconColor??tokens.text;
+    const accentColor=node.style?.accentColor??tokens.primary;
     const bg=node.style?.iconBackground??'transparent';
-    const bgRect=bg&&bg!=='transparent'?`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.min(r,Math.min(w,h)/2)}" fill="${esc(bg)}" opacity="${s.opacity}"/>`:'';
+    const effect=node.style?.svgEffect||'none';
+    const fit=node.style?.svgFit||'contain';
+    const preserve=fit==='stretch'?'none':fit==='cover'?'xMidYMid slice':'xMidYMid meet';
+    const effectId=`svgfx-${String(node.id||'node').replace(/[^a-zA-Z0-9_-]/g,'')}`;
+    const effectDef=svgEffectDef(effectId,effect,iconColor,accentColor);
+    const filterAttr=effectDef?`filter="url(#${effectId})"`:'';
+    const rootPaint=node.customSvg.rootPaint||{};
+    const rootFill=rootPaint.fill??(node.customSvg.origin==='user-import'?'currentColor':null);
+    const rootStroke=rootPaint.stroke??null;
+    const rootAttrs=[
+      rootFill?`fill="${esc(rootFill)}"`:'',
+      rootStroke?`stroke="${esc(rootStroke)}"`:'',
+      rootPaint.strokeWidth?`stroke-width="${esc(rootPaint.strokeWidth)}"`:'',
+      rootPaint.strokeLinecap?`stroke-linecap="${esc(rootPaint.strokeLinecap)}"`:'',
+      rootPaint.strokeLinejoin?`stroke-linejoin="${esc(rootPaint.strokeLinejoin)}"`:''
+    ].filter(Boolean).join(' ');
+    const badge=effect==='badge'?`<rect x="${vx+vw*.04}" y="${vy+vh*.04}" width="${vw*.92}" height="${vh*.92}" rx="${Math.min(vw,vh)*.16}" fill="${esc(accentColor)}" opacity=".14"/>`:'';
+    const bgRect=bg&&bg!=='transparent'?`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.min(Math.max(8,r),Math.min(w,h)/2)}" fill="${esc(bg)}" opacity="${s.opacity}"/>`:'';
     const transform=`translate(${cx} ${cy}) rotate(${rotation}) scale(${sx} ${sy}) translate(${-cx} ${-cy})`;
-    return `${bgRect}<svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="${esc(vb)}" preserveAspectRatio="xMidYMid meet" overflow="visible" color="${esc(iconColor)}" opacity="${s.opacity}" class="node-shape ${extraClass}"><g transform="${transform}">${node.customSvg.content}</g></svg>`;
+    const content=applySvgPaintOverrides(node.customSvg.content,node.customSvg.paintOverrides);
+    return `${bgRect}<svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="${esc(vb)}" preserveAspectRatio="${preserve}" overflow="visible" color="${esc(iconColor)}" opacity="${s.opacity}" class="node-shape ${extraClass}" ${rootAttrs}>${effectDef?`<defs>${effectDef}</defs>`:''}${badge}<g transform="${transform}" ${filterAttr}>${content}</g></svg>`;
   }
   if (type === 'decision' || type === 'gateway') {
     const inner=type==='gateway'?`<path d="M ${x+w*.38} ${y+h*.38} L ${x+w*.62} ${y+h*.62} M ${x+w*.62} ${y+h*.38} L ${x+w*.38} ${y+h*.62}" fill="none" stroke="${esc(s.stroke)}" stroke-width="${Math.max(1,s.strokeWidth)}" vector-effect="non-scaling-stroke"/>`:'';
