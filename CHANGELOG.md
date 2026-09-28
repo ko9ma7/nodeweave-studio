@@ -2,6 +2,14 @@
 
 All notable changes to NodeWeave Studio are documented here.
 
+## [1.5.4] - 2026-09-29
+
+### Fixed
+
+- redrew the brain-map outer silhouette as a natural right-facing human profile with curved forehead, nose, lips, chin, neck, and back-of-head contours
+- clipped all internal thought regions to the head silhouette so colored areas never spill outside the face
+- refined region placement to better match worksheet-style "inside my head" examples
+
 ## [1.5.3] - 2026-09-29
 
 ### Fixed
