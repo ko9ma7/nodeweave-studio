@@ -61,24 +61,70 @@ function radialPlanMarkup(node,tokens){
 }
 
 function brainMapMarkup(node,tokens){
-  const {x,y,w=720,h=620}=node;const d=node.data||{};const regs=Array.isArray(d.regions)?d.regions:[];const colors=['#c4b5fd','#93c5fd','#f9a8d4','#86efac','#fde68a','#fdba74'];
+  const {x,y,w=720,h=620}=node;
+  const d=node.data||{};
+  const regs=Array.isArray(d.regions)?d.regions:[];
+  const colors=['#c4b5fd','#93c5fd','#f9a8d4','#86efac','#fde68a','#fdba74'];
   const X=a=>x+w*a,Y=a=>y+h*a;
-  const head=`M ${X(.67)} ${Y(.06)} C ${X(.48)} ${Y(.01)} ${X(.25)} ${Y(.07)} ${X(.14)} ${Y(.23)} C ${X(.04)} ${Y(.37)} ${X(.06)} ${Y(.54)} ${X(.15)} ${Y(.62)} L ${X(.10)} ${Y(.69)} C ${X(.08)} ${Y(.73)} ${X(.11)} ${Y(.77)} ${X(.17)} ${Y(.77)} L ${X(.18)} ${Y(.9)} C ${X(.19)} ${Y(.97)} ${X(.31)} ${Y(.98)} ${X(.38)} ${Y(.93)} C ${X(.48)} ${Y(.85)} ${X(.55)} ${Y(.81)} ${X(.68)} ${Y(.79)} C ${X(.75)} ${Y(.78)} ${X(.77)} ${Y(.72)} ${X(.77)} ${Y(.66)} L ${X(.88)} ${Y(.60)} L ${X(.82)} ${Y(.54)} L ${X(.90)} ${Y(.49)} L ${X(.81)} ${Y(.43)} C ${X(.83)} ${Y(.27)} ${X(.79)} ${Y(.13)} ${X(.67)} ${Y(.06)} Z`;
+  const clipId=`brain-clip-${String(node.id||'node').replace(/[^a-zA-Z0-9_-]/g,'')}`;
+
+  // Right-facing human profile: crown → forehead → nose → lips → chin → neck → back of head.
+  const head=`
+    M ${X(.30)} ${Y(.94)}
+    C ${X(.27)} ${Y(.86)} ${X(.25)} ${Y(.81)} ${X(.18)} ${Y(.79)}
+    C ${X(.11)} ${Y(.77)} ${X(.08)} ${Y(.73)} ${X(.09)} ${Y(.68)}
+    C ${X(.10)} ${Y(.65)} ${X(.13)} ${Y(.62)} ${X(.16)} ${Y(.59)}
+    C ${X(.09)} ${Y(.54)} ${X(.06)} ${Y(.46)} ${X(.08)} ${Y(.36)}
+    C ${X(.11)} ${Y(.22)} ${X(.23)} ${Y(.11)} ${X(.39)} ${Y(.07)}
+    C ${X(.55)} ${Y(.03)} ${X(.70)} ${Y(.07)} ${X(.78)} ${Y(.17)}
+    C ${X(.83)} ${Y(.23)} ${X(.84)} ${Y(.31)} ${X(.83)} ${Y(.38)}
+    C ${X(.82)} ${Y(.43)} ${X(.84)} ${Y(.47)} ${X(.88)} ${Y(.50)}
+    L ${X(.94)} ${Y(.54)}
+    C ${X(.955)} ${Y(.55)} ${X(.955)} ${Y(.565)} ${X(.935)} ${Y(.575)}
+    L ${X(.885)} ${Y(.603)}
+    C ${X(.90)} ${Y(.615)} ${X(.91)} ${Y(.63)} ${X(.895)} ${Y(.642)}
+    L ${X(.855)} ${Y(.665)}
+    C ${X(.875)} ${Y(.68)} ${X(.872)} ${Y(.695)} ${X(.845)} ${Y(.707)}
+    C ${X(.82)} ${Y(.718)} ${X(.79)} ${Y(.72)} ${X(.775)} ${Y(.73)}
+    C ${X(.77)} ${Y(.79)} ${X(.72)} ${Y(.84)} ${X(.62)} ${Y(.865)}
+    C ${X(.51)} ${Y(.89)} ${X(.45)} ${Y(.91)} ${X(.39)} ${Y(.955)}
+    C ${X(.35)} ${Y(.985)} ${X(.32)} ${Y(.98)} ${X(.30)} ${Y(.94)}
+    Z`;
+
+  // Organic regions inspired by worksheet-style "inside my head" diagrams.
   const shapes=[
-    `M ${X(.20)} ${Y(.18)} C ${X(.28)} ${Y(.10)} ${X(.42)} ${Y(.11)} ${X(.45)} ${Y(.20)} C ${X(.47)} ${Y(.28)} ${X(.38)} ${Y(.34)} ${X(.27)} ${Y(.33)} C ${X(.18)} ${Y(.32)} ${X(.15)} ${Y(.25)} ${X(.20)} ${Y(.18)} Z`,
-    `M ${X(.46)} ${Y(.13)} C ${X(.55)} ${Y(.08)} ${X(.70)} ${Y(.12)} ${X(.74)} ${Y(.22)} C ${X(.77)} ${Y(.30)} ${X(.70)} ${Y(.37)} ${X(.59)} ${Y(.35)} C ${X(.49)} ${Y(.34)} ${X(.43)} ${Y(.24)} ${X(.46)} ${Y(.13)} Z`,
-    `M ${X(.70)} ${Y(.36)} C ${X(.78)} ${Y(.31)} ${X(.81)} ${Y(.39)} ${X(.80)} ${Y(.50)} C ${X(.79)} ${Y(.60)} ${X(.72)} ${Y(.66)} ${X(.65)} ${Y(.61)} C ${X(.60)} ${Y(.55)} ${X(.62)} ${Y(.43)} ${X(.70)} ${Y(.36)} Z`,
-    `M ${X(.55)} ${Y(.61)} C ${X(.65)} ${Y(.58)} ${X(.72)} ${Y(.65)} ${X(.69)} ${Y(.72)} C ${X(.66)} ${Y(.80)} ${X(.52)} ${Y(.82)} ${X(.45)} ${Y(.74)} C ${X(.41)} ${Y(.68)} ${X(.47)} ${Y(.63)} ${X(.55)} ${Y(.61)} Z`,
-    `M ${X(.25)} ${Y(.57)} C ${X(.35)} ${Y(.53)} ${X(.45)} ${Y(.58)} ${X(.46)} ${Y(.68)} C ${X(.46)} ${Y(.76)} ${X(.35)} ${Y(.82)} ${X(.26)} ${Y(.76)} C ${X(.18)} ${Y(.70)} ${X(.18)} ${Y(.61)} ${X(.25)} ${Y(.57)} Z`,
-    `M ${X(.31)} ${Y(.34)} C ${X(.43)} ${Y(.29)} ${X(.58)} ${Y(.34)} ${X(.62)} ${Y(.44)} C ${X(.66)} ${Y(.55)} ${X(.57)} ${Y(.64)} ${X(.45)} ${Y(.62)} C ${X(.34)} ${Y(.61)} ${X(.25)} ${Y(.51)} ${X(.27)} ${Y(.42)} C ${X(.28)} ${Y(.38)} ${X(.29)} ${Y(.36)} ${X(.31)} ${Y(.34)} Z`
+    `M ${X(.18)} ${Y(.22)} C ${X(.23)} ${Y(.13)} ${X(.36)} ${Y(.12)} ${X(.43)} ${Y(.18)} C ${X(.48)} ${Y(.23)} ${X(.46)} ${Y(.30)} ${X(.40)} ${Y(.34)} C ${X(.33)} ${Y(.38)} ${X(.22)} ${Y(.36)} ${X(.17)} ${Y(.31)} C ${X(.14)} ${Y(.28)} ${X(.15)} ${Y(.25)} ${X(.18)} ${Y(.22)} Z`,
+    `M ${X(.45)} ${Y(.15)} C ${X(.53)} ${Y(.10)} ${X(.66)} ${Y(.11)} ${X(.73)} ${Y(.18)} C ${X(.79)} ${Y(.25)} ${X(.77)} ${Y(.34)} ${X(.69)} ${Y(.37)} C ${X(.60)} ${Y(.40)} ${X(.49)} ${Y(.36)} ${X(.45)} ${Y(.29)} C ${X(.42)} ${Y(.24)} ${X(.42)} ${Y(.19)} ${X(.45)} ${Y(.15)} Z`,
+    `M ${X(.70)} ${Y(.36)} C ${X(.77)} ${Y(.33)} ${X(.81)} ${Y(.38)} ${X(.81)} ${Y(.47)} C ${X(.82)} ${Y(.55)} ${X(.78)} ${Y(.62)} ${X(.71)} ${Y(.65)} C ${X(.65)} ${Y(.67)} ${X(.61)} ${Y(.61)} ${X(.62)} ${Y(.53)} C ${X(.63)} ${Y(.45)} ${X(.65)} ${Y(.39)} ${X(.70)} ${Y(.36)} Z`,
+    `M ${X(.55)} ${Y(.62)} C ${X(.63)} ${Y(.59)} ${X(.72)} ${Y(.62)} ${X(.73)} ${Y(.69)} C ${X(.74)} ${Y(.76)} ${X(.67)} ${Y(.80)} ${X(.58)} ${Y(.80)} C ${X(.49)} ${Y(.80)} ${X(.44)} ${Y(.75)} ${X(.46)} ${Y(.69)} C ${X(.47)} ${Y(.65)} ${X(.50)} ${Y(.63)} ${X(.55)} ${Y(.62)} Z`,
+    `M ${X(.22)} ${Y(.56)} C ${X(.30)} ${Y(.51)} ${X(.40)} ${Y(.53)} ${X(.44)} ${Y(.60)} C ${X(.48)} ${Y(.67)} ${X(.44)} ${Y(.74)} ${X(.36)} ${Y(.77)} C ${X(.28)} ${Y(.80)} ${X(.20)} ${Y(.76)} ${X(.18)} ${Y(.69)} C ${X(.16)} ${Y(.64)} ${X(.18)} ${Y(.59)} ${X(.22)} ${Y(.56)} Z`,
+    `M ${X(.34)} ${Y(.34)} C ${X(.44)} ${Y(.30)} ${X(.56)} ${Y(.33)} ${X(.62)} ${Y(.41)} C ${X(.67)} ${Y(.48)} ${X(.63)} ${Y(.58)} ${X(.55)} ${Y(.61)} C ${X(.47)} ${Y(.64)} ${X(.36)} ${Y(.61)} ${X(.31)} ${Y(.54)} C ${X(.26)} ${Y(.47)} ${X(.28)} ${Y(.38)} ${X(.34)} ${Y(.34)} Z`
   ];
-  const centers=[[.31,.23],[.60,.23],[.71,.48],[.56,.70],[.31,.68],[.45,.48]];
-  let regions='';for(let i=0;i<shapes.length;i++){const r=regs[i]||{};const color=r.color||colors[i];const pct=Number(r.percent)||0;const [cx,cy]=centers[i];regions+=`<path d="${shapes[i]}" fill="${esc(color)}" fill-opacity=".34" stroke="${esc(tokens.text)}" stroke-width="${Math.max(1.5,Number(tokens.nodeStrokeWidth)||1.5)}" stroke-linejoin="round"/><text x="${X(cx)}" y="${Y(cy)-5}" text-anchor="middle" fill="${esc(tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="${Math.max(12,Math.min(18,w/42))}" font-weight="800">${esc(r.label||`생각 ${i+1}`)}</text><text x="${X(cx)}" y="${Y(cy)+17}" text-anchor="middle" fill="${esc(tokens.text)}" opacity=".72" font-family="${esc(tokens.fontFamily)}" font-size="11" font-weight="750">${pct}%</text><rect x="${X(cx)-35}" y="${Y(cy)+27}" width="70" height="4" rx="2" fill="${esc(tokens.border)}" opacity=".28"/><rect x="${X(cx)-35}" y="${Y(cy)+27}" width="${70*Math.max(0,Math.min(100,pct))/100}" height="4" rx="2" fill="${esc(color)}"/>`;}
+  const centers=[[.30,.255],[.60,.245],[.715,.50],[.59,.70],[.30,.665],[.46,.475]];
+  const regionStroke=Math.max(1.5,Number(tokens.nodeStrokeWidth)||1.5);
+  let regions='';
+  for(let i=0;i<shapes.length;i++){
+    const r=regs[i]||{};
+    const color=r.color||colors[i];
+    const pct=Number(r.percent)||0;
+    const [cx,cy]=centers[i];
+    const label=esc(r.label||`생각 ${i+1}`);
+    regions+=`<path d="${shapes[i]}" fill="${esc(color)}" fill-opacity=".34" stroke="${esc(tokens.text)}" stroke-width="${regionStroke}" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+      <text x="${X(cx)}" y="${Y(cy)-6}" text-anchor="middle" fill="${esc(tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="${Math.max(12,Math.min(18,w/42))}" font-weight="800">${label}</text>
+      <text x="${X(cx)}" y="${Y(cy)+17}" text-anchor="middle" fill="${esc(tokens.text)}" opacity=".72" font-family="${esc(tokens.fontFamily)}" font-size="11" font-weight="750">${pct}%</text>
+      <rect x="${X(cx)-35}" y="${Y(cy)+27}" width="70" height="4" rx="2" fill="${esc(tokens.border)}" opacity=".24"/>
+      <rect x="${X(cx)-35}" y="${Y(cy)+27}" width="${70*Math.max(0,Math.min(100,pct))/100}" height="4" rx="2" fill="${esc(color)}"/>`;
+  }
   const total=regs.slice(0,6).reduce((sum,r)=>sum+(Number(r?.percent)||0),0);
   const title=esc(d.title||'내 머릿속');
-  return `<g class="smart-brain-map"><path d="${head}" fill="${esc(tokens.surface)}" fill-opacity=".45" stroke="${esc(tokens.text)}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${regions}<text x="${X(.20)}" y="${Y(.89)}" fill="${esc(tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="16" font-weight="850">${title}</text><text x="${X(.20)}" y="${Y(.925)}" fill="${esc(tokens.muted||tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="11" font-weight="700">합계 ${total}%</text></g>`;
+  return `<g class="smart-brain-map">
+    <defs><clipPath id="${clipId}"><path d="${head}"/></clipPath></defs>
+    <path d="${head}" fill="${esc(tokens.surface)}" fill-opacity=".45" stroke="${esc(tokens.text)}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+    <g clip-path="url(#${clipId})">${regions}</g>
+    <text x="${X(.20)}" y="${Y(.88)}" fill="${esc(tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="16" font-weight="850">${title}</text>
+    <text x="${X(.20)}" y="${Y(.915)}" fill="${esc(tokens.muted||tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="11" font-weight="700">합계 ${total}%</text>
+  </g>`;
 }
-
 export function shapePrimitive(node, tokens, extraClass='') {
   const {x,y,w=180,h=84,type} = node;
   const s = resolveNodeStyle(node,tokens);
