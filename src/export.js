@@ -1,16 +1,16 @@
-import { esc, edgeGeometry, nodeBounds, nodeTextMarkup, resolveNodeStyle, shapePrimitive } from './geometry.js';
+import { diagramStyleDefs, esc, edgeGeometry, nodeBounds, nodeTextMarkup, resolveNodeStyle, shapePrimitive } from './geometry.js';
 
 function markerDefs(tokens){
-  return `<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"/></marker></defs>`;
+  return `<defs>${diagramStyleDefs(tokens)}<marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"/></marker></defs>`;
 }
 
 function edgeMarkup(edge,state){
   const g=edgeGeometry(edge,state.nodes); if(!g)return '';
   const stroke=edge.style?.stroke??state.tokens.edge;
-  const width=edge.style?.width??1.8;
-  const dash=edge.style?.dash??'';
+  const width=edge.style?.width??state.tokens.edgeWidth??1.8;
+  const dash=edge.style?.dash??state.tokens.edgeDash??'';
   const arrow=edge.style?.arrow!==false;
-  const path=`<path d="${g.d}" fill="none" stroke="${esc(stroke)}" stroke-width="${width}" ${dash?`stroke-dasharray="${esc(dash)}"`:''} ${arrow?'marker-end="url(#arrow)"':''} stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;
+  const path=`<path d="${g.d}" fill="none" stroke="${esc(stroke)}" stroke-width="${width}" ${dash?`stroke-dasharray="${esc(dash)}"`:''} ${arrow?'marker-end="url(#arrow)"':''} stroke-linecap="${esc(state.tokens.edgeLinecap||'round')}" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;
   const label=edge.label?`<text x="${g.label.x}" y="${g.label.y-8}" fill="${esc(state.tokens.text)}" font-family="${esc(state.tokens.fontFamily)}" font-size="12" font-weight="650" text-anchor="middle" paint-order="stroke" stroke="${esc(state.tokens.canvas)}" stroke-width="5" stroke-linejoin="round">${esc(edge.label)}</text>`:'';
   return path+label;
 }
