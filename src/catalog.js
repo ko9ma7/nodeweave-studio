@@ -179,6 +179,7 @@ export const DEFAULT_SETTINGS = {
   gridSize: 20,
   routing: 'orthogonal',
   layoutDirection: 'LR',
+  layoutScope: 'flow',
   horizontalGap: 110,
   verticalGap: 70,
   exportBackground: true,
