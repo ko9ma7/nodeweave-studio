@@ -68,61 +68,60 @@ function brainMapMarkup(node,tokens){
   const X=a=>x+w*a,Y=a=>y+h*a;
   const clipId=`brain-clip-${String(node.id||'node').replace(/[^a-zA-Z0-9_-]/g,'')}`;
 
-  // Right-facing human profile: crown → forehead → nose → lips → chin → neck → back of head.
+  // Calm, left-facing worksheet profile. The face uses soft curves instead of pointed nose/lip steps.
   const head=`
-    M ${X(.30)} ${Y(.94)}
-    C ${X(.27)} ${Y(.86)} ${X(.25)} ${Y(.81)} ${X(.18)} ${Y(.79)}
-    C ${X(.11)} ${Y(.77)} ${X(.08)} ${Y(.73)} ${X(.09)} ${Y(.68)}
-    C ${X(.10)} ${Y(.65)} ${X(.13)} ${Y(.62)} ${X(.16)} ${Y(.59)}
-    C ${X(.09)} ${Y(.54)} ${X(.06)} ${Y(.46)} ${X(.08)} ${Y(.36)}
-    C ${X(.11)} ${Y(.22)} ${X(.23)} ${Y(.11)} ${X(.39)} ${Y(.07)}
-    C ${X(.55)} ${Y(.03)} ${X(.70)} ${Y(.07)} ${X(.78)} ${Y(.17)}
-    C ${X(.83)} ${Y(.23)} ${X(.84)} ${Y(.31)} ${X(.83)} ${Y(.38)}
-    C ${X(.82)} ${Y(.43)} ${X(.84)} ${Y(.47)} ${X(.88)} ${Y(.50)}
-    L ${X(.94)} ${Y(.54)}
-    C ${X(.955)} ${Y(.55)} ${X(.955)} ${Y(.565)} ${X(.935)} ${Y(.575)}
-    L ${X(.885)} ${Y(.603)}
-    C ${X(.90)} ${Y(.615)} ${X(.91)} ${Y(.63)} ${X(.895)} ${Y(.642)}
-    L ${X(.855)} ${Y(.665)}
-    C ${X(.875)} ${Y(.68)} ${X(.872)} ${Y(.695)} ${X(.845)} ${Y(.707)}
-    C ${X(.82)} ${Y(.718)} ${X(.79)} ${Y(.72)} ${X(.775)} ${Y(.73)}
-    C ${X(.77)} ${Y(.79)} ${X(.72)} ${Y(.84)} ${X(.62)} ${Y(.865)}
-    C ${X(.51)} ${Y(.89)} ${X(.45)} ${Y(.91)} ${X(.39)} ${Y(.955)}
-    C ${X(.35)} ${Y(.985)} ${X(.32)} ${Y(.98)} ${X(.30)} ${Y(.94)}
+    M ${X(.41)} ${Y(.97)}
+    C ${X(.40)} ${Y(.91)} ${X(.39)} ${Y(.85)} ${X(.37)} ${Y(.80)}
+    C ${X(.31)} ${Y(.80)} ${X(.25)} ${Y(.78)} ${X(.21)} ${Y(.75)}
+    C ${X(.17)} ${Y(.72)} ${X(.16)} ${Y(.67)} ${X(.19)} ${Y(.62)}
+    C ${X(.215)} ${Y(.58)} ${X(.20)} ${Y(.55)} ${X(.16)} ${Y(.53)}
+    C ${X(.125)} ${Y(.51)} ${X(.115)} ${Y(.48)} ${X(.14)} ${Y(.455)}
+    C ${X(.16)} ${Y(.435)} ${X(.16)} ${Y(.415)} ${X(.135)} ${Y(.402)}
+    C ${X(.105)} ${Y(.388)} ${X(.09)} ${Y(.37)} ${X(.105)} ${Y(.35)}
+    C ${X(.12)} ${Y(.332)} ${X(.15)} ${Y(.32)} ${X(.17)} ${Y(.30)}
+    C ${X(.175)} ${Y(.235)} ${X(.205)} ${Y(.18)} ${X(.265)} ${Y(.14)}
+    C ${X(.35)} ${Y(.083)} ${X(.46)} ${Y(.06)} ${X(.58)} ${Y(.08)}
+    C ${X(.715)} ${Y(.10)} ${X(.81)} ${Y(.17)} ${X(.855)} ${Y(.275)}
+    C ${X(.90)} ${Y(.385)} ${X(.895)} ${Y(.51)} ${X(.845)} ${Y(.605)}
+    C ${X(.805)} ${Y(.68)} ${X(.80)} ${Y(.74)} ${X(.825)} ${Y(.79)}
+    C ${X(.845)} ${Y(.825)} ${X(.825)} ${Y(.85)} ${X(.78)} ${Y(.862)}
+    C ${X(.70)} ${Y(.88)} ${X(.63)} ${Y(.88)} ${X(.56)} ${Y(.91)}
+    C ${X(.505)} ${Y(.935)} ${X(.455)} ${Y(.985)} ${X(.41)} ${Y(.97)}
     Z`;
 
-  // Organic regions inspired by worksheet-style "inside my head" diagrams.
+  // Six non-overlapping, rounded thought compartments placed inside the cranial area.
   const shapes=[
-    `M ${X(.18)} ${Y(.22)} C ${X(.23)} ${Y(.13)} ${X(.36)} ${Y(.12)} ${X(.43)} ${Y(.18)} C ${X(.48)} ${Y(.23)} ${X(.46)} ${Y(.30)} ${X(.40)} ${Y(.34)} C ${X(.33)} ${Y(.38)} ${X(.22)} ${Y(.36)} ${X(.17)} ${Y(.31)} C ${X(.14)} ${Y(.28)} ${X(.15)} ${Y(.25)} ${X(.18)} ${Y(.22)} Z`,
-    `M ${X(.45)} ${Y(.15)} C ${X(.53)} ${Y(.10)} ${X(.66)} ${Y(.11)} ${X(.73)} ${Y(.18)} C ${X(.79)} ${Y(.25)} ${X(.77)} ${Y(.34)} ${X(.69)} ${Y(.37)} C ${X(.60)} ${Y(.40)} ${X(.49)} ${Y(.36)} ${X(.45)} ${Y(.29)} C ${X(.42)} ${Y(.24)} ${X(.42)} ${Y(.19)} ${X(.45)} ${Y(.15)} Z`,
-    `M ${X(.70)} ${Y(.36)} C ${X(.77)} ${Y(.33)} ${X(.81)} ${Y(.38)} ${X(.81)} ${Y(.47)} C ${X(.82)} ${Y(.55)} ${X(.78)} ${Y(.62)} ${X(.71)} ${Y(.65)} C ${X(.65)} ${Y(.67)} ${X(.61)} ${Y(.61)} ${X(.62)} ${Y(.53)} C ${X(.63)} ${Y(.45)} ${X(.65)} ${Y(.39)} ${X(.70)} ${Y(.36)} Z`,
-    `M ${X(.55)} ${Y(.62)} C ${X(.63)} ${Y(.59)} ${X(.72)} ${Y(.62)} ${X(.73)} ${Y(.69)} C ${X(.74)} ${Y(.76)} ${X(.67)} ${Y(.80)} ${X(.58)} ${Y(.80)} C ${X(.49)} ${Y(.80)} ${X(.44)} ${Y(.75)} ${X(.46)} ${Y(.69)} C ${X(.47)} ${Y(.65)} ${X(.50)} ${Y(.63)} ${X(.55)} ${Y(.62)} Z`,
-    `M ${X(.22)} ${Y(.56)} C ${X(.30)} ${Y(.51)} ${X(.40)} ${Y(.53)} ${X(.44)} ${Y(.60)} C ${X(.48)} ${Y(.67)} ${X(.44)} ${Y(.74)} ${X(.36)} ${Y(.77)} C ${X(.28)} ${Y(.80)} ${X(.20)} ${Y(.76)} ${X(.18)} ${Y(.69)} C ${X(.16)} ${Y(.64)} ${X(.18)} ${Y(.59)} ${X(.22)} ${Y(.56)} Z`,
-    `M ${X(.34)} ${Y(.34)} C ${X(.44)} ${Y(.30)} ${X(.56)} ${Y(.33)} ${X(.62)} ${Y(.41)} C ${X(.67)} ${Y(.48)} ${X(.63)} ${Y(.58)} ${X(.55)} ${Y(.61)} C ${X(.47)} ${Y(.64)} ${X(.36)} ${Y(.61)} ${X(.31)} ${Y(.54)} C ${X(.26)} ${Y(.47)} ${X(.28)} ${Y(.38)} ${X(.34)} ${Y(.34)} Z`
+    `M ${X(.285)} ${Y(.185)} C ${X(.34)} ${Y(.13)} ${X(.44)} ${Y(.125)} ${X(.495)} ${Y(.17)} C ${X(.545)} ${Y(.21)} ${X(.535)} ${Y(.285)} ${X(.475)} ${Y(.33)} C ${X(.405)} ${Y(.38)} ${X(.30)} ${Y(.35)} ${X(.255)} ${Y(.29)} C ${X(.225)} ${Y(.25)} ${X(.245)} ${Y(.215)} ${X(.285)} ${Y(.185)} Z`,
+    `M ${X(.535)} ${Y(.165)} C ${X(.60)} ${Y(.125)} ${X(.70)} ${Y(.14)} ${X(.755)} ${Y(.205)} C ${X(.805)} ${Y(.265)} ${X(.795)} ${Y(.345)} ${X(.735)} ${Y(.385)} C ${X(.675)} ${Y(.425)} ${X(.585)} ${Y(.395)} ${X(.535)} ${Y(.335)} C ${X(.495)} ${Y(.285)} ${X(.49)} ${Y(.215)} ${X(.535)} ${Y(.165)} Z`,
+    `M ${X(.625)} ${Y(.405)} C ${X(.69)} ${Y(.37)} ${X(.765)} ${Y(.395)} ${X(.785)} ${Y(.46)} C ${X(.81)} ${Y(.535)} ${X(.775)} ${Y(.60)} ${X(.715)} ${Y(.63)} C ${X(.655)} ${Y(.66)} ${X(.595)} ${Y(.615)} ${X(.59)} ${Y(.55)} C ${X(.585)} ${Y(.49)} ${X(.59)} ${Y(.43)} ${X(.625)} ${Y(.405)} Z`,
+    `M ${X(.535)} ${Y(.60)} C ${X(.60)} ${Y(.575)} ${X(.69)} ${Y(.595)} ${X(.715)} ${Y(.655)} C ${X(.745)} ${Y(.72)} ${X(.69)} ${Y(.765)} ${X(.605)} ${Y(.78)} C ${X(.525)} ${Y(.795)} ${X(.465)} ${Y(.755)} ${X(.46)} ${Y(.695)} C ${X(.455)} ${Y(.645)} ${X(.485)} ${Y(.615)} ${X(.535)} ${Y(.60)} Z`,
+    `M ${X(.275)} ${Y(.555)} C ${X(.34)} ${Y(.515)} ${X(.425)} ${Y(.525)} ${X(.465)} ${Y(.58)} C ${X(.51)} ${Y(.645)} ${X(.475)} ${Y(.715)} ${X(.405)} ${Y(.75)} C ${X(.33)} ${Y(.785)} ${X(.255)} ${Y(.755)} ${X(.225)} ${Y(.69)} C ${X(.195)} ${Y(.63)} ${X(.225)} ${Y(.585)} ${X(.275)} ${Y(.555)} Z`,
+    `M ${X(.35)} ${Y(.35)} C ${X(.43)} ${Y(.315)} ${X(.535)} ${Y(.34)} ${X(.585)} ${Y(.405)} C ${X(.64)} ${Y(.475)} ${X(.60)} ${Y(.565)} ${X(.525)} ${Y(.595)} C ${X(.445)} ${Y(.625)} ${X(.35)} ${Y(.59)} ${X(.305)} ${Y(.525)} C ${X(.26)} ${Y(.46)} ${X(.285)} ${Y(.385)} ${X(.35)} ${Y(.35)} Z`
   ];
-  const centers=[[.30,.255],[.60,.245],[.715,.50],[.59,.70],[.30,.665],[.46,.475]];
-  const regionStroke=Math.max(1.5,Number(tokens.nodeStrokeWidth)||1.5);
+  const centers=[[.37,.255],[.645,.26],[.69,.505],[.59,.69],[.34,.655],[.45,.475]];
+  const regionStroke=Math.max(1.25,Number(tokens.nodeStrokeWidth)||1.5);
   let regions='';
   for(let i=0;i<shapes.length;i++){
     const r=regs[i]||{};
     const color=r.color||colors[i];
-    const pct=Number(r.percent)||0;
+    const pct=Math.max(0,Math.min(100,Number(r.percent)||0));
     const [cx,cy]=centers[i];
     const label=esc(r.label||`생각 ${i+1}`);
-    regions+=`<path d="${shapes[i]}" fill="${esc(color)}" fill-opacity=".34" stroke="${esc(tokens.text)}" stroke-width="${regionStroke}" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
-      <text x="${X(cx)}" y="${Y(cy)-6}" text-anchor="middle" fill="${esc(tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="${Math.max(12,Math.min(18,w/42))}" font-weight="800">${label}</text>
-      <text x="${X(cx)}" y="${Y(cy)+17}" text-anchor="middle" fill="${esc(tokens.text)}" opacity=".72" font-family="${esc(tokens.fontFamily)}" font-size="11" font-weight="750">${pct}%</text>
-      <rect x="${X(cx)-35}" y="${Y(cy)+27}" width="70" height="4" rx="2" fill="${esc(tokens.border)}" opacity=".24"/>
-      <rect x="${X(cx)-35}" y="${Y(cy)+27}" width="${70*Math.max(0,Math.min(100,pct))/100}" height="4" rx="2" fill="${esc(color)}"/>`;
+    regions+=`<path d="${shapes[i]}" fill="${esc(color)}" fill-opacity=".30" stroke="${esc(tokens.text)}" stroke-opacity=".82" stroke-width="${regionStroke}" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+      <text x="${X(cx)}" y="${Y(cy)-4}" text-anchor="middle" fill="${esc(tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="${Math.max(12,Math.min(18,w/43))}" font-weight="800">${label}</text>
+      <rect x="${X(cx)-23}" y="${Y(cy)+10}" width="46" height="20" rx="10" fill="${esc(color)}" fill-opacity=".25"/>
+      <text x="${X(cx)}" y="${Y(cy)+24}" text-anchor="middle" fill="${esc(tokens.text)}" opacity=".76" font-family="${esc(tokens.fontFamily)}" font-size="10.5" font-weight="800">${pct}%</text>`;
   }
   const total=regs.slice(0,6).reduce((sum,r)=>sum+(Number(r?.percent)||0),0);
   const title=esc(d.title||'내 머릿속');
   return `<g class="smart-brain-map">
     <defs><clipPath id="${clipId}"><path d="${head}"/></clipPath></defs>
-    <path d="${head}" fill="${esc(tokens.surface)}" fill-opacity=".45" stroke="${esc(tokens.text)}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+    <path d="${head}" fill="${esc(tokens.surface)}" fill-opacity=".58" stroke="${esc(tokens.text)}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
     <g clip-path="url(#${clipId})">${regions}</g>
-    <text x="${X(.20)}" y="${Y(.88)}" fill="${esc(tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="16" font-weight="850">${title}</text>
-    <text x="${X(.20)}" y="${Y(.915)}" fill="${esc(tokens.muted||tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="11" font-weight="700">합계 ${total}%</text>
+    <circle cx="${X(.182)}" cy="${Y(.332)}" r="${Math.max(2.2,w*.004)}" fill="${esc(tokens.text)}" opacity=".58"/>
+    <path d="M ${X(.735)} ${Y(.43)} C ${X(.77)} ${Y(.445)} ${X(.77)} ${Y(.505)} ${X(.735)} ${Y(.525)}" fill="none" stroke="${esc(tokens.text)}" stroke-width="1.35" stroke-linecap="round" opacity=".28" vector-effect="non-scaling-stroke"/>
+    <text x="${X(.45)}" y="${Y(.875)}" text-anchor="middle" fill="${esc(tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="16" font-weight="850">${title}</text>
+    <text x="${X(.45)}" y="${Y(.91)}" text-anchor="middle" fill="${esc(tokens.muted||tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="11" font-weight="700">합계 ${total}%</text>
   </g>`;
 }
 function applySvgPaintOverrides(content,overrides={}){
