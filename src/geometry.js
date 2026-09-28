@@ -6,21 +6,35 @@ export const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
 export function resolveNodeStyle(node, tokens) {
   return {
-    fill: node.style?.fill ?? tokens.surface,
+    fill: node.style?.fill ?? (tokens.nodeGradient ? 'url(#nw-node-gradient)' : tokens.surface),
     stroke: node.style?.stroke ?? tokens.border,
     text: node.style?.text ?? tokens.text,
     strokeWidth: node.style?.strokeWidth ?? tokens.nodeStrokeWidth,
     radius: node.style?.radius ?? tokens.radius,
     fontSize: node.style?.fontSize ?? 15,
-    fontWeight: node.style?.fontWeight ?? 650,
-    opacity: node.style?.opacity ?? 1
+    fontWeight: node.style?.fontWeight ?? tokens.labelWeight ?? 650,
+    opacity: node.style?.opacity ?? 1,
+    letterSpacing: node.style?.letterSpacing ?? tokens.labelLetterSpacing ?? 0,
+    textTransform: node.style?.textTransform ?? tokens.labelTransform ?? 'none'
   };
+}
+
+export function diagramStyleDefs(tokens={}) {
+  const start=esc(tokens.gradientStart||tokens.surface||'#ffffff');
+  const end=esc(tokens.gradientEnd||tokens.primary||'#eef2ff');
+  return `<linearGradient id="nw-node-gradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${start}"/><stop offset="100%" stop-color="${end}"/></linearGradient>`;
+}
+
+function styleFilter(tokens={}) {
+  if(!tokens.nodeShadow||tokens.nodeShadow==='none') return '';
+  const x=Number(tokens.shadowX)||0,y=Number(tokens.shadowY)||0,b=Math.max(0,Number(tokens.shadowBlur)||0);
+  return `filter:drop-shadow(${x}px ${y}px ${b}px ${tokens.shadowColor||'#00000022'});`;
 }
 
 export function shapePrimitive(node, tokens, extraClass='') {
   const {x,y,w=180,h=84,type} = node;
   const s = resolveNodeStyle(node,tokens);
-  const common = `fill="${esc(s.fill)}" stroke="${esc(s.stroke)}" stroke-width="${s.strokeWidth}" opacity="${s.opacity}" vector-effect="non-scaling-stroke" class="node-shape ${extraClass}"`;
+  const common = `fill="${esc(s.fill)}" stroke="${esc(s.stroke)}" stroke-width="${s.strokeWidth}" ${tokens.borderDash?`stroke-dasharray="${esc(tokens.borderDash)}"`:''} opacity="${s.opacity}" vector-effect="non-scaling-stroke" style="${styleFilter(tokens)}" class="node-shape ${extraClass}"`;
   const r = Math.max(0, Math.min(s.radius, Math.min(w,h)/2));
   if (type === 'custom-svg' && node.customSvg?.content) {
     const vb=node.customSvg.viewBox||'0 0 100 100';
@@ -130,20 +144,28 @@ export function nodeTextMarkup(node,tokens,{selected=false}={}) {
   const startY=box.align==='start' ? box.y+s.fontSize : box.y+box.h/2 - ((lines.length-1)*lineH)/2;
   const x=box.align==='start' ? box.x : box.x+box.w/2;
   const anchor=box.align==='start' ? 'start' : 'middle';
-  return `<text x="${x}" y="${startY}" fill="${esc(s.text)}" font-family="${esc(tokens.fontFamily)}" font-size="${s.fontSize}" font-weight="${s.fontWeight}" text-anchor="${anchor}" dominant-baseline="middle" pointer-events="none" class="node-label${selected?' is-selected':''}">${lines.map((line,i)=>`<tspan x="${x}" dy="${i===0?0:lineH}">${esc(line)}</tspan>`).join('')}</text>`;
+  const cooked=lines.map(line=>s.textTransform==='uppercase'?String(line).toUpperCase():line);
+  return `<text x="${x}" y="${startY}" fill="${esc(s.text)}" font-family="${esc(tokens.fontFamily)}" font-size="${s.fontSize}" font-weight="${s.fontWeight}" letter-spacing="${s.letterSpacing}" text-anchor="${anchor}" dominant-baseline="middle" pointer-events="none" class="node-label${selected?' is-selected':''}">${cooked.map((line,i)=>`<tspan x="${x}" dy="${i===0?0:lineH}">${esc(line)}</tspan>`).join('')}</text>`;
 }
 
 export function portPoint(node,port='right') {
   const {x,y,w=180,h=84}=node;
-  if (port==='left') return {x,y:y+h/2};
-  if (port==='top') return {x:x+w/2,y};
-  if (port==='bottom') return {x:x+w/2,y:y+h};
-  return {x:x+w,y:y+h/2};
+  const map={
+    left:{x,y:y+h/2},right:{x:x+w,y:y+h/2},top:{x:x+w/2,y},bottom:{x:x+w/2,y:y+h},
+    'top-left':{x,y},'top-right':{x:x+w,y},'bottom-left':{x,y:y+h},'bottom-right':{x:x+w,y:y+h}
+  };
+  return map[port]||map.right;
 }
-
-export function nearestPort(node, point) {
-  const ports=['left','right','top','bottom'];
-  let best='left',bestD=Infinity;
+export function nodePortNames(node,tokens={}) {
+  const count=Number(node.style?.portCount ?? tokens.portCount ?? 4);
+  if(count<=0)return [];
+  const base=['top','right','bottom','left'];
+  return count>=8?[...base,'top-left','top-right','bottom-right','bottom-left']:base;
+}
+export function nearestPort(node, point, tokens={}) {
+  const ports=nodePortNames(node,tokens);
+  if(!ports.length)return 'right';
+  let best=ports[0],bestD=Infinity;
   for (const p of ports) {
     const pt=portPoint(node,p), d=(pt.x-point.x)**2+(pt.y-point.y)**2;
     if (d<bestD){bestD=d;best=p;}
@@ -190,5 +212,7 @@ export function selectionRectMarkup(node,tokens) {
 }
 
 export function portsMarkup(node,tokens) {
-  return ['top','right','bottom','left'].map(p=>{const pt=portPoint(node,p);return `<circle data-port="${p}" data-node-id="${esc(node.id)}" cx="${pt.x}" cy="${pt.y}" r="5.5" fill="${esc(tokens.canvas)}" stroke="${esc(tokens.primary)}" stroke-width="2" vector-effect="non-scaling-stroke" class="port-handle"/>`;}).join('');
+  const size=Number(node.style?.portSize ?? tokens.portSize ?? 8),r=Math.max(3,size/2);
+  const shape=node.style?.portShape ?? tokens.portShape ?? 'circle';
+  return nodePortNames(node,tokens).map(p=>{const pt=portPoint(node,p),common=`data-port="${p}" data-node-id="${esc(node.id)}" fill="${esc(tokens.canvas)}" stroke="${esc(tokens.primary)}" stroke-width="2" vector-effect="non-scaling-stroke" class="port-handle"`;if(shape==='square')return `<rect ${common} x="${pt.x-r}" y="${pt.y-r}" width="${r*2}" height="${r*2}" rx="1"/>`;if(shape==='diamond')return `<rect ${common} x="${pt.x-r}" y="${pt.y-r}" width="${r*2}" height="${r*2}" transform="rotate(45 ${pt.x} ${pt.y})"/>`;return `<circle ${common} cx="${pt.x}" cy="${pt.y}" r="${r}"/>`;}).join('');
 }
