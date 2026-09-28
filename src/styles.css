@@ -83,3 +83,18 @@ body.left-closed{--left:0px}body.left-closed .left-panel{display:none}body.right
 .inspector-content{scrollbar-gutter:stable}
 @media(max-width:1280px){:root{--left:250px;--right:290px}.smart-tool-strip button{padding-inline:4px}.panel-actions{grid-template-columns:1fr}.panel-actions .compact-link{display:none}}
 @media(max-width:900px){:root{--left:0px;--right:0px}.left-panel,.inspector{width:min(330px,90vw)}.panel-actions{grid-template-columns:1fr 1fr}.panel-actions .compact-link{display:inline-flex}}
+
+/* v1.5.3 left library flex-boundary fix */
+.left-panel>.panel-heading,
+.left-panel>.library-tabs,
+.left-panel>.smart-tool-strip,
+.left-panel>.search-box,
+.left-panel>.library-control-row,
+.left-panel>.panel-actions,
+.left-panel>.library-filters{flex:0 0 auto}
+.left-panel>.panel-scroll{flex:1 1 auto;min-height:0;height:auto;overflow-y:auto;overflow-x:hidden;border-top:1px solid var(--border);padding-top:6px}
+.left-panel>.library-filters{min-height:38px;height:38px;overflow-x:auto;overflow-y:hidden;align-items:center;padding-top:2px;padding-bottom:8px;mask-image:none;-webkit-mask-image:none}
+.left-panel>.library-filters .filter-chip{height:28px;min-height:28px;max-height:28px;flex:0 0 auto}
+.left-panel>.library-filters::after{content:"";flex:0 0 6px;height:1px}
+.left-panel .panel-scroll>section{min-width:0}
+.left-panel .panel-scroll .browser-group-header{margin-top:6px}
