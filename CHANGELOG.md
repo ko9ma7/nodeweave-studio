@@ -2,6 +2,14 @@
 
 All notable changes to NodeWeave Studio are documented here.
 
+## [1.5.5] - 2026-09-29
+
+### Fixed
+
+- split the left library into a fixed toolbar row and an independent scrolling asset row using CSS Grid
+- category chips no longer change height or get covered when switching between All and individual categories
+- switching library tabs/categories now resets the asset list to the top and keeps the active category visible
+
 ## [1.5.4] - 2026-09-29
 
 ### Fixed
