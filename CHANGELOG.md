@@ -2,6 +2,21 @@
 
 All notable changes to NodeWeave Studio are documented here.
 
+## [1.6.0] - 2026-09-29
+
+### Added
+
+- brain-map regions are now variable instead of fixed at six: add, delete, reorder, and edit 2–10 regions
+- brain-map silhouette selector: left profile, right profile, simple head, or brain/thought-cloud outline
+- optional percentage badges and one-click normalization to 100%
+- dynamic region reflow for different region counts with adaptive label sizing
+- planner rows can now move up/down and be sorted by start time
+
+### Changed
+
+- smart diagram editors now follow the same editable-list pattern instead of treating starter data as fixed template structure
+- brain-map region rendering uses adaptive organic compartments rather than six hard-coded overlapping ovals
+
 ## [1.5.7] - 2026-09-29
 
 ### Changed
