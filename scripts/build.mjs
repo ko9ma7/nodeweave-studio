@@ -11,8 +11,8 @@ function deriveUrl(){
 }
 const siteUrl=deriveUrl();
 await rm(dist,{recursive:true,force:true});await mkdir(dist,{recursive:true});
-for(const dir of ['src','assets'])await cp(path.join(root,dir),path.join(dist,dir),{recursive:true});
-for(const file of ['manifest.webmanifest','sw.js','.nojekyll'])await cp(path.join(root,file),path.join(dist,file));
+for(const dir of ['src','assets','catalog'])await cp(path.join(root,dir),path.join(dist,dir),{recursive:true});
+for(const file of ['manifest.webmanifest','sw.js','.nojekyll','admin.html'])await cp(path.join(root,file),path.join(dist,file));
 for(const file of ['index.html','404.html','robots.txt','sitemap.xml']){
   const raw=await readFile(path.join(root,file),'utf8');
   await writeFile(path.join(dist,file),raw.replaceAll('__SITE_URL__',siteUrl),'utf8');
