@@ -2,6 +2,14 @@
 
 All notable changes to NodeWeave Studio are documented here.
 
+## [1.5.3] - 2026-09-29
+
+### Fixed
+
+- stopped the left library toolbar, category chips, search controls, and smart-tool row from shrinking vertically inside the sidebar flex layout
+- made only the asset/template list consume the remaining sidebar height and scroll independently
+- removed the category mask effect and guaranteed a full-height horizontal category row so chips can no longer be half-clipped
+
 ## [1.5.2] - 2026-09-29
 
 ### Improved
