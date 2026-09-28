@@ -1,8 +1,8 @@
 {
   "name": "nodeweave-studio",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
-  "description": "SVG-first, local-first diagram editor with design tokens, auto layout, and SVG/PNG/WebP/HTML/JSON export.",
+  "description": "SVG-first, local-first diagram editor with 30+ shapes, reusable SVG symbols, templates, design tokens, auto layout, and multi-format export.",
   "homepage": "https://ko9ma7.github.io/nodeweave-studio/",
   "repository": {
     "type": "git",
@@ -22,7 +22,10 @@
     "github-pages",
     "design-tool",
     "mind-map",
-    "auto-layout"
+    "auto-layout",
+    "svg-icons",
+    "architecture-diagrams",
+    "diagram-templates"
   ],
   "type": "module",
   "scripts": {
