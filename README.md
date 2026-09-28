@@ -50,8 +50,10 @@ That separation makes the editor easy to extend: a new shape can immediately par
 
 - **SVG-native editing** — nodes, labels, ports, and connectors share one vector-first document model.
 - **Fast connected flows** — create straight, Bézier, or orthogonal connectors directly from node ports.
-- **Searchable shape library** — process, decision, terminator, database, document, note, circle, hexagon, cloud, group, swimlane, and more.
-- **Reusable templates** — product flow, approval process, system map, mind map, and swimlane starters.
+- **Expanded shape library** — 30+ flow, data, architecture, annotation, media, and container primitives.
+- **Reusable SVG symbols** — 30+ built-in `currentColor` SVG symbols for people, systems, devices, security, status, communication, and content.
+- **External SVG workflow** — paste, drop, or import user-supplied SVG assets, then recolor, rotate, flip, resize, and add backgrounds.
+- **Reusable templates** — 14 starters covering product flows, incident response, data pipelines, auth, customer journeys, org charts, network topology, releases, and more.
 - **Design-token styling** — change canvas, surface, primary, text, border, edge, radius, and typography values globally.
 - **Batch editing** — multi-select nodes and apply fill, stroke, text, width, font size, and radius changes together.
 - **Auto layout** — arrange flows left-to-right or top-to-bottom and use alignment/distribution tools for cleanup.
@@ -66,6 +68,8 @@ That separation makes the editor easy to extend: a new shape can immediately par
 - Drag and resize nodes
 - Marquee selection and multi-selection
 - Duplicate and delete selections
+- Copy/paste selections with internal connector preservation
+- Bring selected nodes to front or send them behind other nodes
 - Keyboard nudge with fine/grid increments
 - Pan with `Space + drag`
 - Pointer-centered wheel zoom
@@ -109,6 +113,25 @@ Shape type and visual style are intentionally independent, so the same diagram s
 - JSON import/export for portable backups
 - Theme preference persistence
 
+### SVG assets and icon workflows
+
+NodeWeave includes its own small **NodeWeave Symbols** set built from simple `currentColor` SVG primitives. Imported SVG assets are treated as editable diagram objects rather than as a bundled third-party icon library.
+
+Supported SVG asset workflows:
+
+- Click or drag a built-in SVG symbol onto the canvas
+- Drag an `.svg` file directly onto the canvas
+- Import an SVG file from Project management
+- Paste raw `<svg>…</svg>` markup using the SVG asset dialog
+- Paste SVG markup directly on the canvas with the system clipboard
+- Optional single-color normalization to `currentColor`
+- Recolor `currentColor`, rotate, flip horizontally/vertically, resize, adjust inner padding, and add/remove an icon background
+- Preserve an optional source URL with imported SVG metadata
+
+#### Koboyo Icons
+
+[Koboyo Icons](https://koboyo.com/icons) is useful as an external place to discover a large variety of SVG concepts. NodeWeave provides a **link-out + user import** workflow rather than bundling or mirroring Koboyo's icon collection. This is intentional because NodeWeave is itself a diagram editor; users should review the current upstream license before importing third-party assets.
+
 ### Import and export
 
 | Format | Purpose |
@@ -128,6 +151,9 @@ PNG/WebP export supports multiple scale factors for higher-resolution output.
 | `Ctrl/⌘ K` | Command search |
 | `Ctrl/⌘ Z` | Undo |
 | `Ctrl/⌘ Shift Z` or `Ctrl/⌘ Y` | Redo |
+| `Ctrl/⌘ A` | Select all nodes |
+| `Ctrl/⌘ C` | Copy selected nodes and internal connectors |
+| `Ctrl/⌘ V` | Paste NodeWeave selection or raw SVG markup |
 | `Ctrl/⌘ D` | Duplicate selected nodes |
 | `Ctrl/⌘ S` | Save named browser project |
 | `Delete` / `Backspace` | Delete selection |
@@ -142,7 +168,7 @@ PNG/WebP export supports multiple scale factors for higher-resolution output.
 
 NodeWeave does not send diagram content to an application server. Autosave and named project data use browser storage.
 
-Custom SVG import uses an allowlist-oriented sanitizer before the imported shape is inserted into the editor. Script elements, event-handler attributes, and unsafe external references are not intended to pass through the import path. If you extend the importer, keep sanitization and CSP-style thinking in the threat model rather than treating SVG as a passive image format.
+Custom SVG import and paste use an allowlist-oriented sanitizer before imported markup is inserted into the editor. Script elements, event-handler attributes, and unsafe external references are not intended to pass through the import path. If you extend the importer, keep sanitization and CSP-style thinking in the threat model rather than treating SVG as a passive image format.
 
 ## Accessibility
 
@@ -265,7 +291,7 @@ The workflow is defined in `.github/workflows/deploy.yml`.
 - push `main`
 - enable GitHub Pages with Actions
 - watch the deployment workflow
-- create the initial `v1.0.0` tag
+- create the current `v1.1.0` tag
 
 It does not contain or require a hard-coded GitHub token.
 
