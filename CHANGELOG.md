@@ -2,6 +2,17 @@
 
 All notable changes to NodeWeave Studio are documented here.
 
+## [1.5.2] - 2026-09-29
+
+### Improved
+
+- reorganized the left library hierarchy with dedicated sort, view, browse, and catalog controls
+- added recommended/name/category sorting and grid/list views for library assets
+- refined sidebar spacing, card sizing, scroll behavior, and responsive panel widths
+- automatic layout now defaults to connected-flow nodes only, leaving standalone smart diagrams and media untouched
+- auto layout uses rank-specific node dimensions instead of the largest node in the document, preventing oversized spacing around brain maps and planners
+- added layout scope selection, right/bottom alignment, equal-gap distribution, selection fit, and full-document fit controls
+
 ## [1.5.1] - 2026-09-29
 
 ### Fixed
