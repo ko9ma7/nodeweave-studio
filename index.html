@@ -54,6 +54,7 @@
       <div class="top-actions">
         <button id="command-btn" class="toolbar-btn command-btn" title="빠른 검색 (Ctrl/⌘ K)"><span>⌘</span> 빠른 검색</button>
         <button id="ui-theme-btn" class="icon-btn" data-mode="system" title="인터페이스 테마" aria-label="인터페이스 테마 변경">◐</button>
+        <button id="share-btn" class="toolbar-btn">공유</button>
         <button id="project-btn" class="toolbar-btn">프로젝트</button>
         <button id="export-btn" class="primary-btn">내보내기</button>
         <button id="right-toggle" class="icon-btn mobile-panel-btn" aria-label="속성 패널 열기/닫기" title="속성 패널">☷</button>
@@ -66,6 +67,11 @@
         <button class="library-tab is-active" data-library-tab="shapes" role="tab">도형 <span id="shape-total"></span></button>
         <button class="library-tab" data-library-tab="icons" role="tab">SVG <span id="icon-total"></span></button>
         <button class="library-tab" data-library-tab="templates" role="tab">템플릿 <span id="template-total"></span></button>
+      </div>
+      <div class="smart-tool-strip" aria-label="스마트 도구">
+        <button data-shape-id="radial-plan"><strong>24/12h</strong><span>원형 생활계획표</span></button>
+        <button data-shape-id="brain-map"><strong>Brain</strong><span>머릿속 생각 지도</span></button>
+        <button data-shape-id="image"><strong>Image</strong><span>이미지 넣기</span></button>
       </div>
       <div class="search-box"><span aria-hidden="true">⌕</span><input id="shape-search" type="search" placeholder="도형 검색 · decision, DB…" autocomplete="off" aria-label="라이브러리 검색"></div>
       <div class="panel-actions"><button id="browse-library-btn" class="compact-btn">전체 브라우저</button><a class="compact-link" href="./admin.html" target="_blank" rel="noopener">카탈로그 관리 ↗</a><span class="panel-action-note">기본 도형·SVG·템플릿을 더 넓게 탐색</span></div>
@@ -112,6 +118,15 @@
       <label>표시할 텍스트<textarea id="edit-label-input" rows="4" maxlength="240"></textarea></label>
       <div class="modal-actions"><button type="button" data-close>취소</button><button class="primary-btn" value="default">적용</button></div>
     </form>
+  </dialog>
+
+  <dialog id="share-dialog" class="modal">
+    <div class="modal-card share-modal">
+      <div class="modal-head"><div><span class="eyebrow">SHARE</span><h2>이 다이어그램 공유</h2><p>현재 다이어그램 데이터를 링크 안에 압축해 저장합니다. 별도 서버 업로드가 필요 없습니다.</p></div><button class="icon-btn" data-close aria-label="닫기">×</button></div>
+      <label>공유 링크<textarea id="share-url" rows="5" readonly spellcheck="false"></textarea></label>
+      <p id="share-size" class="form-note"></p>
+      <div class="modal-actions"><button id="native-share-btn" type="button">기기 공유</button><button id="copy-share-btn" class="primary-btn" type="button">링크 복사</button></div>
+    </div>
   </dialog>
 
   <dialog id="export-dialog" class="modal">
