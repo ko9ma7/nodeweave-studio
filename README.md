@@ -25,6 +25,14 @@
 
 한국어 요약: **노드·커넥터 편집, 검색 가능한 도형/템플릿, 스타일 토큰 일괄 변경, 자동 레이아웃, 로컬 저장, SVG/PNG/WebP/HTML/JSON 내보내기를 한 화면에서 처리하는 다이어그램 편집기입니다.**
 
+## v1.7 smart editing
+
+- **Weighted brain maps** — percentages now change the visible region size; small thoughts can move outside the head as readable leader-line callouts.
+- **Flexible smart lists** — brain regions and planner segments can be added, deleted, and reordered instead of staying fixed to starter data.
+- **SVG render modes** — keep original artwork or switch non-destructively to monochrome, outline-only, fill-only, or hybrid outline.
+- **Large-SVG preflight** — path-heavy and editor-authored SVG files are cleaned in a Web Worker before DOM parsing to reduce apparent freezes.
+- **Source artifact on every deployment** — the Pages workflow publishes a complete upload-ready source ZIP in addition to the deployed site artifact.
+
 ## Why NodeWeave
 
 Most diagram tools mix document structure, visual style, and export behavior too tightly. NodeWeave separates them:
