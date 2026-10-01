@@ -2,6 +2,24 @@
 
 All notable changes to NodeWeave Studio are documented here.
 
+## [1.7.0] - 2026-10-01
+
+### Added
+
+- weighted brain-map regions: percentage values now visibly affect region size instead of only changing labels
+- automatic external callouts with curved leader lines for small thoughts, plus per-region Auto / Inside / Callout display modes
+- configurable brain-map callout threshold and support for up to 12 thought regions
+- radial planner leader-line labels for time segments that are too small for readable internal text
+- SVG render modes: Original, Monochrome, Outline only, Fill only, and Hybrid outline
+- editable SVG outline width while preserving the original source SVG non-destructively
+- large-SVG preflight worker that removes common editor metadata, reports complexity, and reduces main-thread work before DOM parsing
+
+### Improved
+
+- SVG import status reporting and complexity metadata
+- planner and brain-map controls use the same flexible add/delete/reorder pattern
+- service-worker shell includes the SVG worker and refreshes to cache v15
+
 ## [1.6.0] - 2026-09-29
 
 ### Added
