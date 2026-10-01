@@ -342,6 +342,21 @@ function alignSelection(mode){const nodes=selectedNodes();if(nodes.length<2){toa
 function loadTemplate(id){const t=TEMPLATES.find(x=>x.id===id);if(!t)return;const theme=themeById(t.theme);commit(()=>{doc.nodes=t.nodes.map(n=>normalizeNode(deepClone(n)));doc.edges=t.edges.map(e=>normalizeEdge(deepClone(e)));doc.tokens=deepClone(theme.tokens);doc.themeId=theme.id;doc.meta={...doc.meta,projectId:uid('project'),name:t.name,updatedAt:new Date().toISOString()};selection={nodeIds:[],edgeId:null};},'템플릿 적용');setTimeout(fitView,0);}
 function applyTheme(id){const t=themeById(id);commit(()=>{doc.tokens=deepClone(t.tokens);doc.themeId=t.id;},`${t.label} 스타일 적용`);}
 
+let svgWorkerInstance=null,svgWorkerSeq=0;
+function svgPreflightStats(text=''){return {bytes:new TextEncoder().encode(text).length,pathCount:(String(text).match(/<path\b/gi)||[]).length};}
+function prepareSvgText(text){
+  const raw=String(text||'');const stats=svgPreflightStats(raw);
+  if(stats.bytes<50000&&stats.pathCount<80)return Promise.resolve({text:raw,stats:{...stats,elementCount:0,optimizedBytes:stats.bytes}});
+  if(!('Worker'in window))return new Promise(resolve=>requestAnimationFrame(()=>resolve({text:raw,stats:{...stats,elementCount:0,optimizedBytes:stats.bytes}})));
+  svgWorkerInstance ||= new Worker('./src/svg-worker.js');
+  const id=++svgWorkerSeq;setStatus(`SVG 분석 중 · ${stats.pathCount} paths`);
+  return new Promise((resolve,reject)=>{
+    const timer=setTimeout(()=>{cleanup();reject(new Error('SVG 분석 시간이 너무 오래 걸립니다. 파일을 최적화한 뒤 다시 시도하세요.'));},15000);
+    const onMessage=e=>{if(e.data?.id!==id)return;cleanup();if(!e.data.ok)reject(new Error(e.data.error||'SVG 분석 실패'));else resolve({text:e.data.cleaned,stats:e.data.stats});};
+    const cleanup=()=>{clearTimeout(timer);svgWorkerInstance?.removeEventListener('message',onMessage);};
+    svgWorkerInstance.addEventListener('message',onMessage);svgWorkerInstance.postMessage({id,text:raw});
+  });
+}
 function sanitizeSvgSource(text,prefix,{normalizeColor=false}={}){
   const parsed=new DOMParser().parseFromString(text,'image/svg+xml');
   if(parsed.querySelector('parsererror'))throw new Error('SVG 문법을 읽을 수 없습니다.');
@@ -360,12 +375,16 @@ function sanitizeSvgSource(text,prefix,{normalizeColor=false}={}){
   return {viewBox,content:root.innerHTML,rootPaint,paintSlots:[...paintSet].slice(0,12)};
 }
 function cleanSourceUrl(value=''){try{const u=new URL(value);return ['http:','https:'].includes(u.protocol)?u.href:'';}catch{return'';}}
-function importSvgText(text,{name='SVG 자산',sourceUrl='',normalizeColor=false,point=viewportCenterWorld()}={}){
-  const prefix=uid('svg');const safe=sanitizeSvgSource(text,prefix,{normalizeColor});
+async function importSvgText(text,{name='SVG 자산',sourceUrl='',normalizeColor=false,point=viewportCenterWorld()}={}){
+  const prepared=await prepareSvgText(text);await new Promise(resolve=>requestAnimationFrame(resolve));
+  setStatus('SVG 정리 및 색상 분석 중');
+  const prefix=uid('svg');const safe=sanitizeSvgSource(prepared.text,prefix,{normalizeColor});
   const nums=String(safe.viewBox).trim().split(/[\s,]+/).map(Number),ratio=nums.length===4&&nums[2]>0&&nums[3]>0?nums[2]/nums[3]:1;
   const longSide=220;let w,h;if(ratio>=1){w=longSide;h=Math.max(72,Math.min(longSide,longSide/ratio));}else{h=longSide;w=Math.max(72,Math.min(longSide,longSide*ratio));}
-  const node={id:uid('node'),type:'custom-svg',x:snap(point.x-w/2),y:snap(point.y-h/2),w:snap(w),h:snap(h),label:'',style:{iconColor:doc.tokens.text,accentColor:doc.tokens.primary,padding:4,portCount:0,lockAspect:true,svgEffect:'none',svgFit:'contain',svgPaintMode:'original',svgStrokeWidth:1.8},customSvg:{...safe,name:name||'SVG 자산',origin:'user-import',sourceUrl:cleanSourceUrl(sourceUrl),mode:'icon',labelPosition:'none'}};
-  commit(()=>{doc.nodes.push(node);selection={nodeIds:[node.id],edgeId:null};},'SVG 자산 추가');toast('SVG 원본 비율과 색상 속성을 보존해 추가했습니다.','success');return node;
+  const complexity=prepared.stats?.pathCount||0;
+  const defaultPaintMode=complexity>120?'original':'original';
+  const node={id:uid('node'),type:'custom-svg',x:snap(point.x-w/2),y:snap(point.y-h/2),w:snap(w),h:snap(h),label:'',style:{iconColor:doc.tokens.text,accentColor:doc.tokens.primary,padding:4,portCount:0,lockAspect:true,svgEffect:'none',svgFit:'contain',svgPaintMode:defaultPaintMode,svgStrokeWidth:1.8},customSvg:{...safe,name:name||'SVG 자산',origin:'user-import',sourceUrl:cleanSourceUrl(sourceUrl),mode:'icon',labelPosition:'none',complexity:{pathCount:complexity,bytes:prepared.stats?.bytes||0,optimizedBytes:prepared.stats?.optimizedBytes||0}}};
+  commit(()=>{doc.nodes.push(node);selection={nodeIds:[node.id],edgeId:null};},'SVG 자산 추가');setStatus('SVG 추가 완료');toast(complexity>120?`복잡한 SVG(${complexity} paths)를 최적화해 추가했습니다.`:'SVG 원본 비율과 색상 속성을 보존해 추가했습니다.','success');return node;
 }
 async function importSvgShape(file,point=viewportCenterWorld()){
   return importSvgText(await file.text(),{name:file.name.replace(/\.svg$/i,'')||'SVG 자산',point});
@@ -489,7 +508,7 @@ $('#import-input').addEventListener('change',async e=>{const file=e.target.files
 $('#svg-import-input').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{await importSvgShape(file);closeDialog('#project-dialog');}catch(err){toast(err.message||'SVG 도형을 가져오지 못했습니다.','error');}e.target.value='';});
 
 $('#svg-read-clipboard')?.addEventListener('click',readSvgClipboard);
-$('#svg-paste-form').addEventListener('submit',e=>{e.preventDefault();try{const text=$('#svg-paste-input').value.trim();if(!text)throw new Error('SVG 코드를 입력하세요.');importSvgText(text,{name:$('#svg-asset-name').value.trim()||'SVG 자산',sourceUrl:$('#svg-source-url').value.trim(),normalizeColor:$('#svg-normalize-color').checked});closeDialog('#svg-paste-dialog');}catch(err){toast(err.message||'SVG를 추가하지 못했습니다.','error');}});
+$('#svg-paste-form').addEventListener('submit',async e=>{e.preventDefault();try{const text=$('#svg-paste-input').value.trim();if(!text)throw new Error('SVG 코드를 입력하세요.');await importSvgText(text,{name:$('#svg-asset-name').value.trim()||'SVG 자산',sourceUrl:$('#svg-source-url').value.trim(),normalizeColor:$('#svg-normalize-color').checked});closeDialog('#svg-paste-dialog');}catch(err){toast(err.message||'SVG를 추가하지 못했습니다.','error');setStatus('SVG 가져오기 실패');}});
 
 $('#export-dialog').addEventListener('click',async e=>{
   const b=e.target.closest('[data-export]');if(!b)return;const format=b.dataset.export;const background=$('#export-background').checked;const scale=Number($('#export-scale').value)||2;doc.settings.exportBackground=background;doc.settings.exportScale=scale;scheduleSave();
@@ -518,10 +537,10 @@ window.addEventListener('keydown',e=>{
   if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)&&selection.nodeIds.length){e.preventDefault();const step=e.shiftKey?doc.settings.gridSize:1;const prev=snapshot();selectedNodes().forEach(n=>{if(e.key==='ArrowLeft')n.x-=step;if(e.key==='ArrowRight')n.x+=step;if(e.key==='ArrowUp')n.y-=step;if(e.key==='ArrowDown')n.y+=step;});pushHistory(prev);scheduleSave();renderCanvas();}
 });
 
-window.addEventListener('paste',e=>{
+window.addEventListener('paste',async e=>{
   const input=['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)||document.activeElement?.isContentEditable;if(input)return;
   const text=e.clipboardData?.getData('text/plain')?.trim()||'';
-  if(/^<svg[\s>]/i.test(text)){e.preventDefault();try{importSvgText(text,{name:'붙여넣은 SVG'});}catch(err){toast(err.message||'SVG를 붙여넣지 못했습니다.','error');}return;}
+  if(/^<svg[\s>]/i.test(text)){e.preventDefault();try{await importSvgText(text,{name:'붙여넣은 SVG'});}catch(err){toast(err.message||'SVG를 붙여넣지 못했습니다.','error');}return;}
   if(text.startsWith('{')){try{const payload=JSON.parse(text);if(payload?.type==='nodeweave-selection'&&Array.isArray(payload.nodes)){e.preventDefault();internalClipboard=payload;pasteSelection(payload);return;}}catch{}}
   if(internalClipboard){e.preventDefault();pasteSelection();}
 });
