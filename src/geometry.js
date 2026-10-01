@@ -63,7 +63,7 @@ function radialPlanMarkup(node,tokens){
 function brainMapMarkup(node,tokens){
   const {x,y,w=720,h=620}=node;
   const d=node.data||{};
-  const regs=(Array.isArray(d.regions)?d.regions:[]).slice(0,10);
+  const regs=(Array.isArray(d.regions)?d.regions:[]).slice(0,12);
   const colors=['#c4b5fd','#93c5fd','#f9a8d4','#86efac','#fde68a','#fdba74','#a5f3fc','#fca5a5','#bfdbfe','#d9f99d'];
   const X=a=>x+w*a,Y=a=>y+h*a;
   const silhouette=d.silhouette||'profile-left';
@@ -153,24 +153,55 @@ function brainMapMarkup(node,tokens){
   }
 
   const slots=slotsFor(regs.length||1);
-  const avg=regs.length?regs.reduce((sum,r)=>sum+Math.max(0,Number(r.percent)||0),0)/regs.length:0;
+  const weights=regs.map(r=>Math.max(0,Number(r.percent)||0));
+  const positive=weights.filter(Boolean),avg=positive.length?positive.reduce((sum,v)=>sum+v,0)/positive.length:1;
+  const threshold=Math.max(1,Math.min(20,Number(d.calloutThreshold??7)));
   const regionStroke=Math.max(1.15,Number(tokens.nodeStrokeWidth)||1.5);
   const baseFont=Math.max(9.5,Math.min(17,w/(42+Math.max(0,regs.length-6)*3)));
+  const callouts=[];
   let regions='';
   regs.forEach((r,i)=>{
     const slot=slots[i]||slots.at(-1)||{cx:.5,cy:.45,rx:.15,ry:.11};
     const color=r.color||colors[i%colors.length];
     const pct=Math.max(0,Math.min(100,Number(r.percent)||0));
-    const ratio=avg>0?pct/avg:1;
-    const sizeScale=Math.max(.88,Math.min(1.08,.96+(ratio-1)*.08));
+    const display=r.display||'auto';
+    const useCallout=display==='callout'||(display!=='inside'&&d.autoCallout!==false&&pct>0&&pct<=threshold);
+    if(useCallout){callouts.push({i,r,slot,color,pct});return;}
+    const ratio=avg>0?Math.max(.05,pct||avg)/avg:1;
+    const sizeScale=Math.max(.62,Math.min(1.52,Math.sqrt(ratio)));
     const labelRaw=String(r.label||`생각 ${i+1}`);
-    const labelWidth=slot.rx*2*w*.78;
-    const lines=wrapLabel(labelRaw,labelWidth,baseFont,2);
-    const lineH=baseFont*1.12;
+    const labelWidth=slot.rx*2*w*.78*sizeScale;
+    const font=Math.max(8.8,Math.min(baseFont,baseFont*(.88+Math.min(1,sizeScale)*.16)));
+    const lines=wrapLabel(labelRaw,labelWidth,font,2);
+    const lineH=font*1.12;
     const labelY=Y(slot.cy)-(lines.length-1)*lineH/2-(d.showPercent===false?0:6);
     regions+=`<path d="${blobPath(slot,i,sizeScale)}" fill="${esc(color)}" fill-opacity=".29" stroke="${esc(tokens.text)}" stroke-opacity=".76" stroke-width="${regionStroke}" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
-      <text x="${X(slot.cx)}" y="${labelY}" text-anchor="middle" fill="${esc(tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="${baseFont}" font-weight="800">${lines.map((line,j)=>`<tspan x="${X(slot.cx)}" dy="${j===0?0:lineH}">${esc(line)}</tspan>`).join('')}</text>
+      <text x="${X(slot.cx)}" y="${labelY}" text-anchor="middle" fill="${esc(tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="${font}" font-weight="800">${lines.map((line,j)=>`<tspan x="${X(slot.cx)}" dy="${j===0?0:lineH}">${esc(line)}</tspan>`).join('')}</text>
       ${d.showPercent===false?'':`<rect x="${X(slot.cx)-22}" y="${Y(slot.cy)+18}" width="44" height="18" rx="9" fill="${esc(color)}" fill-opacity=".30"/><text x="${X(slot.cx)}" y="${Y(slot.cy)+31}" text-anchor="middle" fill="${esc(tokens.text)}" opacity=".72" font-family="${esc(tokens.fontFamily)}" font-size="9.5" font-weight="800">${pct}%</text>`}`;
+  });
+  function distributeCallouts(items,side){
+    const sorted=[...items].sort((u,v)=>u.slot.cy-v.slot.cy);
+    const minY=.18,maxY=.78,gap=.075;
+    let last=minY-gap;
+    sorted.forEach(item=>{item.labelY=Math.max(minY,Math.min(maxY,item.slot.cy));if(item.labelY-last<gap)item.labelY=last+gap;last=item.labelY;});
+    if(sorted.length&&sorted.at(-1).labelY>maxY){const shift=sorted.at(-1).labelY-maxY;sorted.forEach(item=>item.labelY-=shift);}
+    return sorted.map(item=>({...item,side}));
+  }
+  const left=[],right=[];
+  callouts.forEach(item=>(item.slot.cx<.5?left:right).push(item));
+  const placed=[...distributeCallouts(left,'left'),...distributeCallouts(right,'right')];
+  let calloutMarkup='';
+  placed.forEach(item=>{
+    const {r,slot,color,pct,side,labelY}=item;
+    const seedX=X(slot.cx),seedY=Y(slot.cy),outerX=X(side==='left'?.025:.975),elbowX=X(side==='left'?.105:.895),labelX=X(side==='left'?.035:.965);
+    const anchor=side==='left'?'start':'end';
+    const label=String(r.label||'작은 생각');
+    const lines=wrapLabel(label,w*.18,11,2),lineH=12.5;
+    const textY=Y(labelY)-(lines.length-1)*lineH/2;
+    calloutMarkup+=`<circle cx="${seedX}" cy="${seedY}" r="${Math.max(3,Math.min(7,3+pct*.35))}" fill="${esc(color)}" stroke="${esc(tokens.text)}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>
+      <path d="M ${seedX} ${seedY} C ${(seedX+elbowX)/2} ${seedY}, ${elbowX} ${Y(labelY)}, ${outerX} ${Y(labelY)}" fill="none" stroke="${esc(tokens.text)}" stroke-width="1.25" opacity=".62" vector-effect="non-scaling-stroke"/>
+      <text x="${labelX}" y="${textY}" text-anchor="${anchor}" fill="${esc(tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="11" font-weight="800">${lines.map((line,j)=>`<tspan x="${labelX}" dy="${j===0?0:lineH}">${esc(line)}</tspan>`).join('')}</text>
+      ${d.showPercent===false?'':`<text x="${labelX}" y="${textY+lines.length*lineH+3}" text-anchor="${anchor}" fill="${esc(color)}" font-family="${esc(tokens.fontFamily)}" font-size="10" font-weight="850">${pct}%</text>`}`;
   });
   const total=regs.reduce((sum,r)=>sum+(Number(r?.percent)||0),0);
   const title=esc(d.title||'내 머릿속');
@@ -180,6 +211,7 @@ function brainMapMarkup(node,tokens){
     <defs><clipPath id="${clipId}"><path d="${head}"/></clipPath></defs>
     <path d="${head}" fill="${esc(tokens.surface)}" fill-opacity=".58" stroke="${esc(tokens.text)}" stroke-width="2.35" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
     <g clip-path="url(#${clipId})">${regions}</g>
+    ${calloutMarkup}
     ${silhouette==='profile-left'||silhouette==='profile-right'?`<circle cx="${eyeX}" cy="${eyeY}" r="${Math.max(2,w*.0035)}" fill="${esc(tokens.text)}" opacity=".55"/>`:''}
     <text x="${X(.50)}" y="${Y(silhouette==='brain'?.86:.875)}" text-anchor="middle" fill="${esc(tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="16" font-weight="850">${title}</text>
     <text x="${X(.50)}" y="${Y(silhouette==='brain'?.895:.91)}" text-anchor="middle" fill="${esc(tokens.muted||tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="11" font-weight="700">합계 ${total}% · ${regs.length}개 영역</text>
