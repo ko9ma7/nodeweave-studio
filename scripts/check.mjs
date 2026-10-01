@@ -1,6 +1,6 @@
 import { readFile, access, readdir } from 'node:fs/promises';import { spawnSync } from 'node:child_process';import path from 'node:path';
 const root=path.resolve(import.meta.dirname,'..');let failures=[];
-for(const file of ['src/app.js','src/catalog.js','src/catalog-loader.js','src/geometry.js','src/export.js','src/storage.js','sw.js','scripts/build.mjs','scripts/serve.mjs']){
+for(const file of ['src/app.js','src/catalog.js','src/catalog-loader.js','src/geometry.js','src/export.js','src/storage.js','src/svg-worker.js','sw.js','scripts/build.mjs','scripts/serve.mjs']){
   const r=spawnSync(process.execPath,['--check',path.join(root,file)],{encoding:'utf8'});if(r.status!==0)failures.push(`${file}: ${r.stderr||r.stdout}`);
 }
 for(const file of ['index.html','admin.html','src/styles.css','catalog/index.json','catalog/library.json','catalog/styles.json','assets/favicon.svg','assets/favicon-32x32.png','assets/apple-touch-icon.png','assets/icon-192.png','assets/icon-512.png','assets/og-image.png','manifest.webmanifest','404.html','.github/workflows/deploy.yml','github-bootstrap.cmd','README.md']){try{await access(path.join(root,file));}catch{failures.push(`missing: ${file}`)}}
