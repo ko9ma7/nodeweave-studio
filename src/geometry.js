@@ -245,6 +245,33 @@ function applySvgPaintOverrides(content,overrides={}){
   }
   return out;
 }
+function applySvgRenderMode(content,mode,color,strokeWidth=1.8){
+  let out=String(content||'');
+  const paint=(attr,value)=>new RegExp(attr+'=(["\\\'])'+value+'\\1','gi');
+  const replaceAttr=(attr,replacer)=>{out=out.replace(new RegExp(attr+'=(["\\\'])(.*?)\\1','gi'),(m,q,v)=>replacer(v,q));};
+  if(mode==='original')return {content:out,groupAttrs:''};
+  if(mode==='monochrome'){
+    replaceAttr('fill',(v,q)=>/^(none|transparent)$/i.test(v)?`fill=${q}${v}${q}`:/^url\(/i.test(v)?`fill=${q}${color}${q}`:`fill=${q}${color}${q}`);
+    replaceAttr('stroke',(v,q)=>/^(none|transparent)$/i.test(v)?`stroke=${q}${v}${q}`:`stroke=${q}${color}${q}`);
+    return {content:out,groupAttrs:`fill="${esc(color)}" color="${esc(color)}"`};
+  }
+  if(mode==='outline'){
+    replaceAttr('fill',(_v,q)=>`fill=${q}none${q}`);
+    replaceAttr('stroke',(_v,q)=>`stroke=${q}${color}${q}`);
+    return {content:out,groupAttrs:`fill="none" stroke="${esc(color)}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"`};
+  }
+  if(mode==='fill'){
+    replaceAttr('fill',(v,q)=>/^(none|transparent)$/i.test(v)?`fill=${q}${v}${q}`:`fill=${q}${color}${q}`);
+    replaceAttr('stroke',(_v,q)=>`stroke=${q}none${q}`);
+    return {content:out,groupAttrs:`fill="${esc(color)}" stroke="none" color="${esc(color)}"`};
+  }
+  if(mode==='hybrid'){
+    replaceAttr('fill',(v,q)=>/^(none|transparent)$/i.test(v)?`fill=${q}none${q}`:`fill=${q}${color}${q}`);
+    replaceAttr('stroke',(_v,q)=>`stroke=${q}${color}${q}`);
+    return {content:out,groupAttrs:`fill="${esc(color)}" fill-opacity=".14" stroke="${esc(color)}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round" color="${esc(color)}" vector-effect="non-scaling-stroke"`};
+  }
+  return {content:out,groupAttrs:''};
+}
 function svgEffectDef(id,effect,color,accent){
   if(effect==='shadow')return `<filter id="${id}" x="-35%" y="-35%" width="170%" height="180%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity=".24"/></filter>`;
   if(effect==='glow')return `<filter id="${id}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur in="SourceAlpha" stdDeviation="3.2" result="b"/><feFlood flood-color="${esc(accent)}" flood-opacity=".72" result="c"/><feComposite in="c" in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
@@ -274,6 +301,8 @@ export function shapePrimitive(node, tokens, extraClass='') {
     const bg=node.style?.iconBackground??'transparent';
     const effect=node.style?.svgEffect||'none';
     const fit=node.style?.svgFit||'contain';
+    const paintMode=node.style?.svgPaintMode||'original';
+    const svgStrokeWidth=Math.max(.4,Math.min(8,Number(node.style?.svgStrokeWidth)||1.8));
     const preserve=fit==='stretch'?'none':fit==='cover'?'xMidYMid slice':'xMidYMid meet';
     const effectId=`svgfx-${String(node.id||'node').replace(/[^a-zA-Z0-9_-]/g,'')}`;
     const effectDef=svgEffectDef(effectId,effect,iconColor,accentColor);
@@ -291,8 +320,10 @@ export function shapePrimitive(node, tokens, extraClass='') {
     const badge=effect==='badge'?`<rect x="${vx+vw*.04}" y="${vy+vh*.04}" width="${vw*.92}" height="${vh*.92}" rx="${Math.min(vw,vh)*.16}" fill="${esc(accentColor)}" opacity=".14"/>`:'';
     const bgRect=bg&&bg!=='transparent'?`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.min(Math.max(8,r),Math.min(w,h)/2)}" fill="${esc(bg)}" opacity="${s.opacity}"/>`:'';
     const transform=`translate(${cx} ${cy}) rotate(${rotation}) scale(${sx} ${sy}) translate(${-cx} ${-cy})`;
-    const content=applySvgPaintOverrides(node.customSvg.content,node.customSvg.paintOverrides);
-    return `${bgRect}<svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="${esc(vb)}" preserveAspectRatio="${preserve}" overflow="visible" color="${esc(iconColor)}" opacity="${s.opacity}" class="node-shape ${extraClass}" ${rootAttrs}>${effectDef?`<defs>${effectDef}</defs>`:''}${badge}<g transform="${transform}" ${filterAttr}>${content}</g></svg>`;
+    const sourceContent=applySvgPaintOverrides(node.customSvg.content,node.customSvg.paintOverrides);
+    const rendered=applySvgRenderMode(sourceContent,paintMode,iconColor,svgStrokeWidth);
+    const effectiveRootAttrs=paintMode==='original'?rootAttrs:'';
+    return `${bgRect}<svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="${esc(vb)}" preserveAspectRatio="${preserve}" overflow="visible" color="${esc(iconColor)}" opacity="${s.opacity}" class="node-shape ${extraClass}" ${effectiveRootAttrs}>${effectDef?`<defs>${effectDef}</defs>`:''}${badge}<g transform="${transform}" ${rendered.groupAttrs} ${filterAttr}>${rendered.content}</g></svg>`;
   }
   if (type === 'decision' || type === 'gateway') {
     const inner=type==='gateway'?`<path d="M ${x+w*.38} ${y+h*.38} L ${x+w*.62} ${y+h*.62} M ${x+w*.62} ${y+h*.38} L ${x+w*.38} ${y+h*.62}" fill="none" stroke="${esc(s.stroke)}" stroke-width="${Math.max(1,s.strokeWidth)}" vector-effect="non-scaling-stroke"/>`:'';
