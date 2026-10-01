@@ -1,5 +1,5 @@
-const CACHE='nodeweave-v14';
-const SHELL=['./','./index.html','./src/styles.css','./src/app.js','./src/catalog.js','./src/catalog-loader.js','./src/geometry.js','./src/export.js','./src/storage.js','./catalog/index.json','./catalog/library.json','./catalog/styles.json','./admin.html','./assets/favicon.svg','./manifest.webmanifest'];
+const CACHE='nodeweave-v15';
+const SHELL=['./','./index.html','./src/styles.css','./src/app.js','./src/catalog.js','./src/catalog-loader.js','./src/geometry.js','./src/export.js','./src/storage.js','./src/svg-worker.js','./catalog/index.json','./catalog/library.json','./catalog/styles.json','./admin.html','./assets/favicon.svg','./manifest.webmanifest'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
 async function networkFirst(request){const cache=await caches.open(CACHE);try{const response=await fetch(request);if(response.ok&&new URL(request.url).origin===location.origin)cache.put(request,response.clone());return response;}catch{const cached=await cache.match(request);return cached||cache.match('./index.html');}}
