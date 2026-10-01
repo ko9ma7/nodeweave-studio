@@ -53,7 +53,27 @@ function radialPlanMarkup(node,tokens){
   const palette=['#6366f1','#22c55e','#f59e0b','#ec4899','#06b6d4','#8b5cf6','#ef4444','#84cc16'];
   const ring=`<circle cx="${cx}" cy="${cy}" r="${outer}" fill="${esc(tokens.surface)}" stroke="${esc(tokens.border)}" stroke-width="1.5" opacity=".98"/><circle cx="${cx}" cy="${cy}" r="${inner}" fill="${esc(tokens.canvas)}" stroke="${esc(tokens.border)}" stroke-width="1.2"/>`;
   let segMarkup='';let assigned=0;
-  segments.forEach((seg,i)=>{let start=Number(seg.start)||0,end=Number(seg.end)||0;start=((start%total)+total)%total;end=((end%total)+total)%total;let duration=(end-start+total)%total;if(duration===0&&String(seg.end)!==String(seg.start))duration=total;if(duration<=0)return;assigned+=duration;const a0=-Math.PI/2+(start/total)*Math.PI*2;const a1=a0+(duration/total)*Math.PI*2;const color=seg.color||palette[i%palette.length];const path=duration>=total-.001?`<circle cx="${cx}" cy="${cy}" r="${(outer+inner)/2}" fill="none" stroke="${esc(color)}" stroke-width="${outer-inner}"/>`:`<path d="${donutPath(cx,cy,outer,inner,a0,a1)}" fill="${esc(color)}" stroke="${esc(tokens.canvas)}" stroke-width="2"/>`;const mid=a0+(a1-a0)/2,lr=(outer+inner)/2,labelPt=polar(cx,cy,lr,mid);const show=duration>=total/24*.8;segMarkup+=`${path}${show?`<text x="${labelPt.x}" y="${labelPt.y-4}" text-anchor="middle" dominant-baseline="middle" fill="${esc(seg.textColor||'#ffffff')}" font-family="${esc(tokens.fontFamily)}" font-size="${Math.max(9,Math.min(13,outer/20))}" font-weight="750" paint-order="stroke" stroke="rgba(0,0,0,.18)" stroke-width="2">${esc(seg.label||'활동')}</text><text x="${labelPt.x}" y="${labelPt.y+11}" text-anchor="middle" dominant-baseline="middle" fill="${esc(seg.textColor||'#ffffff')}" font-family="${esc(tokens.fontFamily)}" font-size="9" font-weight="650">${duration}h</text>`:''}`;});
+  const smallMode=data.smallArcLabelMode||'outside';
+  segments.forEach((seg,i)=>{
+    let start=Number(seg.start)||0,end=Number(seg.end)||0;
+    start=((start%total)+total)%total;end=((end%total)+total)%total;
+    let duration=(end-start+total)%total;if(duration===0&&String(seg.end)!==String(seg.start))duration=total;if(duration<=0)return;
+    assigned+=duration;
+    const a0=-Math.PI/2+(start/total)*Math.PI*2,a1=a0+(duration/total)*Math.PI*2;
+    const color=seg.color||palette[i%palette.length];
+    const path=duration>=total-.001?`<circle cx="${cx}" cy="${cy}" r="${(outer+inner)/2}" fill="none" stroke="${esc(color)}" stroke-width="${outer-inner}"/>`:`<path d="${donutPath(cx,cy,outer,inner,a0,a1)}" fill="${esc(color)}" stroke="${esc(tokens.canvas)}" stroke-width="2"/>`;
+    const mid=a0+(a1-a0)/2,lr=(outer+inner)/2,labelPt=polar(cx,cy,lr,mid);
+    const compact=duration<Math.max(.9,total/24*.9);
+    let label='';
+    if(!compact||smallMode==='inside'){
+      label=`<text x="${labelPt.x}" y="${labelPt.y-4}" text-anchor="middle" dominant-baseline="middle" fill="${esc(seg.textColor||'#ffffff')}" font-family="${esc(tokens.fontFamily)}" font-size="${Math.max(9,Math.min(13,outer/20))}" font-weight="750" paint-order="stroke" stroke="rgba(0,0,0,.18)" stroke-width="2">${esc(seg.label||'활동')}</text><text x="${labelPt.x}" y="${labelPt.y+11}" text-anchor="middle" dominant-baseline="middle" fill="${esc(seg.textColor||'#ffffff')}" font-family="${esc(tokens.fontFamily)}" font-size="9" font-weight="650">${Math.round(duration*10)/10}h</text>`;
+    }else if(smallMode==='outside'){
+      const edge=polar(cx,cy,outer-2,mid),elbow=polar(cx,cy,outer+20,mid),right=Math.cos(mid)>=0;
+      const tx=elbow.x+(right?22:-22),anchor=right?'start':'end';
+      label=`<path d="M ${edge.x} ${edge.y} L ${elbow.x} ${elbow.y} L ${tx} ${elbow.y}" fill="none" stroke="${esc(tokens.text)}" stroke-width="1.15" opacity=".58" vector-effect="non-scaling-stroke"/><circle cx="${edge.x}" cy="${edge.y}" r="2.3" fill="${esc(color)}"/><text x="${tx+(right?3:-3)}" y="${elbow.y-3}" text-anchor="${anchor}" fill="${esc(tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="10" font-weight="800">${esc(seg.label||'활동')}</text><text x="${tx+(right?3:-3)}" y="${elbow.y+10}" text-anchor="${anchor}" fill="${esc(color)}" font-family="${esc(tokens.fontFamily)}" font-size="9" font-weight="800">${Math.round(duration*10)/10}h</text>`;
+    }
+    segMarkup+=path+label;
+  });
   let ticks='';const tickEvery=total===24?1:1;for(let i=0;i<total;i+=tickEvery){const a=-Math.PI/2+(i/total)*Math.PI*2;const p1=polar(cx,cy,outer+5,a),p2=polar(cx,cy,outer+(i%(total===24?3:1)===0?15:10),a);ticks+=`<path d="M ${p1.x} ${p1.y} L ${p2.x} ${p2.y}" stroke="${esc(tokens.text)}" stroke-width="${i%(total===24?3:1)===0?1.6:1}" opacity="${i%(total===24?3:1)===0?.65:.3}"/>`;if(total===12||i%3===0){const tp=polar(cx,cy,outer+27,a);ticks+=`<text x="${tp.x}" y="${tp.y}" text-anchor="middle" dominant-baseline="middle" fill="${esc(tokens.muted||tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="10" font-weight="700">${i}</text>`;}}
   const title=esc(data.title||`${total}시간 생활계획`),summary=`${Math.round(assigned*10)/10}/${total}h`;
   const center=`<text x="${cx}" y="${cy-8}" text-anchor="middle" fill="${esc(tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="${Math.max(16,outer/14)}" font-weight="800">${title}</text><text x="${cx}" y="${cy+18}" text-anchor="middle" fill="${esc(tokens.muted||tokens.text)}" font-family="${esc(tokens.fontFamily)}" font-size="12" font-weight="700">${summary}</text>`;
